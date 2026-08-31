@@ -387,7 +387,10 @@ export const LandingPage: React.FC = () => {
 
       {/* FINAL CTA */}
       <section className="max-w-5xl mx-auto px-4 text-center space-y-6">
-        <div className="glass-card bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white p-12 rounded-3xl shadow-2xl space-y-6">
+        <div 
+          className="bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white p-12 rounded-3xl shadow-2xl space-y-6"
+          style={{ background: 'linear-gradient(to right, #4A2E1B, #C85A32)', color: '#ffffff' }}
+        >
           <h2 className="font-display font-extrabold text-3xl sm:text-4xl text-white">
             Bring Your Craft Online Today
           </h2>

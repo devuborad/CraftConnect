@@ -12,7 +12,6 @@
   --color-saffron: #D97706;
   --color-saffron-light: #F59E0B;
   --color-bg-warm: #FAF7F2;
-  --color-bg-[#FAF7F2]: #FAF7F2;
   --color-bg-card: #FFFFFF;
   --color-text-main: #1C1917;
   --color-text-muted: #78716C;
@@ -67,10 +66,12 @@ body {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(200, 90, 50, 0.4);
   }
+
   70% {
     transform: scale(1.08);
     box-shadow: 0 0 0 16px rgba(200, 90, 50, 0);
   }
+
   100% {
     transform: scale(0.95);
     box-shadow: 0 0 0 0 rgba(200, 90, 50, 0);
@@ -98,4 +99,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #A8A29E;
-}
+}
