@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AppProvider } from './context/AppContext';
-import { DemoBar } from './components/layout/DemoBar';
 import { Navbar } from './components/layout/Navbar';
 import { Footer } from './components/layout/Footer';
 import { CraftMateAssistant } from './components/ai/CraftMateAssistant';
@@ -26,7 +25,6 @@ export const App: React.FC = () => {
     <AppProvider>
       <Router>
         <div className="min-h-screen flex flex-col font-sans bg-[#FAF7F2] text-stone-950 antialiased selection:bg-amber-200 selection:text-amber-900">
-          <DemoBar />
           <Navbar />
           <Toast />
 
