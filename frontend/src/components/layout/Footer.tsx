@@ -1,0 +1,134 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Heart, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
+
+export const Footer: React.FC = () => {
+  return (
+    <footer className="bg-[#1C1917] text-stone-300 pt-16 pb-12 border-t border-stone-800 relative overflow-hidden">
+      {/* Decorative background element */}
+      <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-amber-900/10 blur-3xl pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-stone-800">
+          
+          {/* Brand & Purpose */}
+          <div className="space-y-4 md:col-span-1">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C85A32] to-amber-600 flex items-center justify-center text-white font-bold">
+                C
+              </div>
+              <span className="font-display text-xl font-bold text-white tracking-tight">
+                CraftConnect <span className="text-amber-400">AI</span>
+              </span>
+            </div>
+            <p className="text-xs text-stone-400 leading-relaxed">
+              Empowering rural and marginalized Indian artisans to bring authentic handmade heritage online using voice-first AI cataloguing and smart fair pricing.
+            </p>
+            <div className="flex items-center space-x-2 text-xs text-amber-400/90 bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-800 w-fit">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Voice AI in Gujarati, Hindi & English</span>
+            </div>
+          </div>
+
+          {/* Platform Links */}
+          <div>
+            <h4 className="font-display font-semibold text-white text-sm mb-4">Artisan Platform</h4>
+            <ul className="space-y-2.5 text-xs text-stone-400">
+              <li>
+                <Link to="/artisan/products/new" className="hover:text-amber-400 transition-colors">
+                  📷 Add Product & AI Studio
+                </Link>
+              </li>
+              <li>
+                <Link to="/artisan/dashboard" className="hover:text-amber-400 transition-colors">
+                  🎤 Voice Speech-to-Text Catalogue
+                </Link>
+              </li>
+              <li>
+                <Link to="/artisan/dashboard" className="hover:text-amber-400 transition-colors">
+                  💰 AI Fair Price Assistant
+                </Link>
+              </li>
+              <li>
+                <Link to="/language" className="hover:text-amber-400 transition-colors">
+                  🌐 Language Selection
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Buyers & Marketplace */}
+          <div>
+            <h4 className="font-display font-semibold text-white text-sm mb-4">Buyers & Retailers</h4>
+            <ul className="space-y-2.5 text-xs text-stone-400">
+              <li>
+                <Link to="/marketplace" className="hover:text-amber-400 transition-colors">
+                  🛍️ Discover Handmade India
+                </Link>
+              </li>
+              <li>
+                <Link to="/buyer/dashboard" className="hover:text-amber-400 transition-colors">
+                  📦 Bulk Order Inquiries
+                </Link>
+              </li>
+              <li>
+                <Link to="/about" className="hover:text-amber-400 transition-colors">
+                  🤝 Direct Artisan Impact
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin" className="hover:text-amber-400 transition-colors">
+                  🛡️ Admin Moderation Dashboard
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Social Impact / Trust */}
+          <div className="space-y-3">
+            <h4 className="font-display font-semibold text-white text-sm mb-2">Hackathon Impact Metrics</h4>
+            <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-stone-400">Artisans Onboarded</span>
+                <span className="font-bold text-amber-400">1,240+</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-stone-400">Products Catalogued</span>
+                <span className="font-bold text-emerald-400">3,850+</span>
+              </div>
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-stone-400">Buyer Inquiries</span>
+                <span className="font-bold text-amber-400">890+</span>
+              </div>
+              <div className="pt-2 text-[10px] text-stone-500 flex items-center justify-between border-t border-stone-800">
+                <span className="flex items-center space-x-1">
+                  <MapPin className="w-3 h-3 text-amber-500" />
+                  <span>Kutch, Jaipur, Madhubani</span>
+                </span>
+                <span className="text-stone-400 font-semibold">[DEMO DATA]</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Legal */}
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-4">
+          <div className="flex items-center space-x-1">
+            <span>Made with</span>
+            <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline" />
+            <span>for Rural Indian Artisans • Hackathon Edition</span>
+          </div>
+
+          <div className="flex items-center space-x-6">
+            <span className="flex items-center space-x-1 text-stone-400">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Verified Direct Artisan Payments</span>
+            </span>
+            <Link to="/about" className="hover:underline">Privacy Policy</Link>
+            <Link to="/about" className="hover:underline">Terms of Platform</Link>
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};
