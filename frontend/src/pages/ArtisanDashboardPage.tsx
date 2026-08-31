@@ -16,7 +16,7 @@ import { useApp } from '../context/AppContext';
 
 export const ArtisanDashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { showToast } = useApp();
+  const { showToast, userName } = useApp();
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
@@ -34,7 +34,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <span>ARTISAN STUDIO DASHBOARD</span>
           </div>
           <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-stone-900">
-            Good morning, Meena 👋
+            Good morning, {userName} 👋
           </h1>
           <p className="text-sm text-stone-600">
             Let's bring your authentic handloom craft to more urban buyers and retail stores today.

@@ -5,7 +5,7 @@ import { Clock } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 
 export const ArtisanInquiriesPage: React.FC = () => {
-  const { showToast } = useApp();
+  const { showToast, addNotification } = useApp();
   const [inquiries, setInquiries] = useState<BulkInquiry[]>([]);
   const [counterInputId, setCounterInputId] = useState<string | null>(null);
   const [counterPrice, setCounterPrice] = useState<number>(0);
@@ -15,11 +15,34 @@ export const ArtisanInquiriesPage: React.FC = () => {
   }, []);
 
   const handleAction = async (id: string, action: 'ACCEPTED' | 'COUNTERED' | 'DECLINED', cPrice?: number) => {
+    const targetInq = inquiries.find((item) => item.id === id);
     await inquiryService.updateStatus(id, action, cPrice);
     setInquiries((prev) =>
       prev.map((item) => (item.id === id ? { ...item, status: action, counterPrice: cPrice } : item))
     );
     setCounterInputId(null);
+
+    // Notify Buyer dynamically
+    if (targetInq) {
+      if (action === 'ACCEPTED') {
+        addNotification({
+          targetRole: 'BUYER',
+          title: 'Inquiry Accepted 🎉',
+          message: `${targetInq.artisanName} accepted your order for "${targetInq.productTitle}".`,
+          type: 'order',
+          link: '/buyer/dashboard'
+        });
+      } else if (action === 'COUNTERED') {
+        addNotification({
+          targetRole: 'BUYER',
+          title: 'Counter Offer Received 💬',
+          message: `${targetInq.artisanName} sent counter quote ₹${cPrice} for "${targetInq.productTitle}".`,
+          type: 'inquiry',
+          link: '/buyer/dashboard'
+        });
+      }
+    }
+
     showToast(`Inquiry ${action.toLowerCase()}!`, 'Buyer notified via SMS and email', 'success');
   };
 
