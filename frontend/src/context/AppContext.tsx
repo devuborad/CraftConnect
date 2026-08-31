@@ -303,11 +303,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const showToast = (title: string, message?: string, type: 'success' | 'info' | 'warning' | 'error' = 'success') => {
-    const id = `toast-${Date.now()}`;
-    setToasts((prev) => [...prev, { id, title, message, type }]);
-    setTimeout(() => {
-      removeToast(id);
-    }, 4000);
+    setToasts((prev) => {
+      // Prevent duplicate toasts with identical title and message
+      if (prev.some((t) => t.title === title && t.message === message)) {
+        return prev;
+      }
+      const id = `toast-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      setTimeout(() => {
+        removeToast(id);
+      }, 3500);
+      return [...prev, { id, title, message, type }];
+    });
   };
 
   const removeToast = (id: string) => {
@@ -315,32 +321,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const toggleSaveProduct = (productId: string) => {
+    let isSavedNow = false;
     setSavedProductIds((prev) => {
       const exists = prev.includes(productId);
+      isSavedNow = !exists;
       if (exists) {
-        showToast('Removed from Saved Crafts', '', 'info');
         return prev.filter((id) => id !== productId);
       } else {
-        showToast('Saved to your collection ❤️', '', 'success');
         return [...prev, productId];
       }
     });
+
+    if (isSavedNow) {
+      showToast('Saved to your collection ❤️', '', 'success');
+    } else {
+      showToast('Removed from Saved Crafts', '', 'info');
+    }
   };
 
   const addToCart = (product: Product, quantity = 1) => {
+    let toastTitle = '';
+    let toastMsg = '';
+
     setCartItems((prev) => {
       const existingIndex = prev.findIndex((item) => item.product.id === product.id);
       if (existingIndex > -1) {
         const updated = [...prev];
         const newQty = updated[existingIndex].quantity + quantity;
         updated[existingIndex] = { ...updated[existingIndex], quantity: newQty };
-        showToast(`Updated "${product.title}" in Cart (${newQty} units)`, 'Buyer Craft Basket', 'success');
+        toastTitle = `Updated "${product.title}" in Cart (${newQty} units)`;
+        toastMsg = 'Buyer Craft Basket';
         return updated;
       } else {
-        showToast(`Added "${product.title}" to Cart!`, 'Direct Artisan Sourcing', 'success');
+        toastTitle = `Added "${product.title}" to Cart!`;
+        toastMsg = 'Direct Artisan Sourcing';
         return [...prev, { product, quantity }];
       }
     });
+
+    if (toastTitle) {
+      showToast(toastTitle, toastMsg, 'success');
+    }
   };
 
   const updateCartQuantity = (productId: string, quantity: number) => {
@@ -348,19 +369,39 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       removeFromCart(productId);
       return;
     }
-    setCartItems((prev) =>
-      prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
-    );
+    let updatedTitle = '';
+    let updatedQty = quantity;
+
+    setCartItems((prev) => {
+      return prev.map((item) => {
+        if (item.product.id === productId) {
+          updatedTitle = item.product.title;
+          updatedQty = quantity;
+          return { ...item, quantity };
+        }
+        return item;
+      });
+    });
+
+    if (updatedTitle) {
+      showToast(`Updated "${updatedTitle}" in Cart (${updatedQty} units)`, 'Buyer Craft Basket', 'success');
+    }
   };
 
   const removeFromCart = (productId: string) => {
+    let removedTitle = '';
+
     setCartItems((prev) => {
       const item = prev.find((i) => i.product.id === productId);
       if (item) {
-        showToast(`Removed "${item.product.title}" from Cart`, '', 'info');
+        removedTitle = item.product.title;
       }
       return prev.filter((i) => i.product.id !== productId);
     });
+
+    if (removedTitle) {
+      showToast(`Removed "${removedTitle}" from Cart`, '', 'info');
+    }
   };
 
   const clearCart = () => {
