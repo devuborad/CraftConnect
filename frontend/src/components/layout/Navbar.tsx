@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, language, setLanguage, setRole, cartCount } = useApp();
+  const { role, language, setLanguage, setRole, cartCount, t } = useApp();
   const [showLangModal, setShowLangModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ export const Navbar: React.FC = () => {
                   <span>AI</span>
                 </span>
               </div>
-              <p className="text-[10px] text-stone-500 font-medium tracking-wide">From Handmade to Market-Ready</p>
+              <p className="text-[10px] text-stone-500 font-medium tracking-wide">{t('nav.tagline')}</p>
             </div>
           </Link>
 
@@ -58,19 +58,19 @@ export const Navbar: React.FC = () => {
               to="/" 
               className={`hover:text-[#C85A32] transition-colors ${isActive('/') ? 'text-[#C85A32] font-semibold' : ''}`}
             >
-              Home
+              {t('nav.home')}
             </Link>
             <Link 
               to="/marketplace" 
               className={`hover:text-[#C85A32] transition-colors ${isActive('/marketplace') ? 'text-[#C85A32] font-semibold' : ''}`}
             >
-              Marketplace
+              {t('nav.marketplace')}
             </Link>
             <Link 
               to="/about" 
               className={`hover:text-[#C85A32] transition-colors ${isActive('/about') ? 'text-[#C85A32] font-semibold' : ''}`}
             >
-              How It Works
+              {t('nav.howItWorks')}
             </Link>
 
             {role === 'ARTISAN' && (
@@ -80,14 +80,14 @@ export const Navbar: React.FC = () => {
                   className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/artisan/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  <span>Artisan Dashboard</span>
+                  <span>{t('nav.artisanDashboard')}</span>
                 </Link>
                 <Link 
                   to="/artisan/products/new" 
                   className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all transform active:scale-95"
                 >
                   <PlusCircle className="w-4 h-4" />
-                  <span>+ Add Product</span>
+                  <span>{t('nav.addProduct')}</span>
                 </Link>
               </>
             )}
@@ -98,7 +98,7 @@ export const Navbar: React.FC = () => {
                 className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
               >
                 <ShoppingBag className="w-4 h-4" />
-                <span>Buyer Dashboard</span>
+                <span>{t('nav.buyerDashboard')}</span>
               </Link>
             )}
 
@@ -107,7 +107,7 @@ export const Navbar: React.FC = () => {
                 to="/admin" 
                 className="bg-stone-900 text-stone-100 hover:bg-stone-800 px-3.5 py-2 rounded-xl text-xs font-semibold"
               >
-                Admin Panel
+                {t('nav.adminPanel')}
               </Link>
             )}
           </nav>
@@ -146,13 +146,13 @@ export const Navbar: React.FC = () => {
                   to="/login"
                   className="text-xs font-semibold text-stone-700 hover:text-[#4A2E1B] px-3 py-2"
                 >
-                  Sign In
+                  {t('nav.signIn')}
                 </Link>
                 <Link
                   to="/register"
                   className="bg-[#4A2E1B] hover:bg-[#382213] text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition-all"
                 >
-                  Start Selling
+                  {t('nav.startSelling')}
                 </Link>
               </div>
             ) : (

@@ -12,7 +12,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry }) => {
-  const { role, savedProductIds, toggleSaveProduct, cartItems, addToCart, updateCartQuantity } = useApp();
+  const { role, savedProductIds, toggleSaveProduct, cartItems, addToCart, updateCartQuantity, language, t } = useApp();
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
@@ -64,6 +64,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
     setPendingAction(null);
   };
 
+  // Dynamic language fields
+  const displayTitle = language === 'gu' 
+    ? (product.titleGujarati || product.title)
+    : language === 'hi'
+    ? (product.titleHindi || product.title)
+    : product.title;
+
+  const displayDescription = language === 'gu'
+    ? (product.descriptionGu || product.descriptionEn)
+    : language === 'hi'
+    ? (product.descriptionHi || product.descriptionEn)
+    : product.descriptionEn;
+
   return (
     <>
       <div className="glass-card bg-white rounded-3xl overflow-hidden border border-stone-200/80 hover:border-amber-900/20 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full w-full">
@@ -72,7 +85,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
         <div className="relative h-52 sm:h-56 w-full overflow-hidden bg-stone-100 shrink-0">
           <img
             src={imgError ? fallbackImage : product.originalImage}
-            alt={product.title}
+            alt={displayTitle}
             onError={() => setImgError(true)}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
@@ -81,7 +94,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
           {product.isAiEnhanced && (
             <div className="absolute top-3 left-3 bg-amber-900/85 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30 flex items-center space-x-1 shadow-sm z-10">
               <Sparkles className="w-3 h-3 text-amber-300" />
-              <span>AI VERIFIED</span>
+              <span>{t('card.verified')}</span>
             </div>
           )}
 
@@ -130,13 +143,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
             {/* Title */}
             <Link to={`/product/${product.id}`} className="block">
               <h3 className="font-display font-bold text-sm sm:text-base text-stone-900 group-hover:text-[#C85A32] transition-colors line-clamp-2 leading-snug">
-                {product.title}
+                {displayTitle}
               </h3>
             </Link>
 
             {/* Description preview */}
             <p className="text-xs text-stone-600 line-clamp-2 leading-relaxed">
-              {product.descriptionEn}
+              {displayDescription}
             </p>
           </div>
 
@@ -147,7 +160,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[9px] text-stone-400 uppercase tracking-wider font-bold block leading-none mb-1">
-                  DIRECT ARTISAN PRICE
+                  {t('card.directPrice')}
                 </span>
                 <span className="font-display font-extrabold text-xl text-[#4A2E1B] leading-none">
                   ₹{product.price.toLocaleString('en-IN')}
@@ -171,42 +184,46 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
                 <Eye className="w-4 h-4" />
               </Link>
 
-              {/* Button 2: Add to Cart (+1 or Quantity Counter) */}
-              {inCartQty > 0 ? (
-                <div className="flex items-center bg-amber-50 border border-amber-300 rounded-xl p-1 space-x-1 shrink-0">
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      updateCartQuantity(product.id, inCartQty - 1);
-                    }}
-                    className="w-6 h-6 rounded-lg bg-white text-stone-700 hover:bg-stone-200 flex items-center justify-center font-bold text-xs shadow-xs"
-                    title="Decrease"
-                  >
-                    <Minus className="w-3 h-3" />
-                  </button>
-                  <span className="text-xs font-extrabold text-[#4A2E1B] px-1 min-w-4 text-center">
-                    {inCartQty}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.preventDefault();
-                      addToCart(product, 1);
-                    }}
-                    className="w-6 h-6 rounded-lg bg-[#4A2E1B] text-white hover:bg-[#362113] flex items-center justify-center font-bold text-xs shadow-xs"
-                    title="Add More (+1)"
-                  >
-                    <Plus className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : (
-                <button
-                  onClick={handleAddToCartClick}
-                  className="px-3 py-2 rounded-xl bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border border-amber-200 text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-all active:scale-95 shadow-xs shrink-0"
-                  title="Add to Buyer Cart (+1)"
-                >
-                  <ShoppingCart className="w-3.5 h-3.5" />
-                  <span>+1</span>
-                </button>
+              {/* Button 2: Add to Cart (+1 or Quantity Counter) - ONLY VISIBLE FOR BUYERS */}
+              {isBuyer && (
+                <>
+                  {inCartQty > 0 ? (
+                    <div className="flex items-center bg-amber-50 border border-amber-300 rounded-xl p-1 space-x-1 shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          updateCartQuantity(product.id, inCartQty - 1);
+                        }}
+                        className="w-6 h-6 rounded-lg bg-white text-stone-700 hover:bg-stone-200 flex items-center justify-center font-bold text-xs shadow-xs"
+                        title="Decrease"
+                      >
+                        <Minus className="w-3 h-3" />
+                      </button>
+                      <span className="text-xs font-extrabold text-[#4A2E1B] px-1 min-w-4 text-center">
+                        {inCartQty}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          addToCart(product, 1);
+                        }}
+                        className="w-6 h-6 rounded-lg bg-[#4A2E1B] text-white hover:bg-[#362113] flex items-center justify-center font-bold text-xs shadow-xs"
+                        title="Add More (+1)"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleAddToCartClick}
+                      className="px-3 py-2 rounded-xl bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border border-amber-200 text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-all active:scale-95 shadow-xs shrink-0"
+                      title="Add to Buyer Cart (+1)"
+                    >
+                      <ShoppingCart className="w-3.5 h-3.5" />
+                      <span>+1</span>
+                    </button>
+                  )}
+                </>
               )}
 
               {/* Button 3: Bulk Order Button (Terracotta styled, flex-1 for complete visibility) */}
@@ -216,7 +233,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
                 title="Wholesale Bulk Order Inquiry"
               >
                 <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">Bulk Order</span>
+                <span className="truncate">{t('card.bulkOrder')}</span>
               </button>
             </div>
 

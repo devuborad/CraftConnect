@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Role, LanguageCode, Product, CartItem } from '../types';
 import { MOCK_PRODUCTS } from '../services/mockData';
+import { translations } from '../services/translations';
 
 interface ToastMessage {
   id: string;
@@ -24,6 +25,9 @@ interface AppContextType {
   demoProduct: Product | null;
   setDemoProduct: (product: Product | null) => void;
   
+  // Translation function
+  t: (key: string) => string;
+
   // Cart State & Methods
   cartItems: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
@@ -38,7 +42,10 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>('GUEST');
-  const [language, setLanguage] = useState<LanguageCode>('en');
+  const [language, setLanguageState] = useState<LanguageCode>(() => {
+    const saved = localStorage.getItem('craft_lang') as LanguageCode;
+    return saved || 'gu'; // Default to Gujarati or saved
+  });
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [savedProductIds, setSavedProductIds] = useState<string[]>(['prod-1', 'prod-3']);
   const [demoProduct, setDemoProduct] = useState<Product | null>(null);
@@ -47,6 +54,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [cartItems, setCartItems] = useState<CartItem[]>([
     { product: MOCK_PRODUCTS[0], quantity: 1 }
   ]);
+
+  const setLanguage = (lang: LanguageCode) => {
+    setLanguageState(lang);
+    localStorage.setItem('craft_lang', lang);
+  };
+
+  const t = (key: string): string => {
+    return translations[language]?.[key] || translations.en[key] || key;
+  };
 
   const activeArtisanId = 'artisan-1'; // Default Meena Ben Vankar
 
@@ -138,6 +154,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         activeArtisanId,
         demoProduct,
         setDemoProduct,
+        t,
         cartItems,
         addToCart,
         updateCartQuantity,

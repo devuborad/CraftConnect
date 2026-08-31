@@ -1,8 +1,11 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
+import { useApp } from '../../context/AppContext';
 
 export const Footer: React.FC = () => {
+  const { t } = useApp();
+
   return (
     <footer className="bg-[#1C1917] text-stone-300 pt-16 pb-12 border-t border-stone-800 relative overflow-hidden">
       {/* Decorative background element */}
@@ -22,17 +25,17 @@ export const Footer: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-stone-400 leading-relaxed">
-              Empowering rural and marginalized Indian artisans to bring authentic handmade heritage online using voice-first AI cataloguing and smart fair pricing.
+              {t('footer.mission')}
             </p>
             <div className="flex items-center space-x-2 text-xs text-amber-400/90 bg-stone-900 px-3 py-1.5 rounded-lg border border-stone-800 w-fit">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Voice AI in Gujarati, Hindi & English</span>
+              <span>{t('footer.voiceBadge')}</span>
             </div>
           </div>
 
           {/* Platform Links */}
           <div>
-            <h4 className="font-display font-semibold text-white text-sm mb-4">Artisan Platform</h4>
+            <h4 className="font-display font-semibold text-white text-sm mb-4">{t('footer.artisanPlatform')}</h4>
             <ul className="space-y-2.5 text-xs text-stone-400">
               <li>
                 <Link to="/artisan/products/new" className="hover:text-amber-400 transition-colors">
