@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
-import type { Role, LanguageCode, Product } from '../types';
+import type { Role, LanguageCode, Product, CartItem } from '../types';
+import { MOCK_PRODUCTS } from '../services/mockData';
 import { translations } from '../services/translations';
 
 interface ToastMessage {
@@ -23,7 +24,18 @@ interface AppContextType {
   activeArtisanId: string;
   demoProduct: Product | null;
   setDemoProduct: (product: Product | null) => void;
+  
+  // Translation function
   t: (key: string) => string;
+
+  // Cart State & Methods
+  cartItems: CartItem[];
+  addToCart: (product: Product, quantity?: number) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  clearCart: () => void;
+  cartCount: number;
+  cartSubtotal: number;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -37,6 +49,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [savedProductIds, setSavedProductIds] = useState<string[]>(['prod-1', 'prod-3']);
   const [demoProduct, setDemoProduct] = useState<Product | null>(null);
+
+  // Initial cart populated with 1 demo product for smooth testing
+  const [cartItems, setCartItems] = useState<CartItem[]>([
+    { product: MOCK_PRODUCTS[0], quantity: 1 }
+  ]);
 
   const setLanguage = (lang: LanguageCode) => {
     setLanguageState(lang);
@@ -79,6 +96,49 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     });
   };
 
+  const addToCart = (product: Product, quantity = 1) => {
+    setCartItems((prev) => {
+      const existingIndex = prev.findIndex((item) => item.product.id === product.id);
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        const newQty = updated[existingIndex].quantity + quantity;
+        updated[existingIndex] = { ...updated[existingIndex], quantity: newQty };
+        showToast(`Updated "${product.title}" in Cart (${newQty} units)`, 'Buyer Craft Basket', 'success');
+        return updated;
+      } else {
+        showToast(`Added "${product.title}" to Cart!`, 'Direct Artisan Sourcing', 'success');
+        return [...prev, { product, quantity }];
+      }
+    });
+  };
+
+  const updateCartQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCartItems((prev) =>
+      prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
+    );
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCartItems((prev) => {
+      const item = prev.find((i) => i.product.id === productId);
+      if (item) {
+        showToast(`Removed "${item.product.title}" from Cart`, '', 'info');
+      }
+      return prev.filter((i) => i.product.id !== productId);
+    });
+  };
+
+  const clearCart = () => {
+    setCartItems([]);
+  };
+
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const cartSubtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+
   return (
     <AppContext.Provider
       value={{
@@ -94,7 +154,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         activeArtisanId,
         demoProduct,
         setDemoProduct,
-        t
+        t,
+        cartItems,
+        addToCart,
+        updateCartQuantity,
+        removeFromCart,
+        clearCart,
+        cartCount,
+        cartSubtotal
       }}
     >
       {children}

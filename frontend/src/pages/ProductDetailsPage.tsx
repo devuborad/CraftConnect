@@ -6,6 +6,7 @@ import {
   Sparkles, 
   MapPin, 
   ShoppingBag, 
+  ShoppingCart,
   Share2, 
   Heart, 
   Globe, 
@@ -13,14 +14,17 @@ import {
   MessageCircle
 } from 'lucide-react';
 import { BulkInquiryModal } from '../components/marketplace/BulkInquiryModal';
+import { RolePromptModal } from '../components/common/RolePromptModal';
 import { useApp } from '../context/AppContext';
 
 export const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { showToast, savedProductIds, toggleSaveProduct } = useApp();
+  const { role, showToast, savedProductIds, toggleSaveProduct, cartItems, addToCart, updateCartQuantity } = useApp();
   const [product, setProduct] = useState<Product | null>(null);
   const [activeLangTab, setActiveLangTab] = useState<'en' | 'hi' | 'gu'>('en');
   const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -40,10 +44,21 @@ export const ProductDetailsPage: React.FC = () => {
   }
 
   const isSaved = savedProductIds.includes(product.id);
+  const cartItem = cartItems.find((item) => item.product.id === product.id);
+  const inCartQty = cartItem ? cartItem.quantity : 0;
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     showToast('Link copied to clipboard!', 'Share this craft product with buyers', 'success');
+  };
+
+  const handleRoleSwitchSuccess = () => {
+    if (pendingAction === 'CART') {
+      addToCart(product, 1);
+    } else if (pendingAction === 'BULK') {
+      setShowInquiryModal(true);
+    }
+    setPendingAction(null);
   };
 
   return (
@@ -117,13 +132,59 @@ export const ProductDetailsPage: React.FC = () => {
 
           {/* Action CTAs */}
           <div className="space-y-3">
-            <button
-              onClick={() => setShowInquiryModal(true)}
-              className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2 shadow-lg transition-all active:scale-98"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>Request Wholesale Bulk Order</span>
-            </button>
+            <div className="grid grid-cols-2 gap-3">
+              {/* Add to Cart Button */}
+              {inCartQty > 0 ? (
+                <div className="flex items-center justify-between bg-amber-50 border-2 border-amber-300 rounded-2xl px-3 py-2">
+                  <span className="text-xs font-bold text-[#4A2E1B]">In Cart: {inCartQty}</span>
+                  <div className="flex items-center space-x-1">
+                    <button
+                      onClick={() => updateCartQuantity(product.id, inCartQty - 1)}
+                      className="w-7 h-7 bg-white text-stone-800 rounded-lg flex items-center justify-center font-bold text-xs border border-stone-200"
+                    >
+                      -
+                    </button>
+                    <button
+                      onClick={() => addToCart(product, 1)}
+                      className="w-7 h-7 bg-[#4A2E1B] text-white rounded-lg flex items-center justify-center font-bold text-xs"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => {
+                    if (role !== 'BUYER') {
+                      setPendingAction('CART');
+                      setShowRoleModal(true);
+                    } else {
+                      addToCart(product, 1);
+                    }
+                  }}
+                  className="bg-stone-900 hover:bg-black text-white py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
+                >
+                  <ShoppingCart className="w-4 h-4 text-amber-300" />
+                  <span>Add to Cart (+1)</span>
+                </button>
+              )}
+
+              {/* Wholesale Bulk Order Button */}
+              <button
+                onClick={() => {
+                  if (role !== 'BUYER') {
+                    setPendingAction('BULK');
+                    setShowRoleModal(true);
+                  } else {
+                    setShowInquiryModal(true);
+                  }
+                }}
+                className="bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
+              >
+                <ShoppingBag className="w-4 h-4" />
+                <span>Bulk Order</span>
+              </button>
+            </div>
 
             <div className="flex items-center space-x-3">
               <Link
@@ -213,6 +274,13 @@ export const ProductDetailsPage: React.FC = () => {
       {showInquiryModal && (
         <BulkInquiryModal product={product} onClose={() => setShowInquiryModal(false)} />
       )}
+
+      <RolePromptModal
+        isOpen={showRoleModal}
+        onClose={() => setShowRoleModal(false)}
+        onSuccess={handleRoleSwitchSuccess}
+        actionName={pendingAction === 'CART' ? 'Add to Cart (+1)' : 'Wholesale Bulk Order'}
+      />
     </div>
   );
 };

@@ -86,3 +86,9 @@ export interface AIActivityMetric {
   durationMs: number;
   timestamp: string;
 }
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+}
+
