@@ -92,3 +92,14 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface AppNotification {
+  id: string;
+  targetRole: Role | 'ALL';
+  title: string;
+  message: string;
+  timestamp: string;
+  type: 'order' | 'inquiry' | 'price' | 'system' | 'ai';
+  isRead: boolean;
+  link?: string;
+}
+

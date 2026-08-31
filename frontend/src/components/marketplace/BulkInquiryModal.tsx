@@ -10,13 +10,13 @@ interface BulkInquiryModalProps {
 }
 
 export const BulkInquiryModal: React.FC<BulkInquiryModalProps> = ({ product, onClose }) => {
-  const { showToast } = useApp();
+  const { showToast, addNotification, userName, currentUser } = useApp();
   const [quantity, setQuantity] = useState(25);
   const [targetPrice, setTargetPrice] = useState(product.price * 0.9);
-  const [buyerName, setBuyerName] = useState('Anita Sharma');
-  const [company, setCompany] = useState('Heritage Craft Boutique');
-  const [email, setEmail] = useState('anita@heritagecrafts.in');
-  const [phone, setPhone] = useState('+91 98200 11223');
+  const [buyerName, setBuyerName] = useState(userName);
+  const [company, setCompany] = useState(currentUser?.businessName || 'Heritage Craft Boutique');
+  const [email, setEmail] = useState(currentUser?.email || 'anita@heritagecrafts.in');
+  const [phone, setPhone] = useState(currentUser?.phone || '+91 98200 11223');
   const [deliveryLocation, setDeliveryLocation] = useState('Bandra West, Mumbai, Maharashtra');
   const [message, setMessage] = useState(
     `Namaste ${product.artisanName}! We are impressed by your authentic ${product.craftType}. We would like to order a wholesale batch for our retail collection.`
@@ -43,6 +43,23 @@ export const BulkInquiryModal: React.FC<BulkInquiryModalProps> = ({ product, onC
       targetPrice,
       message,
       deliveryLocation
+    });
+
+    // Send Live Notifications
+    addNotification({
+      targetRole: 'BUYER',
+      title: 'Bulk Inquiry Sent 📦',
+      message: `Your inquiry for ${quantity}x "${product.title}" was submitted to ${product.artisanName}.`,
+      type: 'inquiry',
+      link: '/buyer/dashboard'
+    });
+
+    addNotification({
+      targetRole: 'ARTISAN',
+      title: 'New Sourcing Quote Request ✉️',
+      message: `${buyerName} (${company}) requested quote for ${quantity}x "${product.title}".`,
+      type: 'inquiry',
+      link: '/artisan/inquiries'
     });
 
     setLoading(false);
