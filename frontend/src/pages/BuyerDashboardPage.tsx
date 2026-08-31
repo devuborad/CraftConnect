@@ -1,12 +1,12 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, ArrowRight, Sparkles } from 'lucide-react';
+import { Heart, ArrowRight, Sparkles, ShoppingCart, CreditCard } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
 import { ProductCard } from '../components/marketplace/ProductCard';
 
 export const BuyerDashboardPage: React.FC = () => {
-  const { savedProductIds } = useApp();
+  const { savedProductIds, cartCount, cartSubtotal } = useApp();
   const savedProducts = MOCK_PRODUCTS.filter((p) => savedProductIds.includes(p.id));
 
   return (
@@ -23,6 +23,33 @@ export const BuyerDashboardPage: React.FC = () => {
         <p className="text-xs text-amber-100">
           Heritage Craft Boutique • Direct Rural Artisan Sourcing Portal
         </p>
+      </div>
+
+      {/* Cart Overview Widget */}
+      <div className="glass-card bg-white p-6 rounded-3xl border border-amber-900/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0">
+            <ShoppingCart className="w-6 h-6" />
+          </div>
+          <div>
+            <h3 className="font-display font-bold text-base text-stone-900">
+              Active Sourcing Cart ({cartCount} {cartCount === 1 ? 'Item' : 'Items'})
+            </h3>
+            <p className="text-xs text-stone-500">
+              {cartCount > 0
+                ? `Cart Subtotal: ₹${cartSubtotal.toLocaleString('en-IN')} (Direct Artisan Price)`
+                : 'Your sourcing basket is currently empty'}
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/cart"
+          className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 shadow transition-all shrink-0"
+        >
+          <CreditCard className="w-4 h-4" />
+          <span>Open Sourcing Cart & Checkout →</span>
+        </Link>
       </div>
 
       {/* Saved Products */}

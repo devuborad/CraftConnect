@@ -6,6 +6,7 @@ import {
   Globe, 
   Sparkles, 
   ShoppingBag, 
+  ShoppingCart,
   LayoutDashboard, 
   PlusCircle, 
   Menu, 
@@ -14,7 +15,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, language, setLanguage, setRole } = useApp();
+  const { role, language, setLanguage, setRole, cartCount } = useApp();
   const [showLangModal, setShowLangModal] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -111,8 +112,24 @@ export const Navbar: React.FC = () => {
             )}
           </nav>
 
-          {/* Right Action Tools (Language, Auth Buttons) */}
+          {/* Right Action Tools (Cart Button for Buyers, Language, Role Badge) */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Cart Icon Button - ONLY VISIBLE FOR BUYERS */}
+            {role === 'BUYER' && (
+              <Link
+                to="/cart"
+                className="relative p-2.5 rounded-xl text-stone-700 hover:text-[#C85A32] hover:bg-amber-50 transition-all border border-stone-200/80 bg-white shadow-xs"
+                title="View Sourcing Cart"
+              >
+                <ShoppingCart className="w-5 h-5 text-[#4A2E1B]" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 bg-[#C85A32] text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-xs animate-in zoom-in-50">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+            )}
+
             {/* Language Selector Pill */}
             <button
               onClick={() => setShowLangModal(true)}
@@ -122,6 +139,7 @@ export const Navbar: React.FC = () => {
               <span>{activeLangObj.nativeName}</span>
             </button>
 
+            {/* Role Badge & Switcher */}
             {role === 'GUEST' ? (
               <div className="flex items-center space-x-2">
                 <Link
@@ -138,16 +156,24 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             ) : (
-              <button
-                onClick={() => {
-                  setRole('GUEST');
-                  navigate('/');
-                }}
-                title="Sign out of demo session"
-                className="text-stone-500 hover:text-red-600 p-2 rounded-lg hover:bg-stone-200/50 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-              </button>
+              <div className="flex items-center space-x-2 bg-stone-100 p-1 rounded-2xl border border-stone-200">
+                <span className="text-[11px] font-extrabold text-[#4A2E1B] px-2.5 py-1 rounded-xl bg-white shadow-xs">
+                  {role === 'BUYER' && '🛍️ Buyer Account'}
+                  {role === 'ARTISAN' && '🎨 Artisan Account'}
+                  {role === 'ADMIN' && '🛡️ Admin Account'}
+                </span>
+
+                <button
+                  onClick={() => {
+                    setRole('GUEST');
+                    navigate('/');
+                  }}
+                  title="Sign out / Switch account"
+                  className="text-stone-500 hover:text-red-600 p-1.5 rounded-lg hover:bg-stone-200 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </div>
             )}
           </div>
 
@@ -194,6 +220,23 @@ export const Navbar: React.FC = () => {
           >
             How It Works
           </Link>
+          {role === 'BUYER' && (
+            <Link
+              to="/cart"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block text-base font-semibold text-[#C85A32] py-1 flex items-center justify-between"
+            >
+              <span className="flex items-center space-x-2">
+                <ShoppingCart className="w-5 h-5 text-[#C85A32]" />
+                <span>Sourcing Cart</span>
+              </span>
+              {cartCount > 0 && (
+                <span className="bg-[#C85A32] text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          )}
 
           {role === 'ARTISAN' && (
             <div className="pt-2 border-t border-stone-200/80 space-y-2">
