@@ -10,8 +10,21 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry }) => {
-  const { savedProductIds, toggleSaveProduct } = useApp();
+  const { savedProductIds, toggleSaveProduct, language, t } = useApp();
   const isSaved = savedProductIds.includes(product.id);
+
+  // Dynamic language fields
+  const displayTitle = language === 'gu' 
+    ? (product.titleGujarati || product.title)
+    : language === 'hi'
+    ? (product.titleHindi || product.title)
+    : product.title;
+
+  const displayDescription = language === 'gu'
+    ? (product.descriptionGu || product.descriptionEn)
+    : language === 'hi'
+    ? (product.descriptionHi || product.descriptionEn)
+    : product.descriptionEn;
 
   return (
     <div className="glass-card bg-white rounded-3xl overflow-hidden border border-stone-200/80 hover:border-amber-900/20 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full">
@@ -19,7 +32,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
       <div className="relative aspect-4/3 overflow-hidden bg-stone-100">
         <img
           src={product.originalImage}
-          alt={product.title}
+          alt={displayTitle}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
 
@@ -27,7 +40,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
         {product.isAiEnhanced && (
           <div className="absolute top-3 left-3 bg-amber-900/80 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30 flex items-center space-x-1 shadow">
             <Sparkles className="w-3 h-3 text-amber-300" />
-            <span>AI STUDIO VERIFIED</span>
+            <span>{t('card.verified')}</span>
           </div>
         )}
 
@@ -74,20 +87,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
           {/* Title */}
           <Link to={`/product/${product.id}`}>
             <h3 className="font-display font-bold text-base text-stone-900 group-hover:text-[#C85A32] transition-colors line-clamp-2 leading-snug">
-              {product.title}
+              {displayTitle}
             </h3>
           </Link>
 
           {/* Description preview */}
           <p className="text-xs text-stone-600 mt-2 line-clamp-2 leading-relaxed">
-            {product.descriptionEn}
+            {displayDescription}
           </p>
         </div>
 
         {/* Bottom Actions & Price */}
         <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
           <div>
-            <span className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold block">Direct Artisan Price</span>
+            <span className="text-[10px] text-stone-400 uppercase tracking-wider font-semibold block">{t('card.directPrice')}</span>
             <span className="font-bold text-lg text-[#4A2E1B]">₹{product.price.toLocaleString('en-IN')}</span>
           </div>
 
@@ -105,7 +118,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
               className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-3 py-2 rounded-xl text-xs font-semibold flex items-center space-x-1 shadow-sm transition-all active:scale-95"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Bulk Order</span>
+              <span>{t('card.bulkOrder')}</span>
             </button>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Role, LanguageCode, Product } from '../types';
+import { translations } from '../services/translations';
 
 interface ToastMessage {
   id: string;
@@ -22,16 +23,29 @@ interface AppContextType {
   activeArtisanId: string;
   demoProduct: Product | null;
   setDemoProduct: (product: Product | null) => void;
+  t: (key: string) => string;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [role, setRoleState] = useState<Role>('GUEST');
-  const [language, setLanguage] = useState<LanguageCode>('en');
+  const [language, setLanguageState] = useState<LanguageCode>(() => {
+    const saved = localStorage.getItem('craft_lang') as LanguageCode;
+    return saved || 'gu'; // Default to Gujarati or saved
+  });
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [savedProductIds, setSavedProductIds] = useState<string[]>(['prod-1', 'prod-3']);
   const [demoProduct, setDemoProduct] = useState<Product | null>(null);
+
+  const setLanguage = (lang: LanguageCode) => {
+    setLanguageState(lang);
+    localStorage.setItem('craft_lang', lang);
+  };
+
+  const t = (key: string): string => {
+    return translations[language]?.[key] || translations.en[key] || key;
+  };
 
   const activeArtisanId = 'artisan-1'; // Default Meena Ben Vankar
 
@@ -79,7 +93,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         toggleSaveProduct,
         activeArtisanId,
         demoProduct,
-        setDemoProduct
+        setDemoProduct,
+        t
       }}
     >
       {children}
