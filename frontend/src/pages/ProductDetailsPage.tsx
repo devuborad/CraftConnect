@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { productService } from '../services/products';
 import type { Product } from '../types';
 import { 
@@ -11,18 +11,22 @@ import {
   Heart, 
   Globe, 
   ArrowLeft,
-  MessageCircle
+  MessageCircle,
+  Zap
 } from 'lucide-react';
 import { BulkInquiryModal } from '../components/marketplace/BulkInquiryModal';
+import { BuyNowModal } from '../components/marketplace/BuyNowModal';
 import { RolePromptModal } from '../components/common/RolePromptModal';
 import { useApp } from '../context/AppContext';
 
 export const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { role, showToast, savedProductIds, toggleSaveProduct, cartItems, addToCart, updateCartQuantity } = useApp();
+  const navigate = useNavigate();
+  const { role, showToast, savedProductIds, toggleSaveProduct, cartItems, addToCart } = useApp();
   const [product, setProduct] = useState<Product | null>(null);
   const [activeLangTab, setActiveLangTab] = useState<'en' | 'hi' | 'gu'>('en');
   const [showInquiryModal, setShowInquiryModal] = useState(false);
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
 
@@ -132,42 +136,45 @@ export const ProductDetailsPage: React.FC = () => {
 
           {/* Action CTAs */}
           <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {/* Add to Cart Button */}
-              {inCartQty > 0 ? (
-                <div className="flex items-center justify-between bg-amber-50 border-2 border-amber-300 rounded-2xl px-3 py-2">
-                  <span className="text-xs font-bold text-[#4A2E1B]">In Cart: {inCartQty}</span>
-                  <div className="flex items-center space-x-1">
-                    <button
-                      onClick={() => updateCartQuantity(product.id, inCartQty - 1)}
-                      className="w-7 h-7 bg-white text-stone-800 rounded-lg flex items-center justify-center font-bold text-xs border border-stone-200"
-                    >
-                      -
-                    </button>
-                    <button
-                      onClick={() => addToCart(product, 1)}
-                      className="w-7 h-7 bg-[#4A2E1B] text-white rounded-lg flex items-center justify-center font-bold text-xs"
-                    >
-                      +
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <button
-                  onClick={() => {
-                    if (role !== 'BUYER') {
-                      setPendingAction('CART');
-                      setShowRoleModal(true);
-                    } else {
+              <button
+                onClick={() => {
+                  if (role !== 'BUYER') {
+                    setPendingAction('CART');
+                    setShowRoleModal(true);
+                  } else {
+                    addToCart(product, 1);
+                  }
+                }}
+                className={`py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98 border ${
+                  inCartQty > 0
+                    ? 'bg-amber-100 text-[#4A2E1B] border-amber-300 font-extrabold'
+                    : 'bg-stone-900 hover:bg-black text-white border-transparent'
+                }`}
+              >
+                <ShoppingCart className={`w-4 h-4 ${inCartQty > 0 ? 'text-[#C85A32]' : 'text-amber-300'}`} />
+                <span>{inCartQty > 0 ? `In Cart (${inCartQty})` : 'Add to Cart (+1)'}</span>
+              </button>
+
+              {/* Buy Now Button */}
+              <button
+                onClick={() => {
+                  if (role !== 'BUYER') {
+                    setPendingAction('CART');
+                    setShowRoleModal(true);
+                  } else if (product) {
+                    if (inCartQty === 0) {
                       addToCart(product, 1);
                     }
-                  }}
-                  className="bg-stone-900 hover:bg-black text-white py-3.5 rounded-2xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
-                >
-                  <ShoppingCart className="w-4 h-4 text-amber-300" />
-                  <span>Add to Cart (+1)</span>
-                </button>
-              )}
+                    navigate('/cart', { state: { autoCheckout: true } });
+                  }
+                }}
+                className="bg-amber-400 hover:bg-amber-300 text-stone-950 py-3.5 rounded-2xl font-black text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98 border border-amber-500/40"
+              >
+                <Zap className="w-4 h-4 fill-stone-950 text-stone-950" />
+                <span>Buy Now</span>
+              </button>
 
               {/* Wholesale Bulk Order Button */}
               <button
@@ -273,6 +280,10 @@ export const ProductDetailsPage: React.FC = () => {
 
       {showInquiryModal && (
         <BulkInquiryModal product={product} onClose={() => setShowInquiryModal(false)} />
+      )}
+
+      {showBuyNowModal && (
+        <BuyNowModal product={product} onClose={() => setShowBuyNowModal(false)} />
       )}
 
       <RolePromptModal
