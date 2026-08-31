@@ -107,13 +107,13 @@ body {
 .animate-marquee-ltr {
   display: flex;
   width: max-content;
-  animation: marquee-ltr 22s linear infinite;
+  animation: marquee-ltr 48s linear infinite;
 }
 
 .animate-marquee-rtl {
   display: flex;
   width: max-content;
-  animation: marquee-rtl 22s linear infinite;
+  animation: marquee-rtl 48s linear infinite;
 }
 
 .animate-marquee-ltr:hover,
