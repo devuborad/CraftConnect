@@ -27,8 +27,8 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="sticky top-0 z-40 glass-nav transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between">
+      <header className="sticky top-3 z-40 px-4 sm:px-6 lg:px-8 transition-all pointer-events-none">
+        <div className="max-w-7xl mx-auto glass-nav rounded-2xl sm:rounded-full px-4 sm:px-6 h-16 sm:h-18 flex items-center justify-between pointer-events-auto transition-all shadow-lg">
           
           {/* Logo Concept: Craft + Thread + Connection */}
           <Link to="/" className="flex items-center space-x-2.5 group">
@@ -198,7 +198,7 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-card fixed inset-x-0 top-26 z-40 p-5 space-y-4 border-b shadow-xl animate-in slide-in-from-top duration-200">
+        <div className="md:hidden glass-card fixed inset-x-4 top-22 z-40 p-5 space-y-4 rounded-3xl border border-stone-200/80 shadow-2xl animate-in slide-in-from-top duration-200">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
