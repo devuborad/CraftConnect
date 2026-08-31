@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../../types';
-import { Heart, Sparkles, MapPin, Eye, ShoppingBag, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Heart, Sparkles, MapPin, Eye, ShoppingBag, ShoppingCart, Zap } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { RolePromptModal } from '../common/RolePromptModal';
 import { BulkInquiryModal } from './BulkInquiryModal';
+import { BuyNowModal } from './BuyNowModal';
 
 interface ProductCardProps {
   product: Product;
@@ -12,9 +13,11 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry }) => {
-  const { role, savedProductIds, toggleSaveProduct, cartItems, addToCart, updateCartQuantity, language, t } = useApp();
+  const navigate = useNavigate();
+  const { role, savedProductIds, toggleSaveProduct, cartItems, addToCart, language, t } = useApp();
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
   const [imgError, setImgError] = useState(false);
 
@@ -34,6 +37,20 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
       return;
     }
     addToCart(product, 1);
+  };
+
+  const handleBuyNowClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (role !== 'BUYER') {
+      setPendingAction('CART');
+      setShowRoleModal(true);
+    } else {
+      if (inCartQty === 0) {
+        addToCart(product, 1);
+      }
+      navigate('/cart', { state: { autoCheckout: true } });
+    }
   };
 
   const handleBulkOrderClick = (e: React.MouseEvent) => {
@@ -172,69 +189,56 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
               </span>
             </div>
 
-            {/* Row 2: All 3 Action Buttons Placed BELOW (Down) Price Section */}
-            <div className="flex items-center space-x-2 w-full pt-1">
+            {/* Action Buttons Section */}
+            <div className="space-y-2 w-full pt-2">
               
-              {/* Button 1: View Product Details (Eye Icon) */}
+              {/* Row 1: View Product Details (Full-Width See Details button) */}
               <Link
                 to={`/product/${product.id}`}
-                className="p-2.5 rounded-xl bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors flex items-center justify-center border border-stone-200/80 shrink-0"
+                className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 border border-stone-200/80 transition-colors shadow-xs"
                 title="View Product Details"
               >
-                <Eye className="w-4 h-4" />
+                <Eye className="w-3.5 h-3.5 text-[#4A2E1B]" />
+                <span>View Details</span>
               </Link>
 
-              {/* Button 2: Add to Cart (+1 or Quantity Counter) - ONLY VISIBLE FOR BUYERS */}
-              {isBuyer && (
-                <>
-                  {inCartQty > 0 ? (
-                    <div className="flex items-center bg-amber-50 border border-amber-300 rounded-xl p-1 space-x-1 shrink-0">
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          updateCartQuantity(product.id, inCartQty - 1);
-                        }}
-                        className="w-6 h-6 rounded-lg bg-white text-stone-700 hover:bg-stone-200 flex items-center justify-center font-bold text-xs shadow-xs"
-                        title="Decrease"
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-xs font-extrabold text-[#4A2E1B] px-1 min-w-4 text-center">
-                        {inCartQty}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          addToCart(product, 1);
-                        }}
-                        className="w-6 h-6 rounded-lg bg-[#4A2E1B] text-white hover:bg-[#362113] flex items-center justify-center font-bold text-xs shadow-xs"
-                        title="Add More (+1)"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={handleAddToCartClick}
-                      className="px-3 py-2 rounded-xl bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border border-amber-200 text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-all active:scale-95 shadow-xs shrink-0"
-                      title="Add to Buyer Cart (+1)"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5" />
-                      <span>+1</span>
-                    </button>
-                  )}
-                </>
-              )}
+              {/* Row 2: 3 Action Buttons (Cart, Buy Now, Bulk Order) in 3 equal columns */}
+              <div className="grid grid-cols-3 gap-1.5 w-full">
+                {/* Button 1: Add to Cart */}
+                <button
+                  onClick={handleAddToCartClick}
+                  className={`py-2 px-1 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs border ${
+                    inCartQty > 0
+                      ? 'bg-amber-100 text-[#4A2E1B] border-amber-300 font-extrabold'
+                      : 'bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border-amber-200'
+                  }`}
+                  title={inCartQty > 0 ? `In Cart (${inCartQty})` : 'Add to Cart (+1)'}
+                >
+                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">{inCartQty > 0 ? `(${inCartQty})` : '+1'}</span>
+                </button>
 
-              {/* Button 3: Bulk Order Button (Terracotta styled, flex-1 for complete visibility) */}
-              <button
-                onClick={handleBulkOrderClick}
-                className="flex-1 bg-[#C85A32] hover:bg-[#b04b27] text-white px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-sm transition-all active:scale-95 whitespace-nowrap min-w-0"
-                title="Wholesale Bulk Order Inquiry"
-              >
-                <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                <span className="truncate">{t('card.bulkOrder')}</span>
-              </button>
+                {/* Button 2: Buy Now */}
+                <button
+                  onClick={handleBuyNowClick}
+                  className="py-2 px-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 border border-amber-500/40 text-xs font-black flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs"
+                  title="Instant Express Buy Now"
+                >
+                  <Zap className="w-3.5 h-3.5 fill-stone-950 text-stone-950 shrink-0" />
+                  <span>Buy</span>
+                </button>
+
+                {/* Button 3: Bulk Order */}
+                <button
+                  onClick={handleBulkOrderClick}
+                  className="py-2 px-1 rounded-xl bg-[#C85A32] hover:bg-[#b04b27] text-white text-xs font-bold flex items-center justify-center space-x-1 shadow-xs transition-all active:scale-95"
+                  title="Wholesale Bulk Order Inquiry"
+                >
+                  <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                  <span className="truncate">Bulk</span>
+                </button>
+              </div>
+
             </div>
 
           </div>
@@ -254,6 +258,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
         <BulkInquiryModal
           product={product}
           onClose={() => setShowBulkModal(false)}
+        />
+      )}
+
+      {/* Buy Now Instant Checkout Modal */}
+      {showBuyNowModal && (
+        <BuyNowModal
+          product={product}
+          onClose={() => setShowBuyNowModal(false)}
         />
       )}
     </>

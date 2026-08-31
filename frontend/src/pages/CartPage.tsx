@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
   ShoppingBag, 
@@ -22,6 +22,15 @@ export const CartPage: React.FC = () => {
   const [orderComplete, setOrderComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.autoCheckout) {
+      setShowCheckoutModal(true);
+    }
+  }, [location.state]);
+
   // Form State initialized with logged-in user name
   const [buyerName, setBuyerName] = useState(userName);
   const [companyName, setCompanyName] = useState(currentUser?.businessName || 'Heritage Craft Boutique');
@@ -37,8 +46,6 @@ export const CartPage: React.FC = () => {
   const [state, setState] = useState('Maharashtra');
   const [pincode, setPincode] = useState('400050');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'UPI' | 'RAZORPAY'>('UPI');
-
-  const navigate = useNavigate();
 
   // Calculations
   const shippingFee = cartSubtotal > 3000 || cartItems.length === 0 ? 0 : 250;
