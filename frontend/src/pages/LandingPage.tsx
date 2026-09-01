@@ -117,7 +117,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               {/* Floating AI Workflow Card */}
-              <div className="glass-card bg-white/95 p-4 rounded-2xl shadow-xl border border-amber-900/10 absolute -top-5 -right-5 max-w-xs space-y-2 hidden sm:block animate-bounce z-20" style={{ animationDuration: '6s' }}>
+              <div className="glass-card bg-white/95 p-4 rounded-2xl shadow-xl border border-amber-900/10 absolute -top-6 -left-6 max-w-xs space-y-2 hidden sm:block animate-bounce z-20" style={{ animationDuration: '6s' }}>
                 <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
                   <Mic className="w-4 h-4 text-[#C85A32]" />
                   <span>{t('hero.voiceActive')}</span>
