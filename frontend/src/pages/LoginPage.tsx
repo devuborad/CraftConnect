@@ -8,7 +8,6 @@ import {
   Eye, 
   EyeOff, 
   AlertCircle,
-  Sparkles,
   ArrowRight
 } from 'lucide-react';
 
@@ -56,7 +55,7 @@ export const LoginPage: React.FC = () => {
     const user = result.user;
     setRole(user.role, user);
 
-    const isAdmin = user.role === 'ADMIN' || user.email?.toLowerCase() === 'devborad22@gmail.com';
+    const isAdmin = user.role === 'ADMIN' || user.email?.toLowerCase() === 'ticketfordax@gmail.com' || user.email?.toLowerCase() === 'devborad22@gmail.com';
 
     // Push Notification directly into live Bell notification icon
     addNotification({
@@ -87,11 +86,11 @@ export const LoginPage: React.FC = () => {
     <div className="max-w-md mx-auto px-4 py-16">
       <div className="glass-card bg-white p-8 sm:p-10 rounded-3xl border border-stone-200 shadow-2xl space-y-6">
         
-        {/* Header Header */}
-        <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4A2E1B] to-[#C85A32] text-white flex items-center justify-center mx-auto shadow-md">
-            <Sparkles className="w-6 h-6 text-amber-300" />
-          </div>
+        {/* Header with Logo */}
+        <div className="text-center space-y-3">
+          <Link to="/" className="inline-block hover:opacity-90 transition-opacity">
+            <img src="/logo.png" alt="CraftConnect" className="h-12 w-auto object-contain mx-auto" />
+          </Link>
           <h1 className="font-display font-extrabold text-2xl text-stone-900">
             Sign In to CraftConnect
           </h1>

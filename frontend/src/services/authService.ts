@@ -19,6 +19,15 @@ const CURRENT_USER_KEY = 'craft_current_user';
 // Pre-seeded default demo accounts including Admin
 const DEFAULT_USERS: RegisteredUser[] = [
   {
+    id: 'usr-admin-dax',
+    name: 'Dax Koladiya',
+    email: 'ticketfordax@gmail.com',
+    phone: '8141702217',
+    password: 'DAX!@#$%^&',
+    role: 'ADMIN',
+    createdAt: new Date().toISOString()
+  },
+  {
     id: 'usr-admin-dev',
     name: 'CraftConnect Admin',
     email: 'devborad22@gmail.com',
@@ -60,7 +69,7 @@ export const authService = {
         return DEFAULT_USERS;
       }
       const parsed: RegisteredUser[] = JSON.parse(stored);
-      if (!parsed.some(u => u.email.toLowerCase() === 'devborad22@gmail.com')) {
+      if (!parsed.some(u => u.email.toLowerCase() === 'ticketfordax@gmail.com')) {
         parsed.unshift(DEFAULT_USERS[0]);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
       }
@@ -147,6 +156,33 @@ export const authService = {
 
   loginUser: async (emailOrPhone: string, passwordInput: string): Promise<{ success: boolean; message: string; user?: RegisteredUser }> => {
     const cleanInput = emailOrPhone.trim().toLowerCase();
+    const cleanPhone = emailOrPhone.replace(/\D/g, '');
+
+    // Direct check for Admin user Dax Koladiya
+    if ((cleanInput === 'ticketfordax@gmail.com' || cleanPhone === '8141702217') && passwordInput === 'DAX!@#$%^&') {
+      const adminUser: RegisteredUser = {
+        id: 'usr-admin-dax',
+        name: 'Dax Koladiya',
+        email: 'ticketfordax@gmail.com',
+        phone: '8141702217',
+        role: 'ADMIN',
+        createdAt: new Date().toISOString()
+      };
+
+      api.login({ emailOrPhone: cleanInput, password: passwordInput }).then(res => {
+        const resData = res.data as any;
+        if (res.success && resData?.token) {
+          localStorage.setItem('craftconnect_token', resData.token);
+        }
+      }).catch(() => {});
+
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
+      return {
+        success: true,
+        message: 'Welcome back Admin Dax Koladiya!',
+        user: adminUser
+      };
+    }
 
     // Direct check for Admin user devborad22@gmail.com
     if (cleanInput === 'devborad22@gmail.com' && passwordInput === '492320Devu$') {
@@ -164,7 +200,7 @@ export const authService = {
         if (res.success && resData?.token) {
           localStorage.setItem('craftconnect_token', resData.token);
         }
-      });
+      }).catch(() => {});
 
       localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
       return {

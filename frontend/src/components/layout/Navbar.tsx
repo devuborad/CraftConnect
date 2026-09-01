@@ -5,7 +5,6 @@ import { LANGUAGES } from '../../services/mockData';
 import { NotificationDropdown } from '../common/NotificationDropdown';
 import { 
   Globe, 
-  Sparkles, 
   ShoppingBag, 
   ShoppingCart,
   LayoutDashboard, 
@@ -31,26 +30,13 @@ export const Navbar: React.FC = () => {
       <header className="sticky top-3 z-40 px-4 sm:px-6 lg:px-8 transition-all pointer-events-none">
         <div className="max-w-7xl mx-auto glass-nav rounded-2xl sm:rounded-full px-4 sm:px-7 h-16 sm:h-18 flex items-center justify-between pointer-events-auto transition-all shadow-xl hover:bg-white/50">
           
-          {/* Logo Concept: Craft + Thread + Connection */}
+          {/* Brand Logo */}
           <Link to="/" className="flex items-center space-x-2.5 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4A2E1B] to-[#C85A32] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                <circle cx="12" cy="12" r="3" className="fill-amber-400/30 stroke-amber-300" />
-              </svg>
-            </div>
-            <div>
-              <div className="flex items-center space-x-1.5">
-                <span className="font-display text-xl font-bold tracking-tight text-[#4A2E1B]">
-                  CraftConnect
-                </span>
-                <span className="bg-amber-100 text-[#C85A32] border border-amber-200 text-[10px] font-extrabold px-1.5 py-0.5 rounded tracking-wide uppercase flex items-center space-x-0.5">
-                  <Sparkles className="w-2.5 h-2.5" />
-                  <span>AI</span>
-                </span>
-              </div>
-              <p className="text-[10px] text-stone-500 font-medium tracking-wide">{t('nav.tagline')}</p>
-            </div>
+            <img 
+              src="/logo.png" 
+              alt="CraftConnect" 
+              className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105" 
+            />
           </Link>
 
           {/* Desktop Navigation Links */}
