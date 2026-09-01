@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { X, Zap, ShieldCheck, Truck, CreditCard, QrCode, Building2, CheckCircle2, ArrowRight, Lock, MapPin } from 'lucide-react';
 import type { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { ModalPortal } from '../common/ModalPortal';
 
 interface BuyNowModalProps {
   product: Product;
@@ -11,6 +13,7 @@ interface BuyNowModalProps {
 type PaymentOption = 'UPI' | 'CARD' | 'NETBANKING' | 'COD';
 
 export const BuyNowModal: React.FC<BuyNowModalProps> = ({ product, onClose }) => {
+  useBodyScrollLock(true);
   const { showToast, addNotification, userName, currentUser } = useApp();
 
   const [quantity, setQuantity] = useState(1);
@@ -68,8 +71,14 @@ export const BuyNowModal: React.FC<BuyNowModalProps> = ({ product, onClose }) =>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-950/70 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-8">
+    <ModalPortal>
+      <div 
+        className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[9999] flex items-center justify-center p-3 sm:p-6 bg-stone-900/30 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200 overscroll-contain"
+        onClick={(e) => {
+          if (e.target === e.currentTarget) onClose();
+        }}
+      >
+      <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-auto max-h-[88vh] overflow-y-auto overscroll-contain animate-in zoom-in-95 duration-200">
         
         {/* Header */}
         <div className="bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-6 relative">
@@ -420,8 +429,8 @@ export const BuyNowModal: React.FC<BuyNowModalProps> = ({ product, onClose }) =>
 
           </form>
         )}
-
+        </div>
       </div>
-    </div>
+    </ModalPortal>
   );
 };

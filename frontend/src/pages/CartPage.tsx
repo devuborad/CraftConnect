@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
+import { ModalPortal } from '../components/common/ModalPortal';
 import { 
   ShoppingBag, 
   Trash2, 
@@ -19,6 +21,7 @@ import {
 export const CartPage: React.FC = () => {
   const { cartItems, updateCartQuantity, removeFromCart, clearCart, cartSubtotal, cartCount, showToast, role, setRole, userName, currentUser } = useApp();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  useBodyScrollLock(showCheckoutModal);
   const [orderComplete, setOrderComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -294,8 +297,14 @@ export const CartPage: React.FC = () => {
 
       {/* Checkout Modal */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 overflow-hidden relative max-h-[90vh] overflow-y-auto space-y-5">
+        <ModalPortal>
+          <div 
+            className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[9999] flex items-center justify-center p-3 sm:p-6 bg-stone-900/30 backdrop-blur-sm animate-in fade-in duration-200 overscroll-contain"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowCheckoutModal(false);
+            }}
+          >
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-stone-200 overflow-hidden relative max-h-[88vh] overflow-y-auto overscroll-contain animate-in zoom-in-95 duration-200 my-auto space-y-5">
             {!orderComplete ? (
               <>
                 <div className="flex items-center justify-between pb-3 border-b border-stone-100">
@@ -509,7 +518,8 @@ export const CartPage: React.FC = () => {
             )}
           </div>
         </div>
-      )}
-    </div>
+      </ModalPortal>
+    )}
+  </div>
   );
 };
