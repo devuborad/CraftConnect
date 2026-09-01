@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { ModalPortal } from '../components/common/ModalPortal';
+import { inquiryService } from '../services/inquiries';
 import { 
   ShoppingBag, 
   Trash2, 
@@ -59,6 +60,24 @@ export const CartPage: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setTimeout(() => {
+      // Record direct order for each artisan in the cart
+      cartItems.forEach(({ product, quantity }) => {
+        inquiryService.recordDirectOrder({
+          product,
+          quantity,
+          buyerName,
+          buyerCompany: companyName,
+          buyerEmail: currentUser?.email || 'buyer@craftconnect.in',
+          buyerPhone: phone,
+          deliveryAddress: address,
+          city,
+          state,
+          pincode,
+          paymentMethod,
+          totalAmount: product.price * quantity,
+        });
+      });
+
       setIsSubmitting(false);
       setOrderComplete(true);
       clearCart();
