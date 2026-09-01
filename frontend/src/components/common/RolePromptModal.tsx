@@ -1,5 +1,6 @@
 import React from 'react';
-import { ShoppingBag, Sparkles, X, ArrowRight } from 'lucide-react';
+import { ShoppingBag, Sparkles, X, ArrowRight, UserCheck, LogIn } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 
 interface RolePromptModalProps {
@@ -15,9 +16,23 @@ export const RolePromptModal: React.FC<RolePromptModalProps> = ({
   onSuccess,
   actionName = 'Add to Cart / Bulk Order'
 }) => {
-  const { setRole } = useApp();
+  const { role, currentUser, setRole } = useApp();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   if (!isOpen) return null;
+
+  const isGuest = !currentUser || role === 'GUEST';
+
+  const handleSignIn = () => {
+    onClose();
+    navigate('/login', { state: { role: 'BUYER', redirect: location.pathname } });
+  };
+
+  const handleRegister = () => {
+    onClose();
+    navigate('/register', { state: { role: 'BUYER', redirect: location.pathname } });
+  };
 
   const handleSwitchRole = () => {
     setRole('BUYER');
@@ -44,21 +59,21 @@ export const RolePromptModal: React.FC<RolePromptModalProps> = ({
         <div className="text-center space-y-2">
           <div className="inline-flex items-center space-x-1 bg-amber-50 text-[#C85A32] text-[10px] font-extrabold px-2.5 py-0.5 rounded-full border border-amber-200 uppercase">
             <Sparkles className="w-3 h-3" />
-            <span>BUYER ACCOUNT EXCLUSIVE</span>
+            <span>AUTHENTICATION REQUIRED</span>
           </div>
 
           <h3 className="font-display font-bold text-xl text-stone-900">
-            Switch to Buyer Account
+            {isGuest ? 'Sign In or Sign Up to Continue' : 'Switch to Buyer Account'}
           </h3>
 
           <p className="text-xs text-stone-600 leading-relaxed px-2">
-            To perform <span className="font-semibold text-stone-900">{actionName}</span> and manage artisan sourcing, you need a <span className="font-bold text-[#4A2E1B]">Buyer Account</span>.
+            To perform <span className="font-semibold text-stone-900">{actionName}</span>, please sign in to your buyer account or register as a new buyer.
           </p>
         </div>
 
         <div className="bg-[#FAF7F2] p-3.5 rounded-2xl border border-stone-200 text-[11px] text-stone-700 space-y-1.5">
           <div className="flex items-center space-x-1.5 font-semibold text-[#4A2E1B]">
-            <span>✓ Access Direct Artisan Pricing</span>
+            <span>✓ Direct Artisan Wholesale Pricing</span>
           </div>
           <div className="flex items-center space-x-1.5 font-semibold text-[#4A2E1B]">
             <span>✓ Bulk Sourcing & Custom Orders</span>
@@ -68,22 +83,51 @@ export const RolePromptModal: React.FC<RolePromptModalProps> = ({
           </div>
         </div>
 
-        <div className="space-y-2 pt-1">
-          <button
-            onClick={handleSwitchRole}
-            className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
-          >
-            <span>Switch to Buyer Mode & Continue</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        {isGuest ? (
+          <div className="space-y-2.5 pt-1">
+            <button
+              onClick={handleSignIn}
+              className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
+            >
+              <LogIn className="w-4 h-4" />
+              <span>Sign In to Your Account</span>
+            </button>
 
-          <button
-            onClick={onClose}
-            className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 py-2.5 rounded-xl font-semibold text-xs transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
+            <button
+              onClick={handleRegister}
+              className="w-full bg-[#4A2E1B] hover:bg-[#382213] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all active:scale-98"
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Create New Buyer Account</span>
+            </button>
+
+            <div className="pt-2 text-center">
+              <button
+                onClick={handleSwitchRole}
+                className="text-[11px] text-stone-500 hover:text-amber-800 underline font-medium"
+              >
+                ⚡ Quick Demo Mode: Continue as Guest Buyer
+              </button>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2 pt-1">
+            <button
+              onClick={handleSwitchRole}
+              className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md transition-all active:scale-98"
+            >
+              <span>Switch to Buyer Mode & Continue</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-full bg-stone-100 hover:bg-stone-200 text-stone-700 py-2.5 rounded-xl font-semibold text-xs transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

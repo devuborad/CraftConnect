@@ -33,7 +33,7 @@ export const LoginPage: React.FC = () => {
     }
   }, [statePrefill]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -44,7 +44,7 @@ export const LoginPage: React.FC = () => {
 
     setLoading(true);
 
-    const result = authService.loginUser(identifier, password);
+    const result = await authService.loginUser(identifier, password);
     setLoading(false);
 
     if (!result.success || !result.user) {
@@ -54,20 +54,27 @@ export const LoginPage: React.FC = () => {
 
     // Login successful
     const user = result.user;
-    setRole(user.role);
+    setRole(user.role, user);
+
+    const isAdmin = user.role === 'ADMIN' || user.email?.toLowerCase() === 'devborad22@gmail.com';
 
     // Push Notification directly into live Bell notification icon
     addNotification({
-      targetRole: user.role,
+      targetRole: isAdmin ? 'ADMIN' : user.role,
       title: 'Sign In Successful 🔐',
-      message: `Welcome back, ${user.name}! You signed in to your ${user.role === 'BUYER' ? 'Boutique Buyer' : 'Master Artisan'} account.`,
+      message: `Welcome back, ${user.name}! ${isAdmin ? 'Admin Dashboard Unlocked.' : 'You signed in to your account.'}`,
       type: 'system',
-      link: user.role === 'BUYER' ? '/buyer/dashboard' : '/artisan/dashboard'
+      link: isAdmin ? '/admin' : user.role === 'BUYER' ? '/buyer/dashboard' : '/artisan/dashboard'
     });
 
-    showToast(`Welcome back, ${user.name}! 🎉`, `Signed in as ${user.role === 'BUYER' ? 'Boutique Buyer' : 'Master Artisan'}`, 'success');
+    showToast(`Welcome back, ${user.name}! 🎉`, `${isAdmin ? 'Signed in as Platform Administrator' : `Signed in as ${user.role === 'BUYER' ? 'Boutique Buyer' : 'Master Artisan'}`}`, 'success');
 
-    if (user.role === 'ARTISAN') {
+    const targetRedirect = location.state?.redirect;
+    if (isAdmin) {
+      navigate('/admin');
+    } else if (targetRedirect) {
+      navigate(targetRedirect);
+    } else if (user.role === 'ARTISAN') {
       navigate('/artisan/dashboard');
     } else if (user.role === 'BUYER') {
       navigate('/buyer/dashboard');

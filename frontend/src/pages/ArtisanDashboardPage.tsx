@@ -16,12 +16,17 @@ import { useApp } from '../context/AppContext';
 
 export const ArtisanDashboardPage: React.FC = () => {
   const navigate = useNavigate();
-  const { showToast, userName } = useApp();
+  const { role, currentUser, showToast, userName } = useApp();
   const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
+    if (!currentUser || role === 'GUEST') {
+      showToast('Sign In Required 🔐', 'Please sign in to access your Artisan Dashboard.', 'warning');
+      navigate('/login', { state: { role: 'ARTISAN', redirect: '/artisan/dashboard' } });
+      return;
+    }
     productService.getProducts().then((res) => setProducts(res));
-  }, []);
+  }, [currentUser, role, navigate, showToast]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">

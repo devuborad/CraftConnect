@@ -11,8 +11,18 @@ import { productService } from '../services/products';
 import { useApp } from '../context/AppContext';
 import type { Product } from '../types';
 
+import { useNavigate } from 'react-router-dom';
+
 export const AddProductWizardPage: React.FC = () => {
-  const { showToast } = useApp();
+  const { role, currentUser, showToast } = useApp();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (!currentUser || role === 'GUEST') {
+      showToast('Sign In Required 🔐', 'Please sign in or create an artisan account to list products.', 'warning');
+      navigate('/login', { state: { role: 'ARTISAN', redirect: '/artisan/products/new' } });
+    }
+  }, [currentUser, role, navigate, showToast]);
 
   const [currentStep, setCurrentStep] = useState<number>(1);
 

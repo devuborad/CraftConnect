@@ -35,7 +35,7 @@ export const RegisterPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -59,7 +59,7 @@ export const RegisterPage: React.FC = () => {
 
     setLoading(true);
 
-    const result = authService.registerUser({
+    const result = await authService.registerUser({
       name: name.trim(),
       email: email.trim(),
       phone: phone.trim(),

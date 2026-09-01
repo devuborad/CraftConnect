@@ -247,13 +247,20 @@ export const CartPage: React.FC = () => {
               </div>
 
               <button
-                onClick={() => setShowCheckoutModal(true)}
-                className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2 shadow-lg transition-all active:scale-98"
+                onClick={() => {
+                  if (!currentUser || role === 'GUEST') {
+                    showToast('Sign In Required 🔐', 'Please sign in or create a buyer account to place your order.', 'warning');
+                    navigate('/login', { state: { role: 'BUYER', redirect: '/cart' } });
+                    return;
+                  }
+                  setShowCheckoutModal(true);
+                }}
+                className="w-full bg-amber-400 hover:bg-amber-300 text-stone-950 py-3.5 rounded-2xl font-black text-sm flex items-center justify-center space-x-2 shadow-lg transition-all active:scale-98 border border-amber-500/40"
               >
                 <CreditCard className="w-4 h-4" />
                 <span>Proceed to Direct Checkout</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
-
               <div className="bg-[#FAF7F2] p-3 rounded-2xl text-[11px] text-stone-600 flex items-center space-x-2 border border-stone-200">
                 <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
                 <span>CraftConnect Fair-Trade Guarantee ensures 100% money reaches rural craft artisans.</span>

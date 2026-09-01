@@ -14,10 +14,15 @@ import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
 import { useApp } from '../context/AppContext';
 
 export const LandingPage: React.FC = () => {
-  const { setRole, t, language } = useApp();
+  const { role, currentUser, setRole, showToast, t, language } = useApp();
   const navigate = useNavigate();
 
   const handleStartSelling = () => {
+    if (!currentUser || role === 'GUEST') {
+      showToast('Sign In Required 🔐', 'Please sign in or create an artisan account to start selling your products.', 'info');
+      navigate('/login', { state: { role: 'ARTISAN', redirect: '/artisan/dashboard' } });
+      return;
+    }
     setRole('ARTISAN');
     navigate('/artisan/dashboard');
   };
