@@ -8,7 +8,10 @@ import {
   Eye, 
   TrendingUp, 
   Sparkles, 
-  Share2
+  Share2,
+  User,
+  Building2,
+  Award
 } from 'lucide-react';
 import { productService } from '../services/products';
 import type { Product } from '../types';
@@ -33,26 +36,65 @@ export const ArtisanDashboardPage: React.FC = () => {
       
       {/* Dashboard Greeting Header */}
       <div className="glass-card bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-900/10 p-8 rounded-3xl border border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2">
-          <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-[#C85A32] text-xs font-bold px-3 py-1 rounded-full">
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>ARTISAN STUDIO DASHBOARD</span>
+        <div className="flex items-center space-x-5">
+          {/* Artisan Profile Picture / Company Logo */}
+          <Link to="/artisan/profile" className="shrink-0 relative group" title="Click to view/edit profile & photo">
+            <img
+              src={currentUser?.avatar || currentUser?.profileImage || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400'}
+              alt={userName}
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
+            />
+            <div className="absolute inset-0 bg-black/30 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-[10px] font-bold transition-opacity">
+              Edit
+            </div>
+          </Link>
+
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-[#C85A32] text-xs font-bold px-3 py-1 rounded-full border border-amber-200">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>ARTISAN STUDIO DASHBOARD</span>
+              </div>
+              {currentUser?.businessName && (
+                <div className="inline-flex items-center space-x-1.5 bg-white text-stone-700 text-xs font-bold px-3 py-1 rounded-full border border-stone-200 shadow-xs">
+                  <Building2 className="w-3.5 h-3.5 text-[#C85A32]" />
+                  <span>{currentUser.businessName}</span>
+                </div>
+              )}
+              {currentUser?.experienceYears && (
+                <div className="inline-flex items-center space-x-1.5 bg-emerald-50 text-emerald-800 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-200">
+                  <Award className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>{currentUser.experienceYears} Years Master</span>
+                </div>
+              )}
+            </div>
+
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900">
+              Good morning, {userName} 👋
+            </h1>
+            <p className="text-xs sm:text-sm text-stone-600">
+              Let's bring your authentic handloom craft to more urban buyers and retail stores today.
+            </p>
           </div>
-          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-stone-900">
-            Good morning, {userName} 👋
-          </h1>
-          <p className="text-sm text-stone-600">
-            Let's bring your authentic handloom craft to more urban buyers and retail stores today.
-          </p>
         </div>
 
-        <Link
-          to="/artisan/products/new"
-          className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-7 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2 shadow-xl transition-all shrink-0 hover:scale-105"
-        >
-          <PlusCircle className="w-5 h-5" />
-          <span>+ Add New Product</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <Link
+            to="/artisan/profile"
+            className="bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 px-5 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2 shadow-sm transition-all shrink-0 hover:border-[#C85A32]"
+          >
+            <User className="w-4 h-4 text-[#C85A32]" />
+            <span>View Profile</span>
+          </Link>
+
+          <Link
+            to="/artisan/products/new"
+            className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-6 py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center space-x-2 shadow-xl transition-all shrink-0 hover:scale-105"
+          >
+            <PlusCircle className="w-5 h-5" />
+            <span>+ Add New Product</span>
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}

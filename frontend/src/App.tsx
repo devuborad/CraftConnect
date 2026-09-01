@@ -43,6 +43,7 @@ export const App: React.FC = () => {
               
               {/* Artisan Routes */}
               <Route path="/artisan/dashboard" element={<ArtisanDashboardPage />} />
+              <Route path="/artisan/profile" element={<ArtisanProfilePage />} />
               <Route path="/artisan/products" element={<ArtisanDashboardPage />} />
               <Route path="/artisan/products/new" element={<AddProductWizardPage />} />
               <Route path="/artisan/inquiries" element={<ArtisanInquiriesPage />} />

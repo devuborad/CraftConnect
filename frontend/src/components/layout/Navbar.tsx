@@ -3,6 +3,8 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { LANGUAGES } from '../../services/mockData';
 import { NotificationDropdown } from '../common/NotificationDropdown';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
+import { ModalPortal } from '../common/ModalPortal';
 import { 
   Globe, 
   Sparkles, 
@@ -18,6 +20,7 @@ import {
 export const Navbar: React.FC = () => {
   const { role, language, setLanguage, setRole, cartCount, t } = useApp();
   const [showLangModal, setShowLangModal] = useState(false);
+  useBodyScrollLock(showLangModal);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -290,53 +293,60 @@ export const Navbar: React.FC = () => {
 
       {/* Language Selection Modal */}
       {showLangModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-amber-900/10">
-            <div className="flex justify-between items-center mb-4">
-              <div className="flex items-center space-x-2">
-                <Globe className="w-5 h-5 text-[#C85A32]" />
-                <h3 className="font-display font-bold text-lg text-stone-900">Choose Language / ભાષા પસંદ કરો</h3>
-              </div>
-              <button
-                onClick={() => setShowLangModal(false)}
-                className="text-stone-400 hover:text-stone-700 p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-xs text-stone-500 mb-5">
-              Select your preferred language for voice assistant, AI cataloguing, and interface navigation.
-            </p>
-
-            <div className="space-y-3">
-              {LANGUAGES.map((lang) => (
+        <ModalPortal>
+          <div 
+            className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[9999] flex items-center justify-center p-3 sm:p-6 bg-stone-900/30 backdrop-blur-sm animate-in fade-in duration-200 overscroll-contain"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowLangModal(false);
+            }}
+          >
+            <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-amber-900/10 overscroll-contain animate-in zoom-in-95 duration-200 my-auto">
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center space-x-2">
+                  <Globe className="w-5 h-5 text-[#C85A32]" />
+                  <h3 className="font-display font-bold text-lg text-stone-900">Choose Language / ભાષા પસંદ કરો</h3>
+                </div>
                 <button
-                  key={lang.code}
-                  onClick={() => {
-                    setLanguage(lang.code);
-                    setShowLangModal(false);
-                  }}
-                  className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${
-                    language === lang.code
-                      ? 'border-[#C85A32] bg-amber-50/60 shadow-sm'
-                      : 'border-stone-200 hover:border-stone-300 bg-white'
-                  }`}
+                  onClick={() => setShowLangModal(false)}
+                  className="text-stone-400 hover:text-stone-700 p-1"
                 >
-                  <div>
-                    <h4 className="font-bold text-lg text-stone-900">{lang.nativeName}</h4>
-                    <p className="text-xs text-stone-500">{lang.name}</p>
-                  </div>
-                  {language === lang.code && (
-                    <span className="w-6 h-6 rounded-full bg-[#C85A32] text-white flex items-center justify-center text-xs font-bold">
-                      ✓
-                    </span>
-                  )}
+                  <X className="w-5 h-5" />
                 </button>
-              ))}
+              </div>
+
+              <p className="text-xs text-stone-500 mb-5">
+                Select your preferred language for voice assistant, AI cataloguing, and interface navigation.
+              </p>
+
+              <div className="space-y-3">
+                {LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    onClick={() => {
+                      setLanguage(lang.code);
+                      setShowLangModal(false);
+                    }}
+                    className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center justify-between ${
+                      language === lang.code
+                        ? 'border-[#C85A32] bg-amber-50/60 shadow-sm'
+                        : 'border-stone-200 hover:border-stone-300 bg-white'
+                    }`}
+                  >
+                    <div>
+                      <h4 className="font-bold text-lg text-stone-900">{lang.nativeName}</h4>
+                      <p className="text-xs text-stone-500">{lang.name}</p>
+                    </div>
+                    {language === lang.code && (
+                      <span className="w-6 h-6 rounded-full bg-[#C85A32] text-white flex items-center justify-center text-xs font-bold">
+                        ✓
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </>
   );

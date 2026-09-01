@@ -14,7 +14,10 @@ import {
   Building2, 
   AlertCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Award,
+  MapPin,
+  Palette
 } from 'lucide-react';
 import type { Role } from '../types';
 
@@ -27,6 +30,9 @@ export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [businessName, setBusinessName] = useState('');
+  const [craftType, setCraftType] = useState('');
+  const [experienceYears, setExperienceYears] = useState('5');
+  const [city, setCity] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
@@ -65,7 +71,10 @@ export const RegisterPage: React.FC = () => {
       phone: phone.trim(),
       password,
       role: selectedRole,
-      businessName: businessName.trim() || undefined
+      businessName: businessName.trim() || undefined,
+      craftType: selectedRole === 'ARTISAN' ? (craftType.trim() || 'Handloom & Traditional Crafts') : undefined,
+      experienceYears: selectedRole === 'ARTISAN' ? (parseInt(experienceYears, 10) || 1) : undefined,
+      city: city.trim() || (selectedRole === 'ARTISAN' ? 'Gujarat, India' : 'Mumbai, India'),
     });
 
     setLoading(false);
@@ -84,7 +93,7 @@ export const RegisterPage: React.FC = () => {
       link: '/login'
     });
 
-    showToast('Registration Successful! 🎉', 'Your account has been created. Please sign in.', 'success');
+    showToast('Registration Successful! 🎉', 'Your account has been created and connected to MySQL. Please sign in.', 'success');
 
     // Automatically redirect to Login page with prefilled credential
     navigate('/login', { 
@@ -225,22 +234,123 @@ export const RegisterPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Business / Craft Name Optional */}
-          <div>
-            <label className="block text-stone-700 font-bold mb-1">
-              {selectedRole === 'ARTISAN' ? 'Craft Specialty / Workshop Name' : 'Boutique / Business Name'}
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder={selectedRole === 'ARTISAN' ? 'e.g. Kutch Handloom Studio' : 'e.g. Heritage Craft Boutique'}
-                className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:bg-white"
-              />
-              <Building2 className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+          {/* Master Artisan Specific Profile Section */}
+          {selectedRole === 'ARTISAN' ? (
+            <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-200/80 space-y-3">
+              <div className="flex items-center space-x-2 text-stone-800 font-bold text-xs pb-1 border-b border-amber-200/60">
+                <Award className="w-4 h-4 text-[#C85A32]" />
+                <span>Artisan Workshop & Craft Experience Details</span>
+              </div>
+
+              {/* Craft Specialty & Workshop Name Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1">
+                    Craft Specialty / Technique
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={craftType}
+                      onChange={(e) => setCraftType(e.target.value)}
+                      placeholder="e.g. Patola Weaving, Pottery"
+                      className="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32]"
+                    />
+                    <Palette className="w-4 h-4 text-[#C85A32] absolute left-3.5 top-3" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1">
+                    Workshop / Company Name
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={businessName}
+                      onChange={(e) => setBusinessName(e.target.value)}
+                      placeholder="e.g. Kutch Handloom Studio"
+                      className="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32]"
+                    />
+                    <Building2 className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Experience Years & Location Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1">
+                    Years of Craft Experience *
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={experienceYears}
+                      onChange={(e) => setExperienceYears(e.target.value)}
+                      placeholder="e.g. 10"
+                      className="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32]"
+                      required
+                    />
+                    <Award className="w-4 h-4 text-[#C85A32] absolute left-3.5 top-3" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-stone-700 font-bold mb-1">
+                    Workshop Location (City & State)
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="e.g. Patan, Gujarat"
+                      className="w-full bg-white border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32]"
+                    />
+                    <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          ) : (
+            /* Buyer Specific Section */
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-stone-700 font-bold mb-1">
+                  Boutique / Company Name
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={businessName}
+                    onChange={(e) => setBusinessName(e.target.value)}
+                    placeholder="e.g. Heritage Craft Boutique"
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:bg-white"
+                  />
+                  <Building2 className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-stone-700 font-bold mb-1">
+                  City / Location
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
+                    placeholder="e.g. Mumbai, Maharashtra"
+                    className="w-full bg-stone-50 border border-stone-300 rounded-xl pl-10 pr-3 py-2.5 text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32] focus:bg-white"
+                  />
+                  <MapPin className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Password & Confirm Password Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
