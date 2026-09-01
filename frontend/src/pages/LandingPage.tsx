@@ -85,6 +85,22 @@ export const LandingPage: React.FC = () => {
                 <span>{t('hero.feature3')}</span>
               </div>
             </div>
+
+            {/* Voice AI Active Live Preview Card on Left Column */}
+            <div className="glass-card bg-white/95 p-3.5 rounded-2xl shadow-md border border-amber-900/10 max-w-lg space-y-1.5 flex items-start space-x-3 mt-4">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                <Mic className="w-5 h-5 text-[#C85A32] animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
+                  <span>{t('hero.voiceActive')}</span>
+                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Live</span>
+                </div>
+                <p className="text-[11px] text-stone-600 mt-0.5">
+                  {language === 'gu' ? 'ટ્રાન્સક્રિપ્શન: "કચ્છની પરંપરાગત વણાટ કામગીરી" → અંગ્રેજી લિસ્ટિંગ તૈયાર ✨' : language === 'hi' ? 'ट्रांसक्रिप्शन: "कच्छ की पारंपरिक बुनाई" → इंग्लिश लिस्टिंग तैयार ✨' : 'Transcribed: "Traditional Kutch weave" → English Listing Generated ✨'}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Hero Visual Card Stack */}
@@ -121,18 +137,54 @@ export const LandingPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Floating AI Workflow Card */}
-              <div className="glass-card bg-white/95 p-4 rounded-2xl shadow-xl border border-amber-900/10 absolute -top-5 -right-5 max-w-xs space-y-2 hidden sm:block animate-bounce z-20" style={{ animationDuration: '6s' }}>
-                <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
-                  <Mic className="w-4 h-4 text-[#C85A32]" />
-                  <span>{t('hero.voiceActive')}</span>
-                </div>
-                <p className="text-[11px] text-stone-600">
-                  {language === 'gu' ? 'ટ્રાન્સક્રિપ્શન: "કચ્છની પરંપરાગત વણાટ કામગીરી" → અંગ્રેજી લિસ્ટિંગ તૈયાર ✨' : language === 'hi' ? 'ट्रांसक्रिप्शन: "कच्छ की पारंपरिक बुनाई" → इंग्लिश लिस्टिंग तैयार ✨' : 'Transcribed: "Traditional Kutch weave" → English Listing Generated ✨'}
-                </p>
-              </div>
-
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* DUAL CONTINUOUS HORIZONTAL SALE TICKERS */}
+      <section className="relative overflow-hidden space-y-2.5 my-8 py-2">
+        {/* Track 1: Left to Right Marquee */}
+        <div className="bg-[#4A2E1B] text-amber-300 py-2.5 overflow-hidden shadow-md flex items-center border-y border-amber-500/20 transform -rotate-1 scale-105">
+          <div className="animate-marquee-ltr select-none flex items-center whitespace-nowrap">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`ltr-1-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
+                <span className="text-amber-400">SALE</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
+                <span className="text-white">FESTIVE DISCOUNTS</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shrink-0" />
+              </span>
+            ))}
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`ltr-2-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
+                <span className="text-amber-400">SALE</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
+                <span className="text-white">FESTIVE DISCOUNTS</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shrink-0" />
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Track 2: Right to Left Marquee */}
+        <div className="bg-[#C85A32] text-white py-2.5 overflow-hidden shadow-md flex items-center border-y border-orange-300/30 transform rotate-1 scale-105">
+          <div className="animate-marquee-rtl select-none flex items-center whitespace-nowrap">
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`rtl-1-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
+                <span className="text-amber-200">SALE</span>
+                <span className="text-white font-black">•</span>
+                <span>LIMITED TIME ARTISAN OFFERS</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+              </span>
+            ))}
+            {Array.from({ length: 16 }).map((_, i) => (
+              <span key={`rtl-2-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
+                <span className="text-amber-200">SALE</span>
+                <span className="text-white font-black">•</span>
+                <span>LIMITED TIME ARTISAN OFFERS</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
+              </span>
+            ))}
           </div>
         </div>
       </section>
