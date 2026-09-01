@@ -18,6 +18,7 @@ import { ArtisanDashboardPage } from './pages/ArtisanDashboardPage';
 import { AddProductWizardPage } from './pages/AddProductWizardPage';
 import { ArtisanInquiriesPage } from './pages/ArtisanInquiriesPage';
 import { BuyerDashboardPage } from './pages/BuyerDashboardPage';
+import { BuyerProfilePage } from './pages/BuyerProfilePage';
 import { CartPage } from './pages/CartPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
@@ -49,6 +50,7 @@ export const App: React.FC = () => {
               
               {/* Buyer Routes */}
               <Route path="/buyer/dashboard" element={<BuyerDashboardPage />} />
+              <Route path="/buyer/profile" element={<BuyerProfilePage />} />
               <Route path="/buyer/cart" element={<CartPage />} />
               <Route path="/buyer/inquiries" element={<BuyerDashboardPage />} />
               

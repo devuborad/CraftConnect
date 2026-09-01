@@ -12,7 +12,8 @@ import {
   PlusCircle, 
   Menu, 
   X, 
-  LogOut
+  LogOut,
+  User
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -67,12 +68,14 @@ export const Navbar: React.FC = () => {
             >
               {t('nav.marketplace')}
             </Link>
-            <Link 
-              to="/about" 
-              className={`hover:text-[#C85A32] transition-colors ${isActive('/about') ? 'text-[#C85A32] font-semibold' : ''}`}
-            >
-              {t('nav.howItWorks')}
-            </Link>
+            {role !== 'BUYER' && (
+              <Link 
+                to="/about" 
+                className={`hover:text-[#C85A32] transition-colors ${isActive('/about') ? 'text-[#C85A32] font-semibold' : ''}`}
+              >
+                {t('nav.howItWorks')}
+              </Link>
+            )}
 
             {role === 'ARTISAN' && (
               <>
@@ -94,13 +97,22 @@ export const Navbar: React.FC = () => {
             )}
 
             {role === 'BUYER' && (
-              <Link 
-                to="/buyer/dashboard" 
-                className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                <span>{t('nav.buyerDashboard')}</span>
-              </Link>
+              <>
+                <Link 
+                  to="/buyer/dashboard" 
+                  className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>{t('nav.buyerDashboard')}</span>
+                </Link>
+                <Link 
+                  to="/buyer/profile" 
+                  className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/profile') ? 'text-[#C85A32] font-semibold' : ''}`}
+                >
+                  <User className="w-4 h-4" />
+                  <span>My Profile</span>
+                </Link>
+              </>
             )}
 
             {role === 'ADMIN' && (
@@ -218,29 +230,32 @@ export const Navbar: React.FC = () => {
           >
             Marketplace
           </Link>
-          <Link
-            to="/about"
-            onClick={() => setMobileMenuOpen(false)}
-            className="block text-base font-semibold text-stone-800 py-1"
-          >
-            How It Works
-          </Link>
-          {role === 'BUYER' && (
+          {role !== 'BUYER' && (
             <Link
-              to="/cart"
+              to="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-base font-semibold text-[#C85A32] py-1 flex items-center justify-between"
+              className="block text-base font-semibold text-stone-800 py-1"
             >
-              <span className="flex items-center space-x-2">
-                <ShoppingCart className="w-5 h-5 text-[#C85A32]" />
-                <span>Sourcing Cart</span>
-              </span>
-              {cartCount > 0 && (
-                <span className="bg-[#C85A32] text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                  {cartCount}
-                </span>
-              )}
+              How It Works
             </Link>
+          )}
+          {role === 'BUYER' && (
+            <>
+              <Link
+                to="/cart"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-[#C85A32] py-1"
+              >
+                My Cart ({cartCount})
+              </Link>
+              <Link
+                to="/buyer/profile"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-stone-800 py-1"
+              >
+                My Profile
+              </Link>
+            </>
           )}
 
           {role === 'ARTISAN' && (
