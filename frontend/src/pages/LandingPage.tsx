@@ -80,6 +80,22 @@ export const LandingPage: React.FC = () => {
                 <span>{t('hero.feature3')}</span>
               </div>
             </div>
+
+            {/* Voice AI Active Live Preview Card on Left Column */}
+            <div className="glass-card bg-white/95 p-3.5 rounded-2xl shadow-md border border-amber-900/10 max-w-lg space-y-1.5 flex items-start space-x-3 mt-4">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+                <Mic className="w-5 h-5 text-[#C85A32] animate-pulse" />
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
+                  <span>{t('hero.voiceActive')}</span>
+                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Live</span>
+                </div>
+                <p className="text-[11px] text-stone-600 mt-0.5">
+                  {language === 'gu' ? 'ટ્રાન્સક્રિપ્શન: "કચ્છની પરંપરાગત વણાટ કામગીરી" → અંગ્રેજી લિસ્ટિંગ તૈયાર ✨' : language === 'hi' ? 'ट्रांसक्रिप्शन: "कच्छ की पारंपरिक बुनाई" → इंग्लिश लिस्टिंग तैयार ✨' : 'Transcribed: "Traditional Kutch weave" → English Listing Generated ✨'}
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Hero Visual Card Stack */}
@@ -114,17 +130,6 @@ export const LandingPage: React.FC = () => {
                     {language === 'gu' ? '"આ હાથથી વણેલી કોટનની સાડી છે..." (વોઇસથી અંગ્રેજી AI કેટલોગ)' : language === 'hi' ? '"यह हाथ से बुनी सूती साड़ी है..." (वॉयस से इंग्लिश AI कैटलॉग)' : '"This is a handwoven cotton saree..." (Speech to English AI Catalogue)'}
                   </p>
                 </div>
-              </div>
-
-              {/* Floating AI Workflow Card */}
-              <div className="glass-card bg-white/95 p-4 rounded-2xl shadow-xl border border-amber-900/10 absolute -top-6 -left-6 max-w-xs space-y-2 hidden sm:block animate-bounce z-20" style={{ animationDuration: '6s' }}>
-                <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
-                  <Mic className="w-4 h-4 text-[#C85A32]" />
-                  <span>{t('hero.voiceActive')}</span>
-                </div>
-                <p className="text-[11px] text-stone-600">
-                  {language === 'gu' ? 'ટ્રાન્સક્રિપ્શન: "કચ્છની પરંપરાગત વણાટ કામગીરી" → અંગ્રેજી લિસ્ટિંગ તૈયાર ✨' : language === 'hi' ? 'ट्रांसक्रिप्शन: "कच्छ की पारंपरिक बुनाई" → इंग्लिश लिस्टिंग तैयार ✨' : 'Transcribed: "Traditional Kutch weave" → English Listing Generated ✨'}
-                </p>
               </div>
 
             </div>
