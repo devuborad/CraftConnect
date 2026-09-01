@@ -40,7 +40,7 @@ body {
 
 /* Glassmorphism Utilities */
 .glass-card {
-  background: rgba(255, 255, 255, 0.85);
+  background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(231, 229, 228, 0.7);
@@ -138,4 +138,4 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #A8A29E;
-}
+}

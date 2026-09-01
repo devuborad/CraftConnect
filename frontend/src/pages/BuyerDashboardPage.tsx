@@ -6,23 +6,28 @@ import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
 import { ProductCard } from '../components/marketplace/ProductCard';
 
 export const BuyerDashboardPage: React.FC = () => {
-  const { savedProductIds, cartCount, cartSubtotal } = useApp();
+  const { savedProductIds, cartCount, cartSubtotal, userName } = useApp();
   const savedProducts = MOCK_PRODUCTS.filter((p) => savedProductIds.includes(p.id));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       
       {/* Header */}
-      <div className="glass-card bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white p-8 rounded-3xl shadow-xl space-y-2">
-        <span className="bg-amber-400 text-stone-950 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase">
-          BOUTIQUE BUYER DASHBOARD
-        </span>
-        <h1 className="font-display font-extrabold text-3xl text-white">
-          Welcome back, Anita 👋
-        </h1>
-        <p className="text-xs text-amber-100">
-          Heritage Craft Boutique • Direct Rural Artisan Sourcing Portal
-        </p>
+      <div className="glass-card bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-8 rounded-3xl shadow-2xl space-y-3 relative overflow-hidden border border-amber-900/30">
+        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div className="relative z-10 space-y-2">
+          <div className="inline-block">
+            <span className="bg-amber-400 text-stone-950 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+              BOUTIQUE BUYER DASHBOARD
+            </span>
+          </div>
+          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-white drop-shadow-sm">
+            Welcome back, {userName} 👋
+          </h1>
+          <p className="text-xs sm:text-sm text-amber-100/95 font-medium tracking-wide">
+            Heritage Craft Boutique • Direct Rural Artisan Sourcing Portal
+          </p>
+        </div>
       </div>
 
       {/* Cart Overview Widget */}

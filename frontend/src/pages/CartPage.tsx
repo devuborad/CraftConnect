@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
   ShoppingBag, 
@@ -17,22 +17,35 @@ import {
 } from 'lucide-react';
 
 export const CartPage: React.FC = () => {
-  const { cartItems, updateCartQuantity, removeFromCart, clearCart, cartSubtotal, cartCount, showToast, role, setRole } = useApp();
+  const { cartItems, updateCartQuantity, removeFromCart, clearCart, cartSubtotal, cartCount, showToast, role, setRole, userName, currentUser } = useApp();
   const [showCheckoutModal, setShowCheckoutModal] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form State
-  const [buyerName, setBuyerName] = useState('Anita Sharma');
-  const [companyName, setCompanyName] = useState('Heritage Craft Boutique');
-  const [phone, setPhone] = useState('+91 98200 11223');
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state?.autoCheckout) {
+      setShowCheckoutModal(true);
+    }
+  }, [location.state]);
+
+  // Form State initialized with logged-in user name
+  const [buyerName, setBuyerName] = useState(userName);
+  const [companyName, setCompanyName] = useState(currentUser?.businessName || 'Heritage Craft Boutique');
+  const [phone, setPhone] = useState(currentUser?.phone || '+91 98200 11223');
   const [address, setAddress] = useState('402, Craft Tower, Bandra West');
+
+  useEffect(() => {
+    if (userName) {
+      setBuyerName(userName);
+    }
+  }, [userName]);
   const [city, setCity] = useState('Mumbai');
   const [state, setState] = useState('Maharashtra');
   const [pincode, setPincode] = useState('400050');
   const [paymentMethod, setPaymentMethod] = useState<'COD' | 'UPI' | 'RAZORPAY'>('UPI');
-
-  const navigate = useNavigate();
 
   // Calculations
   const shippingFee = cartSubtotal > 3000 || cartItems.length === 0 ? 0 : 250;

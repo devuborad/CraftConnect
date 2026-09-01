@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../../context/AppContext';
 import { LANGUAGES } from '../../services/mockData';
+import { NotificationDropdown } from '../common/NotificationDropdown';
 import { 
   Globe, 
   Sparkles, 
@@ -112,8 +113,11 @@ export const Navbar: React.FC = () => {
             )}
           </nav>
 
-          {/* Right Action Tools (Cart Button for Buyers, Language, Role Badge) */}
+          {/* Right Action Tools (Cart Button for Buyers, Live Notifications, Language, Role Badge) */}
           <div className="hidden md:flex items-center space-x-3">
+            {/* Live Notifications Bell Icon */}
+            <NotificationDropdown />
+
             {/* Cart Icon Button - ONLY VISIBLE FOR BUYERS */}
             {role === 'BUYER' && (
               <Link
@@ -177,8 +181,9 @@ export const Navbar: React.FC = () => {
             )}
           </div>
 
-          {/* Mobile hamburger menu toggle */}
+          {/* Mobile hamburger menu toggle & Notification Icon */}
           <div className="flex md:hidden items-center space-x-2">
+            <NotificationDropdown />
             <button
               onClick={() => setShowLangModal(true)}
               className="glass-pill px-2.5 py-1 rounded-full text-xs font-medium text-stone-700 flex items-center space-x-1"
