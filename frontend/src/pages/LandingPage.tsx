@@ -266,49 +266,49 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">01</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">01</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Camera className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.1.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.1.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.1.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.1.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">02</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">02</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Mic className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.2.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.2.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.2.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.2.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">03</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">03</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.3.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.3.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.3.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.3.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">04</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">04</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Calculator className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.4.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.4.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.4.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.4.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">05</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">05</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <ShoppingBag className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.5.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.5.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.5.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.5.desc')}</p>
           </div>
         </div>
       </section>
