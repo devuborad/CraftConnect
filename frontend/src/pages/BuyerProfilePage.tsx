@@ -65,7 +65,9 @@ export const BuyerProfilePage: React.FC = () => {
   };
 
   const handleEditClick = () => {
-    setEditForm(profile); // Reset form to current profile data
+    setEditForm(profile || {
+      id: '', name: '', email: '', phone: '', companyName: '', location: ''
+    }); // Reset form to current profile data or empty defaults
     setIsEditing(true);
     setSuccessMsg('');
     setErrorMsg('');
