@@ -17,6 +17,7 @@ const getStoredProducts = (): Product[] => {
 const saveStoredProducts = (products: Product[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save products to localStorage:', e);
   }
@@ -89,17 +90,12 @@ export const productService = {
     });
   },
 
-  getMyProducts: async (): Promise<Product[]> => {
-    return new Promise((resolve) => {
-      setTimeout(() => resolve([...MOCK_PRODUCTS]), 200);
-    });
-  },
 
   getProductById: async (id: string): Promise<Product | undefined> => {
     try {
       const res = await api.getProductById(id);
       if (res.success && res.data) {
-        return res.data;
+        return res.data as Product;
       }
     } catch (e) {
       console.warn('Backend getProductById fallback:', e);
@@ -149,8 +145,8 @@ export const productService = {
         status: 'published',
       });
 
-      if (res.success && res.data && res.data.id) {
-        createdId = res.data.id;
+      if (res.success && res.data && (res.data as any).id) {
+        createdId = (res.data as any).id;
       }
     } catch (e) {
       console.warn('Backend createProduct API fallback:', e);
@@ -226,8 +222,8 @@ export const productService = {
         status: 'draft',
       });
 
-      if (res.success && res.data && res.data.id) {
-        createdId = res.data.id;
+      if (res.success && res.data && (res.data as any).id) {
+        createdId = (res.data as any).id;
       }
     } catch (e) {
       console.warn('Backend saveProductDraft API fallback:', e);

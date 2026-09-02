@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { ModalPortal } from '../common/ModalPortal';
 import type { BulkInquiry } from '../../types';
-import { downloadAnalyticsPDF } from '../../pages/ArtisanAnalyticsPage';
+import { downloadAnalyticsPDF } from '../../utils/pdfExport';
 
 interface PipelineAnalyticsModalProps {
   isOpen: boolean;

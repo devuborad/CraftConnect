@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { productService } from '../services/products';
 import type { Product } from '../types';
+import { useApp } from '../context/AppContext';
 import { downloadCataloguePDF } from '../utils/pdfExport';
 
 export const ArtisanCatalogueAnalyticsPage: React.FC = () => {
