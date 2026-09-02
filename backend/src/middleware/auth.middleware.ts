@@ -45,13 +45,14 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
 
 export const optionalAuth = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
+
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.split(' ')[1];
     try {
       const decoded = jwt.verify(token, ENV.JWT_SECRET) as AuthenticatedUser;
       req.user = decoded;
-    } catch {
-      // Ignore invalid token in optional auth
+    } catch (err) {
+      // Ignore token decode error for optional auth
     }
   }
   next();

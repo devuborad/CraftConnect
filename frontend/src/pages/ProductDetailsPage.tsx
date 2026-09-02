@@ -120,7 +120,7 @@ export const ProductDetailsPage: React.FC = () => {
             </p>
           </div>
 
-          {/* Pricing Box */}
+          {/* Pricing & Stock Box */}
           <div className="bg-[#FAF7F2] p-5 rounded-2xl border border-stone-200 flex items-center justify-between">
             <div>
               <span className="text-[10px] text-stone-500 font-bold uppercase tracking-wider block">Artisan Direct Fair Price</span>
@@ -128,9 +128,15 @@ export const ProductDetailsPage: React.FC = () => {
             </div>
 
             <div className="text-right">
-              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">
-                89% AI Fair Pricing Confidence
-              </span>
+              {product.stock === 0 ? (
+                <span className="bg-red-100 text-red-800 text-xs font-black px-3 py-1.5 rounded-full border border-red-300 block">
+                  Out of Stock ⚠️ (Sold Out)
+                </span>
+              ) : (
+                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full">
+                  {product.stock !== undefined ? product.stock : 10} Available Units
+                </span>
+              )}
             </div>
           </div>
 

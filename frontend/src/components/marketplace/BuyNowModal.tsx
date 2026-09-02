@@ -4,6 +4,7 @@ import type { Product } from '../../types';
 import { useApp } from '../../context/AppContext';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { ModalPortal } from '../common/ModalPortal';
+import { inquiryService } from '../../services/inquiries';
 
 interface BuyNowModalProps {
   product: Product;
@@ -28,6 +29,7 @@ export const BuyNowModal: React.FC<BuyNowModalProps> = ({ product, onClose }) =>
   const [phone, setPhone] = useState(currentUser?.phone || '+91 98765 43210');
   const [address, setAddress] = useState('Flat 402, Craft Haven Apartments, Bandra West');
   const [city, setCity] = useState('Mumbai');
+  const [state, setState] = useState('Maharashtra');
   const [pincode, setPincode] = useState('400050');
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,6 +50,21 @@ export const BuyNowModal: React.FC<BuyNowModalProps> = ({ product, onClose }) =>
       setOrderId(generatedOrderId);
       setIsSubmitting(false);
       setOrderComplete(true);
+
+      // Save live real order in inquiryService for artisan
+      inquiryService.recordDirectOrder({
+        product,
+        quantity,
+        buyerName: fullName,
+        buyerCompany: 'Direct Express Purchase',
+        buyerPhone: phone,
+        deliveryAddress: address,
+        city,
+        state,
+        pincode,
+        paymentMethod: paymentOption,
+        totalAmount: grandTotal,
+      });
 
       // Trigger Notifications
       addNotification({

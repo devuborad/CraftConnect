@@ -675,3 +675,55 @@ export const incrementProductView = async (req: Request, res: Response): Promise
     res.status(500).json({ success: false, message: 'Failed to increment views' });
   }
 };
+
+export const getProductAnalytics = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userRole = req.user?.role;
+    const userId = req.user?.id;
+
+    let whereClause = `WHERE 1=1`;
+    const queryParams: any[] = [];
+
+    if (userRole === 'artisan') {
+      whereClause += ` AND (a.user_id = ? OR p.artisan_id = ?)`;
+      queryParams.push(userId, req.user?.artisanId || '');
+    }
+
+    const sql = `
+      SELECT 
+        COUNT(*) as total_products,
+        SUM(CASE WHEN p.status = 'published' THEN 1 ELSE 0 END) as published_count,
+        SUM(CASE WHEN p.status = 'pending' THEN 1 ELSE 0 END) as pending_count,
+        SUM(CASE WHEN p.status = 'draft' THEN 1 ELSE 0 END) as draft_count,
+        SUM(COALESCE(p.stock_quantity, 1)) as total_stock_units,
+        SUM(COALESCE(p.stock_quantity, 1) * p.price) as total_inventory_value,
+        AVG(p.price) as avg_product_price,
+        SUM(p.views_count) as total_views,
+        SUM(CASE WHEN p.enhanced_image_url IS NOT NULL AND p.enhanced_image_url != '' THEN 1 ELSE 0 END) as ai_enhanced_count
+      FROM products p
+      LEFT JOIN artisans a ON p.artisan_id = a.id
+      ${whereClause}
+    `;
+
+    const [rows]: any = await db.execute(sql, queryParams);
+    const data = rows[0] || {};
+
+    res.json({
+      success: true,
+      data: {
+        totalProducts: parseInt(data.total_products || 0, 10),
+        publishedCount: parseInt(data.published_count || 0, 10),
+        pendingCount: parseInt(data.pending_count || 0, 10),
+        draftCount: parseInt(data.draft_count || 0, 10),
+        totalStockUnits: parseInt(data.total_stock_units || 0, 10),
+        totalInventoryValue: parseFloat(data.total_inventory_value || 0),
+        avgProductPrice: parseFloat(data.avg_product_price || 0),
+        totalViews: parseInt(data.total_views || 0, 10),
+        aiEnhancedCount: parseInt(data.ai_enhanced_count || 0, 10)
+      }
+    });
+  } catch (err: any) {
+    console.error('getProductAnalytics error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch product analytics' });
+  }
+};

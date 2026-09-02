@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   getProducts,
   getMyProducts,
+  getProductAnalytics,
   getProductById,
   createProduct,
   saveProductDraft,
@@ -11,12 +12,12 @@ import {
   deleteProduct,
   incrementProductView,
 } from '../controllers/product.controller.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 
 const router = Router();
 
-// Public / Filtered product retrieval
+router.get('/analytics', optionalAuth, getProductAnalytics);
 router.get('/', getProducts);
 
 // Authenticated artisan's products
