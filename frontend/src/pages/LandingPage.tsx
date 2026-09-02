@@ -31,10 +31,26 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-24 pb-20 overflow-hidden">
+    <div className="-mt-20 sm:-mt-24 space-y-20 pb-20 relative overflow-hidden">
       
+      {/* Absolute Full-Width Video Background Layer (Top 0 to Behind Navbar) */}
+      <div className="absolute top-0 inset-x-0 w-full h-[650px] sm:h-[720px] lg:h-[820px] z-0 overflow-hidden pointer-events-none">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-50"
+        >
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+        {/* Full Screen Vignette Overlays for Maximum Text Clarity */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/95 via-[#FAF7F2]/60 to-[#FAF7F2]/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#FAF7F2]" />
+      </div>
+
       {/* HERO SECTION */}
-      <section className="relative pt-12 lg:pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="relative z-10 pt-24 sm:pt-28 lg:pt-32 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Hero Headline & CTA */}
