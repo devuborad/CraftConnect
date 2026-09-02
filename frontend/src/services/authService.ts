@@ -1,5 +1,6 @@
 import type { Role } from '../types';
 import { api } from './api';
+import { compressImage } from '../utils/imageCompressor';
 
 export interface RegisteredUser {
   id: string;
@@ -22,6 +23,20 @@ export interface RegisteredUser {
 
 const STORAGE_KEY = 'craft_registered_users';
 const CURRENT_USER_KEY = 'craft_current_user';
+
+export const safeSetLocalStorage = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err: any) {
+    console.warn(`[LocalStorage Quota Exceeded] Clearing legacy cache to store ${key}:`, err);
+    try {
+      localStorage.removeItem('craft_live_inquiries_orders');
+      localStorage.setItem(key, value);
+    } catch {
+      // Ignore if quota still exceeded
+    }
+  }
+};
 
 // Pre-seeded default demo accounts including Admin
 const DEFAULT_USERS: RegisteredUser[] = [
@@ -298,7 +313,15 @@ export const authService = {
       return { success: false, message: 'No user is currently signed in.' };
     }
 
-    const newAvatar = updatedData.profileImage || updatedData.avatar;
+    const rawAvatar = updatedData.profileImage || updatedData.avatar;
+    let newAvatar = rawAvatar;
+    if (rawAvatar && rawAvatar.length > 500000) {
+      try {
+        newAvatar = await compressImage(rawAvatar);
+      } catch {
+        newAvatar = rawAvatar;
+      }
+    }
 
     // 1. Send update to Backend MySQL API
     const apiRes = await api.updateProfile({
@@ -318,7 +341,7 @@ export const authService = {
     if (apiRes.success && apiRes.data) {
       const resData = apiRes.data as any;
       if (resData.token) {
-        localStorage.setItem('craftconnect_token', resData.token);
+        safeSetLocalStorage('craftconnect_token', resData.token);
       }
       const backendUser = resData.user || {};
       const finalImg = backendUser.avatar || backendUser.profileImage || newAvatar || currentUser.avatar || currentUser.profileImage;
@@ -339,10 +362,10 @@ export const authService = {
         password: updatedData.password || currentUser.password,
       };
 
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+      safeSetLocalStorage(CURRENT_USER_KEY, JSON.stringify(newUser));
       const allUsers = authService.getUsers();
       const updatedAll = allUsers.map(u => u.id === newUser.id || (u.email && u.email === newUser.email) ? newUser : u);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAll));
+      safeSetLocalStorage(STORAGE_KEY, JSON.stringify(updatedAll));
 
       return {
         success: true,
@@ -359,10 +382,10 @@ export const authService = {
       avatar: finalImg,
       profileImage: finalImg,
     };
-    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+    safeSetLocalStorage(CURRENT_USER_KEY, JSON.stringify(newUser));
     const allUsers = authService.getUsers();
     const updatedAll = allUsers.map(u => u.id === newUser.id ? newUser : u);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAll));
+    safeSetLocalStorage(STORAGE_KEY, JSON.stringify(updatedAll));
 
     return {
       success: true,
@@ -374,14 +397,11 @@ export const authService = {
   getCurrentUser: (): RegisteredUser | null => {
     try {
       const stored = localStorage.getItem(CURRENT_USER_KEY);
-      const token = localStorage.getItem('craftconnect_token');
-      
-      if (stored && token) {
-        return JSON.parse(stored);
-      } else if (stored && !token) {
-        // Clear invalid or mock session that doesn't have a real token
-        localStorage.removeItem(CURRENT_USER_KEY);
-        return null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === 'object') {
+          return parsed;
+        }
       }
       return null;
     } catch {

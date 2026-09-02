@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, language, setLanguage, setRole, cartCount, t } = useApp();
+  const { currentUser, role, language, setLanguage, setRole, cartCount, t, userName } = useApp();
   const [showLangModal, setShowLangModal] = useState(false);
   useBodyScrollLock(showLangModal);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);

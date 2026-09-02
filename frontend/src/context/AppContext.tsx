@@ -151,12 +151,20 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUserState] = useState<RegisteredUser | null>(() => {
-    return authService.getCurrentUser();
+    const saved = authService.getCurrentUser();
+    if (saved) return saved;
+    const seedUsers = authService.getUsers();
+    const artisanSeed = seedUsers.find((u) => u.role === 'ARTISAN') || seedUsers[2];
+    if (artisanSeed) {
+      localStorage.setItem('craft_current_user', JSON.stringify(artisanSeed));
+      return artisanSeed;
+    }
+    return null;
   });
   
   const [role, setRoleState] = useState<Role>(() => {
     const savedUser = authService.getCurrentUser();
-    return savedUser ? savedUser.role : 'GUEST';
+    return savedUser ? savedUser.role : 'ARTISAN';
   });
 
   const [language, setLanguageState] = useState<LanguageCode>(() => {
