@@ -14,6 +14,7 @@ import orderRoutes from './routes/order.routes.js';
 import pricingRoutes from './routes/pricing.routes.js';
 import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
+import buyerRoutes from './routes/buyer.routes.js';
 
 export const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/pricing', pricingRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/buyers', buyerRoutes);
 
 // Global Error Handler
 app.use(errorHandler);

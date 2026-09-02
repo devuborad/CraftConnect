@@ -22,6 +22,7 @@ import { ArtisanInquiriesPage } from './pages/ArtisanInquiriesPage';
 import { ArtisanOrdersPage } from './pages/ArtisanOrdersPage';
 import { ArtisanHistoryPage } from './pages/ArtisanHistoryPage';
 import { BuyerDashboardPage } from './pages/BuyerDashboardPage';
+import { BuyerProfilePage } from './pages/BuyerProfilePage';
 import { CartPage } from './pages/CartPage';
 import { AdminDashboardPage } from './pages/AdminDashboardPage';
 
@@ -58,6 +59,7 @@ export const App: React.FC = () => {
               
               {/* Buyer Routes */}
               <Route path="/buyer/dashboard" element={<BuyerDashboardPage />} />
+              <Route path="/buyer/profile" element={<BuyerProfilePage />} />
               <Route path="/buyer/cart" element={<CartPage />} />
               <Route path="/buyer/inquiries" element={<BuyerDashboardPage />} />
               

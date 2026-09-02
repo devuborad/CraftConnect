@@ -330,7 +330,16 @@ export const authService = {
   getCurrentUser: (): RegisteredUser | null => {
     try {
       const stored = localStorage.getItem(CURRENT_USER_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const token = localStorage.getItem('craftconnect_token');
+      
+      if (stored && token) {
+        return JSON.parse(stored);
+      } else if (stored && !token) {
+        // Clear invalid or mock session that doesn't have a real token
+        localStorage.removeItem(CURRENT_USER_KEY);
+        return null;
+      }
+      return null;
     } catch {
       return null;
     }

@@ -40,6 +40,8 @@ export const api = {
   register: (userData: any) => apiRequest('/auth/register', { method: 'POST', body: JSON.stringify(userData) }),
   login: (credentials: any) => apiRequest('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   getMe: () => apiRequest('/auth/me'),
+  getBuyerProfile: () => apiRequest('/buyers/profile/me'),
+  updateBuyerProfile: (data: any) => apiRequest('/buyers/profile/me', { method: 'PUT', body: JSON.stringify(data) }),
   updateProfile: (profileData: any) => apiRequest('/auth/profile', { method: 'PUT', body: JSON.stringify(profileData) }),
 
   // Products

@@ -12,7 +12,7 @@ export const Footer: React.FC = () => {
       <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-amber-900/10 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-stone-800">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 pb-12 border-b border-stone-800">
           
           {/* Brand & Purpose */}
           <div className="space-y-4 md:col-span-1">
@@ -87,31 +87,6 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Social Impact / Trust */}
-          <div className="space-y-3">
-            <h4 className="font-display font-semibold text-white text-sm mb-2">Hackathon Impact Metrics</h4>
-            <div className="bg-stone-900/80 p-4 rounded-2xl border border-stone-800 space-y-2">
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-400">Artisans Onboarded</span>
-                <span className="font-bold text-amber-400">1,240+</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-400">Products Catalogued</span>
-                <span className="font-bold text-emerald-400">3,850+</span>
-              </div>
-              <div className="flex justify-between items-center text-xs">
-                <span className="text-stone-400">Buyer Inquiries</span>
-                <span className="font-bold text-amber-400">890+</span>
-              </div>
-              <div className="pt-2 text-[10px] text-stone-500 flex items-center justify-between border-t border-stone-800">
-                <span className="flex items-center space-x-1">
-                  <MapPin className="w-3 h-3 text-amber-500" />
-                  <span>Kutch, Jaipur, Madhubani</span>
-                </span>
-                <span className="text-stone-400 font-semibold">[DEMO DATA]</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Bottom Legal */}
