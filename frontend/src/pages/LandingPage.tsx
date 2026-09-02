@@ -7,7 +7,10 @@ import {
   Mic, 
   Calculator, 
   ShoppingBag, 
-  CheckCircle2
+  CheckCircle2,
+  Languages,
+  TrendingDown,
+  Handshake
 } from 'lucide-react';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
@@ -28,10 +31,26 @@ export const LandingPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-24 pb-20 overflow-hidden">
+    <div className="-mt-20 sm:-mt-24 space-y-20 pb-20 relative overflow-hidden">
       
+      {/* Absolute Full-Width Video Background Layer (Top 0 to Behind Navbar) */}
+      <div className="absolute top-0 inset-x-0 w-full h-[650px] sm:h-[720px] lg:h-[820px] z-0 overflow-hidden pointer-events-none">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover opacity-50"
+        >
+          <source src="/hero-bg.mp4" type="video/mp4" />
+        </video>
+        {/* Full Screen Vignette Overlays for Maximum Text Clarity */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/95 via-[#FAF7F2]/60 to-[#FAF7F2]/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#FAF7F2]" />
+      </div>
+
       {/* HERO SECTION */}
-      <section className="relative pt-12 lg:pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <section className="relative z-10 pt-24 sm:pt-28 lg:pt-32 pb-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Hero Headline & CTA */}
@@ -205,9 +224,9 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                🗣️
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Languages className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item1.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -215,9 +234,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                📷
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Camera className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item2.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -225,9 +244,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                💰
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <TrendingDown className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item3.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -235,9 +254,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                🤝
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Handshake className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item4.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -263,49 +282,49 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">01</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">01</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Camera className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.1.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.1.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.1.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.1.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">02</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">02</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Mic className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.2.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.2.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.2.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.2.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">03</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">03</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Sparkles className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.3.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.3.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.3.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.3.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">04</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">04</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <Calculator className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.4.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.4.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.4.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.4.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative">
-            <span className="text-4xl font-extrabold text-amber-900/10 absolute top-4 right-4">05</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">05</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
               <ShoppingBag className="w-6 h-6" />
             </div>
-            <h4 className="font-bold text-stone-900 text-base mb-1">{t('steps.5.title')}</h4>
-            <p className="text-xs text-stone-500">{t('steps.5.desc')}</p>
+            <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.5.title')}</h4>
+            <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.5.desc')}</p>
           </div>
         </div>
       </section>
