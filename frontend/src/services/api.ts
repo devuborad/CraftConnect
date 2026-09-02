@@ -36,10 +36,20 @@ export async function apiRequest<T>(
 }
 
 export const api = {
+  // Generic HTTP helpers
+  get: <T = any>(endpoint: string) => apiRequest<T>(endpoint, { method: 'GET' }),
+  post: <T = any>(endpoint: string, body?: any) => apiRequest<T>(endpoint, { method: 'POST', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  put: <T = any>(endpoint: string, body?: any) => apiRequest<T>(endpoint, { method: 'PUT', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  patch: <T = any>(endpoint: string, body?: any) => apiRequest<T>(endpoint, { method: 'PATCH', body: body !== undefined ? JSON.stringify(body) : undefined }),
+  delete: <T = any>(endpoint: string) => apiRequest<T>(endpoint, { method: 'DELETE' }),
+
   // Auth
   register: (userData: any) => apiRequest('/auth/register', { method: 'POST', body: JSON.stringify(userData) }),
   login: (credentials: any) => apiRequest('/auth/login', { method: 'POST', body: JSON.stringify(credentials) }),
   getMe: () => apiRequest('/auth/me'),
+  getBuyerProfile: () => apiRequest('/buyers/profile/me'),
+  updateBuyerProfile: (data: any) => apiRequest('/buyers/profile/me', { method: 'PUT', body: JSON.stringify(data) }),
+  updateProfile: (profileData: any) => apiRequest('/auth/profile', { method: 'PUT', body: JSON.stringify(profileData) }),
 
   // Products
   getProducts: (params: string = '') => apiRequest(`/products?${params}`),

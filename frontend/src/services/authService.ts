@@ -9,7 +9,14 @@ export interface RegisteredUser {
   password?: string;
   role: Role;
   businessName?: string;
+  craftType?: string;
+  experienceYears?: number;
   city?: string;
+  location?: string;
+  state?: string;
+  bio?: string;
+  avatar?: string;
+  profileImage?: string;
   createdAt: string;
 }
 
@@ -44,6 +51,8 @@ const DEFAULT_USERS: RegisteredUser[] = [
     password: 'password123',
     role: 'ARTISAN',
     businessName: 'Kutch Weavers Heritage',
+    craftType: 'Handloom & Patola',
+    experienceYears: 18,
     city: 'Bhuj, Gujarat',
     createdAt: new Date().toISOString()
   },
@@ -91,6 +100,9 @@ export const authService = {
       password: userData.password,
       role: userData.role.toLowerCase(),
       businessName: userData.businessName,
+      companyName: userData.businessName,
+      craftType: userData.craftType,
+      experienceYears: userData.experienceYears,
       location: userData.city,
     });
 
@@ -280,10 +292,90 @@ export const authService = {
     };
   },
 
+  updateUserProfile: async (updatedData: Partial<RegisteredUser>): Promise<{ success: boolean; message: string; user?: RegisteredUser }> => {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      return { success: false, message: 'No user is currently signed in.' };
+    }
+
+    // 1. Send update to Backend MySQL API
+    const apiRes = await api.updateProfile({
+      name: updatedData.name,
+      email: updatedData.email,
+      phone: updatedData.phone,
+      password: updatedData.password,
+      businessName: updatedData.businessName,
+      craftType: updatedData.craftType,
+      experienceYears: updatedData.experienceYears,
+      location: updatedData.city,
+      bio: updatedData.bio,
+      profileImage: updatedData.avatar,
+    });
+
+    if (apiRes.success && apiRes.data) {
+      const resData = apiRes.data as any;
+      if (resData.token) {
+        localStorage.setItem('craftconnect_token', resData.token);
+      }
+      const backendUser = resData.user || {};
+      const newUser: RegisteredUser = {
+        ...currentUser,
+        ...updatedData,
+        id: backendUser.id || currentUser.id,
+        name: backendUser.name || updatedData.name || currentUser.name,
+        email: backendUser.email || updatedData.email || currentUser.email,
+        phone: backendUser.phone || updatedData.phone || currentUser.phone,
+        businessName: backendUser.businessName || updatedData.businessName || currentUser.businessName,
+        craftType: backendUser.craftType || updatedData.craftType || currentUser.craftType,
+        experienceYears: backendUser.experienceYears || updatedData.experienceYears || currentUser.experienceYears,
+        city: backendUser.city || backendUser.location || updatedData.city || currentUser.city,
+        bio: backendUser.bio || updatedData.bio || currentUser.bio,
+        avatar: backendUser.avatar || updatedData.avatar || currentUser.avatar,
+        password: updatedData.password || currentUser.password,
+      };
+
+      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+      const allUsers = authService.getUsers();
+      const updatedAll = allUsers.map(u => u.id === newUser.id || (u.email && u.email === newUser.email) ? newUser : u);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAll));
+
+      return {
+        success: true,
+        message: 'Profile and database updated successfully! 🎉',
+        user: newUser
+      };
+    }
+
+    // 2. Fallback local update
+    const newUser: RegisteredUser = {
+      ...currentUser,
+      ...updatedData,
+    };
+    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+    const allUsers = authService.getUsers();
+    const updatedAll = allUsers.map(u => u.id === newUser.id ? newUser : u);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedAll));
+
+    return {
+      success: true,
+      message: 'Profile updated successfully.',
+      user: newUser
+    };
+  },
+
   getCurrentUser: (): RegisteredUser | null => {
     try {
       const stored = localStorage.getItem(CURRENT_USER_KEY);
-      return stored ? JSON.parse(stored) : null;
+      const token = localStorage.getItem('craftconnect_token');
+      
+      if (stored && token) {
+        return JSON.parse(stored);
+      } else if (stored && !token) {
+        // Clear invalid or mock session that doesn't have a real token
+        localStorage.removeItem(CURRENT_USER_KEY);
+        return null;
+      }
+      return null;
     } catch {
       return null;
     }

@@ -8,7 +8,7 @@ import { AuthRequest } from '../middleware/auth.middleware.js';
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, phone, password, role = 'artisan', language = 'en', businessName, companyName, craftType, location } = req.body;
+    const { name, email, phone, password, role = 'artisan', language = 'en', businessName, companyName, craftType, location, experienceYears } = req.body;
 
     if (!name || (!email && !phone) || !password) {
       res.status(400).json({
@@ -49,10 +49,11 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
     if (role === 'artisan') {
       artisanId = cryptoRandomUUID();
+      const expYears = parseInt(String(experienceYears || '1'), 10) || 1;
       await db.execute(
         `INSERT INTO artisans (id, user_id, business_name, location, craft_type, experience_years, is_verified, created_at, updated_at) 
-         VALUES (?, ?, ?, ?, ?, 1, TRUE, NOW(), NOW())`,
-        [artisanId, userId, businessName || `${name}'s Craft`, location || 'Gujarat', craftType || 'Handloom']
+         VALUES (?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW())`,
+        [artisanId, userId, businessName || `${name}'s Craft Studio`, location || 'Gujarat', craftType || 'Handloom & Handicrafts', expYears]
       );
     } else if (role === 'buyer') {
       buyerId = cryptoRandomUUID();
@@ -427,3 +428,129 @@ export const logout = async (_req: Request, res: Response): Promise<void> => {
     message: 'Logged out successfully.',
   });
 };
+
+export const updateProfile = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    if (!req.user?.id) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+    const userId = req.user.id;
+    const { 
+      name, 
+      email, 
+      phone, 
+      password, 
+      businessName, 
+      craftType, 
+      experienceYears, 
+      location, 
+      state, 
+      bio, 
+      profileImage 
+    } = req.body;
+
+    // 1. Update user fields
+    let passwordHash: string | null = null;
+    if (password && String(password).trim().length >= 6) {
+      passwordHash = await bcrypt.hash(String(password).trim(), 10);
+    }
+
+    await db.execute(
+      `UPDATE users 
+       SET name = COALESCE(?, name),
+           email = COALESCE(?, email),
+           phone = COALESCE(?, phone),
+           password_hash = CASE WHEN ? IS NOT NULL THEN ? ELSE password_hash END,
+           updated_at = NOW()
+       WHERE id = ?`,
+      [
+        name ? String(name).trim() : null,
+        email ? String(email).trim().toLowerCase() : null,
+        phone ? String(phone).trim() : null,
+        passwordHash,
+        passwordHash,
+        userId
+      ]
+    );
+
+    // 2. Update artisan profile if exists
+    const [artisanRows]: any = await db.execute(`SELECT id FROM artisans WHERE user_id = ?`, [userId]);
+
+    if (artisanRows && artisanRows.length > 0) {
+      const expYears = experienceYears !== undefined && experienceYears !== null ? (parseInt(String(experienceYears), 10) || 1) : null;
+      await db.execute(
+        `UPDATE artisans 
+         SET business_name = COALESCE(?, business_name),
+             craft_type = COALESCE(?, craft_type),
+             experience_years = COALESCE(?, experience_years),
+             location = COALESCE(?, location),
+             state = COALESCE(?, state),
+             bio = COALESCE(?, bio),
+             profile_image = COALESCE(?, profile_image),
+             updated_at = NOW()
+         WHERE user_id = ?`,
+        [
+          businessName ? String(businessName).trim() : null,
+          craftType ? String(craftType).trim() : null,
+          expYears,
+          location ? String(location).trim() : null,
+          state ? String(state).trim() : null,
+          bio ? String(bio).trim() : null,
+          profileImage ? String(profileImage).trim() : null,
+          userId
+        ]
+      );
+    }
+
+    // 3. Fetch latest user details
+    const [userRows]: any = await db.execute(
+      `SELECT u.*, a.id as artisan_id, a.business_name, a.craft_type, a.experience_years, a.location as artisan_location, a.state as artisan_state, a.bio as artisan_bio, a.profile_image,
+              b.id as buyer_id, b.company_name
+       FROM users u 
+       LEFT JOIN artisans a ON u.id = a.user_id 
+       LEFT JOIN buyers b ON u.id = b.user_id 
+       WHERE u.id = ?`,
+      [userId]
+    );
+
+    const u = userRows[0];
+    const isArtisan = u.role === 'artisan' || Boolean(u.artisan_id);
+    const isBuyer = u.role === 'buyer' || Boolean(u.buyer_id);
+
+    const payload = {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      phone: u.phone,
+      role: u.role,
+      userType: isArtisan ? 'ARTISAN' : isBuyer ? 'BUYER' : 'ADMIN',
+      isArtisan,
+      isBuyer,
+      artisanId: u.artisan_id || undefined,
+      buyerId: u.buyer_id || undefined,
+      businessName: u.business_name || undefined,
+      craftType: u.craft_type || undefined,
+      experienceYears: u.experience_years || undefined,
+      location: u.artisan_location || undefined,
+      city: u.artisan_location || undefined,
+      bio: u.artisan_bio || undefined,
+      avatar: u.profile_image || undefined,
+    };
+
+    const token = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });
+
+    res.json({
+      success: true,
+      message: 'Profile updated successfully!',
+      data: {
+        token,
+        user: payload,
+      },
+    });
+  } catch (err: any) {
+    console.error('Update profile error:', err);
+    res.status(500).json({ success: false, message: err.message || 'Failed to update profile' });
+  }
+};
+

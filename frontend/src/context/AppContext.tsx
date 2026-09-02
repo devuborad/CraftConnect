@@ -116,6 +116,8 @@ interface AppContextType {
   demoProduct: Product | null;
   setDemoProduct: (product: Product | null) => void;
   
+  updateProfile: (updatedData: Partial<RegisteredUser>) => Promise<boolean>;
+
   // Translation function
   t: (key: string) => string;
 
@@ -210,6 +212,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (role === 'ADMIN') return 'Admin Master';
     return 'Guest User';
   }, [currentUser, role]);
+
+  const updateProfile = async (updatedData: Partial<RegisteredUser>): Promise<boolean> => {
+    try {
+      const res = await authService.updateUserProfile(updatedData);
+      if (res.success && res.user) {
+        setCurrentUserState(res.user);
+        showToast('Profile Updated! ✨', res.message, 'success');
+        return true;
+      } else {
+        showToast('Update Failed', res.message || 'Could not update profile', 'error');
+        return false;
+      }
+    } catch (err: any) {
+      showToast('Error', err.message || 'Failed to update profile', 'error');
+      return false;
+    }
+  };
+
 
   const setLanguage = (lang: LanguageCode) => {
     setLanguageState(lang);
@@ -430,6 +450,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         demoProduct,
         setDemoProduct,
         t,
+        updateProfile,
         cartItems,
         addToCart,
         updateCartQuantity,

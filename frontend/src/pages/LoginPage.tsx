@@ -71,12 +71,16 @@ export const LoginPage: React.FC = () => {
     const targetRedirect = location.state?.redirect;
     if (isAdmin) {
       navigate('/admin');
+    } else if (user.role === 'BUYER') {
+      if (targetRedirect && targetRedirect !== '/about') {
+        navigate(targetRedirect);
+      } else {
+        navigate('/buyer/dashboard');
+      }
     } else if (targetRedirect) {
       navigate(targetRedirect);
     } else if (user.role === 'ARTISAN') {
       navigate('/artisan/dashboard');
-    } else if (user.role === 'BUYER') {
-      navigate('/buyer/dashboard');
     } else {
       navigate('/admin');
     }
