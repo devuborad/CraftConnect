@@ -69,71 +69,83 @@ export const AdminDashboardPage: React.FC = () => {
         
         {/* Admin Navigation Sidebar (Desktop & Mobile Drawer) */}
         <div className="lg:col-span-3 space-y-2">
-          <div className="glass-card bg-stone-900 text-stone-200 p-4 rounded-3xl space-y-1 shadow-xl">
-            <div className="p-3 mb-2 border-b border-stone-800 space-y-2.5">
-              <div className="bg-white/95 px-3 py-1.5 rounded-xl shadow-xs inline-block">
+          <div className="bg-stone-900 border border-stone-800 text-stone-100 p-5 rounded-3xl space-y-2 shadow-2xl">
+            <div className="pb-3 mb-3 border-b border-stone-800 space-y-2.5">
+              <div className="bg-white px-3 py-1.5 rounded-xl shadow-xs inline-block">
                 <img src="/logo.png" alt="CraftConnect" className="h-6 w-auto object-contain" />
               </div>
               <div className="flex items-center space-x-2">
                 <ShieldCheck className="w-5 h-5 text-amber-400" />
-                <h3 className="font-display font-bold text-white text-base">Admin Portal</h3>
+                <h3 className="font-display font-extrabold text-white text-base tracking-wide">Admin Portal</h3>
               </div>
             </div>
 
             <button
               onClick={() => setActiveTab('dashboard')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'dashboard' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'dashboard'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <TrendingUp className="w-4 h-4" />
+              <TrendingUp className="w-4 h-4 text-amber-400" />
               <span>Overview & Charts</span>
             </button>
 
             <button
               onClick={() => setActiveTab('artisans')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'artisans' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'artisans'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <Users className="w-4 h-4" />
+              <Users className="w-4 h-4 text-amber-400" />
               <span>Artisans Management</span>
             </button>
 
             <button
               onClick={() => setActiveTab('buyers')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'buyers' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'buyers'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4 text-amber-400" />
               <span>Buyers & Boutiques</span>
             </button>
 
             <button
               onClick={() => setActiveTab('products')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'products' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'products'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <Package className="w-4 h-4" />
+              <Package className="w-4 h-4 text-amber-400" />
               <span>Product Moderation</span>
             </button>
 
             <button
               onClick={() => setActiveTab('inquiries')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'inquiries' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'inquiries'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-4 h-4 text-amber-400" />
               <span>Bulk Inquiries</span>
             </button>
 
             <button
               onClick={() => setActiveTab('ai')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'ai' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'ai'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
               <Sparkles className="w-4 h-4 text-amber-400" />
@@ -142,11 +154,13 @@ export const AdminDashboardPage: React.FC = () => {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center space-x-2.5 transition-colors ${
-                activeTab === 'settings' ? 'bg-amber-600 text-white shadow' : 'hover:bg-stone-800 text-stone-300'
+              className={`w-full text-left px-4 py-3 rounded-2xl text-xs font-bold flex items-center space-x-3 transition-all ${
+                activeTab === 'settings'
+                  ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-lg shadow-amber-900/40 scale-[1.01]'
+                  : 'text-stone-300 hover:bg-stone-800/90 hover:text-white'
               }`}
             >
-              <Sliders className="w-4 h-4" />
+              <Sliders className="w-4 h-4 text-amber-400" />
               <span>Platform Settings</span>
             </button>
           </div>
@@ -198,22 +212,60 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
                 {/* Growth Chart */}
-                <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 space-y-4">
+                <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 space-y-4 shadow-sm">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-sm text-stone-900">Artisan & Product Growth</h3>
-                    <span className="text-[10px] bg-amber-100 text-[#C85A32] font-bold px-2 py-0.5 rounded">2026 Q3</span>
+                    <div>
+                      <h3 className="font-extrabold text-sm text-stone-900">Artisan & Product Growth</h3>
+                      <p className="text-[10px] text-stone-500 font-medium">Monthly trajectory of artisans & catalogued items</p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-1 text-[10px] font-bold text-stone-600">
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#C85A32] inline-block"></span>
+                        <span>Artisans</span>
+                      </div>
+                      <div className="flex items-center space-x-1 text-[10px] font-bold text-stone-600">
+                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>
+                        <span>Products</span>
+                      </div>
+                      <span className="text-[10px] bg-amber-100 text-[#C85A32] font-extrabold px-2 py-0.5 rounded">2026 Q3</span>
+                    </div>
                   </div>
 
-                  <div className="h-40 flex items-end justify-between space-x-2 pt-4 px-2">
-                    {[35, 45, 60, 75, 88, 100].map((h, i) => (
-                      <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                        <div
-                          className="w-full bg-gradient-to-t from-[#4A2E1B] to-[#C85A32] rounded-t-lg transition-all"
-                          style={{ height: `${h}%` }}
-                        />
-                        <span className="text-[9px] text-stone-400 font-semibold">M{i + 1}</span>
-                      </div>
-                    ))}
+                  <div className="pt-4 border-t border-stone-100">
+                    <div className="h-44 flex items-end justify-between space-x-3 px-2">
+                      {[
+                        { month: 'M1', artisans: 45, products: 70 },
+                        { month: 'M2', artisans: 60, products: 95 },
+                        { month: 'M3', artisans: 80, products: 130 },
+                        { month: 'M4', artisans: 100, products: 165 },
+                        { month: 'M5', artisans: 125, products: 205 },
+                        { month: 'M6', artisans: 155, products: 260 },
+                      ].map((item, i) => (
+                        <div key={i} className="flex-1 flex flex-col items-center h-full justify-end group relative">
+                          <div className="w-full flex items-end justify-center space-x-1.5 h-36">
+                            {/* Artisan Growth Bar */}
+                            <div
+                              className="w-1/2 bg-gradient-to-t from-[#4A2E1B] to-[#C85A32] rounded-t-md transition-all duration-300 group-hover:brightness-110 shadow-xs"
+                              style={{ height: `${(item.artisans / 280) * 100}%` }}
+                            >
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap z-20 shadow-md">
+                                {item.artisans} Artisans
+                              </div>
+                            </div>
+                            {/* Product Growth Bar */}
+                            <div
+                              className="w-1/2 bg-gradient-to-t from-emerald-800 to-emerald-500 rounded-t-md transition-all duration-300 group-hover:brightness-110 shadow-xs"
+                              style={{ height: `${(item.products / 280) * 100}%` }}
+                            >
+                              <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute -top-8 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[9px] px-1.5 py-0.5 rounded font-bold whitespace-nowrap z-20 shadow-md">
+                                {item.products} Products
+                              </div>
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-stone-500 font-extrabold mt-2">{item.month}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
 

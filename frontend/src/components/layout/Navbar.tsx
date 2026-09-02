@@ -32,7 +32,7 @@ export const Navbar: React.FC = () => {
   return (
     <>
       <header className="sticky top-3 z-40 px-4 sm:px-6 lg:px-8 transition-all pointer-events-none">
-        <div className="max-w-7xl mx-auto glass-nav rounded-2xl sm:rounded-full px-4 sm:px-7 h-16 sm:h-18 flex items-center justify-between pointer-events-auto transition-all shadow-xl hover:bg-white/50">
+        <div className="max-w-7xl mx-auto glass-nav rounded-2xl sm:rounded-full px-4 sm:px-7 h-16 sm:h-18 flex items-center justify-between pointer-events-auto transition-all shadow-xl hover:bg-white/30">
           
           {/* Brand Logo */}
           <Link to="/" className="flex items-center space-x-2.5 group">

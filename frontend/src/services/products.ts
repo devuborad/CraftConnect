@@ -90,10 +90,9 @@ export const productService = {
     });
   },
 
-
   getProductById: async (id: string): Promise<Product | undefined> => {
     try {
-      const res = await api.getProductById(id);
+      const res: any = await api.getProductById(id);
       if (res.success && res.data) {
         return res.data as Product;
       }

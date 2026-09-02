@@ -3,6 +3,7 @@ import { MOCK_INQUIRIES } from './mockData';
 import { api } from './api';
 
 const STORAGE_KEY = 'craft_live_inquiries';
+const HISTORY_KEY = 'craftconnect_inquiries_history';
 
 const getStoredInquiries = (): BulkInquiry[] => {
   try {
@@ -22,11 +23,30 @@ const saveStoredInquiries = (items: BulkInquiry[]) => {
   }
 };
 
+const getStoredHistory = (): BulkInquiry[] => {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveStoredHistory = (items: BulkInquiry[]) => {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
+    window.dispatchEvent(new Event('storage'));
+  } catch (e) {
+    console.warn('Could not save history to localStorage:', e);
+  }
+};
+
 export const inquiryService = {
   getInquiries: async (): Promise<BulkInquiry[]> => {
     try {
       const res = await api.getInquiries();
-      if (res.success && Array.isArray(res.data)) {
+      if (res.success && Array.isArray(res.data) && res.data.length > 0) {
+        saveStoredInquiries(res.data);
         return res.data;
       }
     } catch (e) {
@@ -36,9 +56,18 @@ export const inquiryService = {
     return [...stored, ...MOCK_INQUIRIES];
   },
 
-  getInquiriesByArtisan: async (artisanId: string): Promise<BulkInquiry[]> => {
+  getInquiriesByArtisan: async (artisanId?: string, artisanName?: string): Promise<BulkInquiry[]> => {
     const all = await inquiryService.getInquiries();
-    return all.filter((i) => i.artisanId === artisanId);
+    if (!artisanId && !artisanName) return all;
+
+    const lowerId = artisanId?.toLowerCase() || '';
+    const lowerName = artisanName?.toLowerCase() || '';
+
+    return all.filter((i) => {
+      const matchId = artisanId && i.artisanId && i.artisanId.toLowerCase() === lowerId;
+      const matchName = artisanName && i.artisanName && i.artisanName.toLowerCase().includes(lowerName);
+      return matchId || matchName;
+    });
   },
 
   getActiveInquiriesByArtisan: async (artisanId?: string, artisanName?: string): Promise<BulkInquiry[]> => {
@@ -65,7 +94,7 @@ export const inquiryService = {
   },
 
   recordDirectOrder: async (data: {
-    product: Product;
+    product: Product | any;
     quantity: number;
     buyerName?: string;
     buyerCompany?: string;
@@ -81,9 +110,9 @@ export const inquiryService = {
     const created: BulkInquiry = {
       id: `ord-${Date.now()}`,
       type: 'DIRECT_ORDER',
-      productId: data.product.id,
-      productTitle: data.product.title,
-      productImage: data.product.enhancedImage || data.product.originalImage,
+      productId: data.product.id || 'prod-1',
+      productTitle: data.product.title || 'Handmade Product',
+      productImage: data.product.enhancedImage || data.product.originalImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800',
       buyerName: data.buyerName || 'Valued Retail Customer',
       buyerCompany: data.buyerCompany || 'Direct Express Purchase',
       buyerPhone: data.buyerPhone || '+91 98765 43210',
@@ -91,8 +120,8 @@ export const inquiryService = {
       artisanId: data.product.artisanId || 'artisan-1',
       artisanName: data.product.artisanName || 'Meena Ben Vankar',
       quantity: data.quantity || 1,
-      targetPrice: data.product.price,
-      totalAmount: data.totalAmount || data.product.price * (data.quantity || 1),
+      targetPrice: data.product.price || 1999,
+      totalAmount: data.totalAmount || (data.product.price || 1999) * (data.quantity || 1),
       message: `Direct purchase paid via ${data.paymentMethod || 'UPI'}. Deliver to: ${data.deliveryAddress || ''}, ${data.city || ''} (${data.pincode || ''})`,
       deliveryLocation: `${data.city || 'Mumbai'}, ${data.state || 'Maharashtra'}`,
       status: 'NEW',
@@ -122,7 +151,7 @@ export const inquiryService = {
 
   sendInquiry: async (newInquiry: Partial<BulkInquiry>): Promise<BulkInquiry> => {
     try {
-      const res = await api.createInquiry({
+      const res: any = await api.createInquiry({
         productId: newInquiry.productId,
         quantity: newInquiry.quantity || 10,
         targetPrice: newInquiry.targetPrice || 0,
@@ -188,7 +217,12 @@ export const inquiryService = {
     return created;
   },
 
-  updateStatus: async (id: string, status: 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED', counterPrice?: number, note?: string): Promise<BulkInquiry | undefined> => {
+  updateStatus: async (
+    id: string,
+    status: 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED' | 'ARCHIVED',
+    counterPrice?: number,
+    note?: string
+  ): Promise<BulkInquiry | undefined> => {
     try {
       await api.updateInquiryStatus(id, status, counterPrice);
     } catch (e) {
@@ -197,30 +231,69 @@ export const inquiryService = {
     const stored = getStoredInquiries();
     const target = stored.find((i) => i.id === id) || MOCK_INQUIRIES.find((i) => i.id === id);
     if (target) {
-      target.status = status;
+      target.status = status as any;
       if (counterPrice) target.counterPrice = counterPrice;
-      saveStoredInquiries(stored);
+      if (note) target.message = `${target.message || ''}\n[Update]: ${note}`;
+
+      if (status === 'DECLINED' || status === 'ARCHIVED') {
+        const remaining = stored.filter((i) => i.id !== id);
+        saveStoredInquiries(remaining);
+
+        const history = getStoredHistory();
+        history.unshift({ ...target });
+        saveStoredHistory(history);
+      } else {
+        saveStoredInquiries(stored);
+      }
     }
     return target;
   },
 
   getHistoryByArtisan: async (artisanId?: string, artisanName?: string): Promise<BulkInquiry[]> => {
+    const history = getStoredHistory();
+    if (history.length > 0) {
+      if (!artisanId && !artisanName) return history;
+      const lowerId = artisanId?.toLowerCase() || '';
+      const lowerName = artisanName?.toLowerCase() || '';
+
+      return history.filter((i) => {
+        const matchId = artisanId && i.artisanId && i.artisanId.toLowerCase() === lowerId;
+        const matchName = artisanName && i.artisanName && i.artisanName.toLowerCase().includes(lowerName);
+        return matchId || matchName;
+      });
+    }
+
     const all = await inquiryService.getActiveInquiriesByArtisan(artisanId, artisanName);
     return all.filter((i) => i.status !== 'NEW');
   },
 
-  restoreFromHistory: async (id: string): Promise<void> => {
-    await inquiryService.updateStatus(id, 'ACCEPTED');
+  restoreFromHistory: async (id: string): Promise<BulkInquiry | undefined> => {
+    const history = getStoredHistory();
+    const itemIndex = history.findIndex((h) => h.id === id);
+    if (itemIndex !== -1) {
+      const [restored] = history.splice(itemIndex, 1);
+      restored.status = 'NEW';
+      saveStoredHistory(history);
+
+      const stored = getStoredInquiries();
+      saveStoredInquiries([restored, ...stored]);
+      return restored;
+    }
+    return await inquiryService.updateStatus(id, 'ACCEPTED');
   },
 
-  deleteHistoryItem: async (id: string): Promise<void> => {
+  deleteHistoryItem: async (id: string): Promise<boolean> => {
+    const history = getStoredHistory();
+    const filtered = history.filter((h) => h.id !== id);
+    saveStoredHistory(filtered);
+
     const stored = getStoredInquiries().filter((i) => i.id !== id);
     saveStoredInquiries(stored);
+    return true;
   },
 
-  clearAllHistory: async (): Promise<void> => {
-    const stored = getStoredInquiries().filter((i) => i.status === 'NEW');
-    saveStoredInquiries(stored);
+  clearAllHistory: async (artisanId?: string): Promise<boolean> => {
+    saveStoredHistory([]);
+    return true;
   }
 };
-
