@@ -89,6 +89,12 @@ export const productService = {
     });
   },
 
+  getMyProducts: async (): Promise<Product[]> => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve([...MOCK_PRODUCTS]), 200);
+    });
+  },
+
   getProductById: async (id: string): Promise<Product | undefined> => {
     try {
       const res = await api.getProductById(id);
