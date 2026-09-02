@@ -70,7 +70,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             </div>
 
             <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900">
-              Good morning, {userName} 👋
+              Good morning, {userName}
             </h1>
             <p className="text-xs sm:text-sm text-stone-600">
               Let's bring your authentic handloom craft to more urban buyers and retail stores today.
@@ -141,7 +141,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Camera className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">📷 AI Image Enhancement</h4>
+            <h4 className="font-bold text-sm text-stone-900">AI Image Enhancement</h4>
             <p className="text-xs text-stone-500">AI cleans background & balances lighting for studio photography.</p>
           </button>
 
@@ -152,7 +152,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Mic className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">🎤 Create Catalogue</h4>
+            <h4 className="font-bold text-sm text-stone-900">Create Catalogue</h4>
             <p className="text-xs text-stone-500">Speak Gujarati or Hindi. AI generates English descriptions.</p>
           </button>
 
@@ -163,7 +163,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Calculator className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">💰 Check Fair Price</h4>
+            <h4 className="font-bold text-sm text-stone-900">Check Fair Price</h4>
             <p className="text-xs text-stone-500">Calculate living wage margins and benchmark market ranges.</p>
           </button>
         </div>
