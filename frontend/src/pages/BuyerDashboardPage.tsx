@@ -136,10 +136,10 @@ export const BuyerDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 ios-fade-up">
       
       {/* Header */}
-      <div className="glass-card bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-8 rounded-3xl shadow-2xl space-y-3 relative overflow-hidden border border-amber-900/30">
+      <div className="glass-card bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-8 rounded-3xl shadow-2xl space-y-3 relative overflow-hidden border border-amber-900/30 hover:shadow-2xl transition-all">
         <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
         <div className="relative z-10 space-y-2">
           <div className="inline-block">
@@ -148,7 +148,7 @@ export const BuyerDashboardPage: React.FC = () => {
             </span>
           </div>
           <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-white drop-shadow-sm">
-            Welcome back, {userName} 👋
+            Welcome back, {userName}
           </h1>
           <p className="text-xs sm:text-sm text-amber-100/95 font-medium tracking-wide">
             Heritage Craft Boutique • Direct Rural Artisan Sourcing Portal
@@ -157,9 +157,9 @@ export const BuyerDashboardPage: React.FC = () => {
       </div>
 
       {/* Cart Overview Widget */}
-      <div className="glass-card bg-white p-6 rounded-3xl border border-amber-900/10 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="glass-card bg-white p-6 rounded-3xl border border-amber-900/10 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 flex flex-col sm:flex-row items-center justify-between gap-4 ios-fade-up ios-delay-1">
         <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0">
+          <div className="w-12 h-12 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0 shadow-xs">
             <ShoppingCart className="w-6 h-6" />
           </div>
           <div>
@@ -176,7 +176,7 @@ export const BuyerDashboardPage: React.FC = () => {
 
         <Link
           to="/cart"
-          className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 shadow transition-all shrink-0"
+          className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 shadow transition-all shrink-0"
         >
           <CreditCard className="w-4 h-4" />
           <span>Open Sourcing Cart & Checkout →</span>

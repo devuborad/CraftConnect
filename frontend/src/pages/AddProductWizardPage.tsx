@@ -199,8 +199,8 @@ export const AddProductWizardPage: React.FC = () => {
 
       {/* STEP 1: PRODUCT PHOTO & AI IMAGE STUDIO */}
       {currentStep === 1 && (
-        <div className="space-y-6 animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-md space-y-6">
+        <div className="space-y-6 ios-fade-up">
+          <div className="bg-white rounded-3xl p-6 border border-stone-200/90 shadow-md space-y-6 hover:shadow-lg transition-all">
             <h3 className="font-display font-bold text-xl text-stone-900">
               Step 1: Upload Product Photo
             </h3>
@@ -216,11 +216,11 @@ export const AddProductWizardPage: React.FC = () => {
             <div
               onDragOver={handleDragOver}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-stone-300 hover:border-[#C85A32] rounded-3xl p-8 text-center space-y-4 bg-[#FAF7F2] transition-colors cursor-pointer"
+              className="border-2 border-dashed border-stone-300 hover:border-[#C85A32] rounded-3xl p-8 text-center space-y-4 bg-[#FAF7F2] transition-all cursor-pointer hover:bg-amber-50/30 group"
               onClick={() => fileInputRef.current?.click()}
             >
               {photoUrl ? (
-                <div className="space-y-3">
+                <div className="space-y-3 ios-scale-in">
                   <img
                     src={photoUrl}
                     alt="Selected Product"
@@ -229,13 +229,13 @@ export const AddProductWizardPage: React.FC = () => {
                   <p className="text-xs font-bold text-stone-700">Current Photo Loaded ✨</p>
                 </div>
               ) : (
-                <div className="w-16 h-16 rounded-full bg-amber-100 text-[#C85A32] flex items-center justify-center mx-auto">
+                <div className="w-16 h-16 rounded-full bg-amber-100 text-[#C85A32] flex items-center justify-center mx-auto group-hover:scale-110 transition-transform">
                   <Upload className="w-8 h-8" />
                 </div>
               )}
 
               <div>
-                <h4 className="font-bold text-stone-900 text-sm">📷 Take Photo or Upload from Gallery</h4>
+                <h4 className="font-bold text-stone-900 text-sm">Take Photo or Upload from Gallery</h4>
                 <p className="text-xs text-stone-500 mt-1">
                   Click anywhere here or drag & drop image file from your device
                 </p>
@@ -245,7 +245,7 @@ export const AddProductWizardPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-6 py-3 rounded-2xl font-bold text-xs shadow-lg flex items-center justify-center space-x-2"
+                  className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-6 py-3 rounded-2xl font-bold text-xs shadow-lg flex items-center justify-center space-x-2 transition-all hover:scale-102"
                 >
                   <Upload className="w-4 h-4" />
                   <span>Choose Photo from Device / Camera</span>
@@ -260,14 +260,14 @@ export const AddProductWizardPage: React.FC = () => {
 
       {/* STEP 2: VOICE STORY */}
       {currentStep === 2 && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6 ios-fade-up">
           <VoiceRecorder onTranscriptComplete={handleTranscriptComplete} />
         </div>
       )}
 
       {/* STEP 3: AI CATALOGUE RESULT */}
       {currentStep === 3 && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6 ios-fade-up">
           {catalogue ? (
             <AICatalogueCard
               catalogue={catalogue}
@@ -278,7 +278,7 @@ export const AddProductWizardPage: React.FC = () => {
               }}
             />
           ) : (
-            <div className="py-12 text-center space-y-3 bg-white rounded-3xl p-6 border border-stone-200">
+            <div className="py-12 text-center space-y-3 bg-white rounded-3xl p-6 border border-stone-200 ios-fade-in">
               <div className="w-10 h-10 rounded-full border-4 border-[#C85A32] border-t-transparent animate-spin mx-auto" />
               <p className="text-xs font-bold text-stone-700">AI is crafting your product title and descriptions...</p>
             </div>
@@ -288,18 +288,18 @@ export const AddProductWizardPage: React.FC = () => {
 
       {/* STEP 4: AI PRICING ASSISTANT */}
       {currentStep === 4 && (
-        <div className="space-y-6 animate-in fade-in duration-200">
+        <div className="space-y-6 ios-fade-up">
           <AIPricingAssistant onPricingConfirmed={handlePricingConfirmed} />
         </div>
       )}
 
       {/* STEP 5: REVIEW LISTING */}
       {currentStep === 5 && (
-        <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-md space-y-6 animate-in fade-in duration-200">
+        <div className="bg-white rounded-3xl p-6 border border-stone-200/90 shadow-md space-y-6 ios-fade-up">
           <div className="flex items-center justify-between pb-4 border-b border-stone-100">
             <div>
-              <span className="bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2 py-0.5 rounded">FINAL PREVIEW</span>
-              <h3 className="font-display font-bold text-xl text-stone-900 mt-1">Review Your Product Listing</h3>
+              <span className="bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">FINAL PREVIEW</span>
+              <h3 className="font-display font-bold text-xl text-stone-900 mt-1.5">Review Your Product Listing</h3>
             </div>
             <button
               onClick={() => setCurrentStep(1)}
@@ -314,7 +314,7 @@ export const AddProductWizardPage: React.FC = () => {
               <img
                 src={enhancedPhotoUrl || photoUrl}
                 alt="Listing preview"
-                className="max-h-[390px] max-w-full object-contain rounded-xl"
+                className="max-h-[390px] max-w-full object-contain rounded-xl hover:scale-105 transition-transform duration-500"
               />
             </div>
 
@@ -336,17 +336,17 @@ export const AddProductWizardPage: React.FC = () => {
             <button
               type="button"
               onClick={handleSaveDraft}
-              className="w-full sm:w-1/2 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all"
+              className="w-full sm:w-1/2 bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 border border-stone-300 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all"
             >
-              <span>📁 Save as Draft</span>
+              <span>Save as Draft</span>
             </button>
 
             <button
               type="button"
               onClick={handlePublish}
-              className="w-full sm:w-1/2 bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-xl font-bold text-xs shadow-xl flex items-center justify-center space-x-2 transition-all"
+              className="w-full sm:w-1/2 bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white py-3.5 rounded-xl font-bold text-xs shadow-xl flex items-center justify-center space-x-2 transition-all hover:scale-102"
             >
-              <span>🚀 Publish Product Live to Marketplace</span>
+              <span>Publish Product Live to Marketplace</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -355,8 +355,8 @@ export const AddProductWizardPage: React.FC = () => {
 
       {/* STEP 6: PUBLISHED SUCCESS 🎉 */}
       {currentStep === 6 && (
-        <div className="bg-white rounded-3xl p-10 border border-stone-200 shadow-xl text-center space-y-6 animate-in zoom-in-95 duration-300">
-          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner text-3xl">
+        <div className="bg-white rounded-3xl p-10 border border-stone-200 shadow-2xl text-center space-y-6 ios-scale-in">
+          <div className="w-20 h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-inner text-3xl animate-pulse-ring">
             🎉
           </div>
 
@@ -365,7 +365,7 @@ export const AddProductWizardPage: React.FC = () => {
               Your Product is Live!
             </h2>
             <p className="text-sm text-stone-600 max-w-md mx-auto">
-              Congratulations Meena! Your product is now visible on CraftConnect AI marketplace to thousands of buyers.
+              Congratulations! Your product is now visible on CraftConnect AI marketplace to thousands of buyers.
             </p>
           </div>
 
@@ -373,7 +373,7 @@ export const AddProductWizardPage: React.FC = () => {
             {publishedProduct && (
               <Link
                 to={`/product/${publishedProduct.id}`}
-                className="w-full sm:w-auto bg-[#4A2E1B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow"
+                className="w-full sm:w-auto bg-[#4A2E1B] hover:bg-[#382213] active:scale-95 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md transition-all"
               >
                 View Product Page
               </Link>
@@ -381,7 +381,7 @@ export const AddProductWizardPage: React.FC = () => {
 
             <button
               onClick={() => showToast('Share link copied to clipboard!', '', 'success')}
-              className="w-full sm:w-auto bg-amber-50 text-[#C85A32] border border-amber-200 px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5"
+              className="w-full sm:w-auto bg-amber-50 hover:bg-amber-100 active:scale-95 text-[#C85A32] border border-amber-200 px-6 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition-all"
             >
               <Share2 className="w-4 h-4" />
               <span>Share Product</span>
@@ -392,7 +392,7 @@ export const AddProductWizardPage: React.FC = () => {
                 setCurrentStep(1);
                 setCatalogue(null);
               }}
-              className="w-full sm:w-auto bg-stone-100 hover:bg-stone-200 text-stone-800 px-6 py-3 rounded-xl font-bold text-xs"
+              className="w-full sm:w-auto bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-6 py-3 rounded-xl font-bold text-xs transition-all"
             >
               + Add Another Product
             </button>

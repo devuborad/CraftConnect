@@ -67,9 +67,9 @@ export const CraftMateAssistant: React.FC = () => {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white px-4 py-3 rounded-full shadow-2xl hover:scale-105 transition-all flex items-center space-x-2.5 border-2 border-amber-300/40 group"
+          className="bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white px-4 py-3 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all flex items-center space-x-2.5 border-2 border-amber-300/40 group ios-float"
         >
-          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-amber-200">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold text-amber-200 group-hover:scale-110 transition-transform">
             🤖
           </div>
           <div className="text-left hidden sm:block">
@@ -83,7 +83,7 @@ export const CraftMateAssistant: React.FC = () => {
       )}
 
       {isOpen && (
-        <div className="glass-card bg-white/95 rounded-3xl shadow-2xl border border-stone-200 w-80 sm:w-96 overflow-hidden flex flex-col h-[480px] animate-in slide-in-from-bottom-5 duration-200">
+        <div className="glass-card bg-white/95 rounded-3xl shadow-2xl border border-stone-200 w-80 sm:w-96 overflow-hidden flex flex-col h-[480px] ios-scale-in origin-bottom-right">
           
           {/* Header */}
           <div className="bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white p-4 flex items-center justify-between">
