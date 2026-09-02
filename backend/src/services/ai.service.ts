@@ -1,3 +1,4 @@
+// @ts-ignore
 import { GoogleGenAI } from '@google/genai';
 import { ENV } from '../config/env.js';
 import { db } from '../config/db.js';

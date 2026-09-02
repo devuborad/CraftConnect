@@ -60,6 +60,7 @@ export interface Product {
 
 export interface BulkInquiry {
   id: string;
+  type?: 'BULK_INQUIRY' | 'DIRECT_ORDER';
   productId: string;
   productTitle: string;
   productImage: string;
@@ -71,10 +72,18 @@ export interface BulkInquiry {
   artisanName: string;
   quantity: number;
   targetPrice: number;
+  totalAmount?: number;
   message: string;
   deliveryLocation: string;
-  status: 'NEW' | 'ACCEPTED' | 'COUNTERED' | 'DECLINED';
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  paymentMethod?: string;
+  status: 'NEW' | 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED' | 'COMPLETED';
   counterPrice?: number;
+  isArchived?: boolean;
+  completedAt?: string;
   createdAt: string;
 }
 

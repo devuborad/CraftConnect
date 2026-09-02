@@ -47,7 +47,7 @@ CREATE TABLE artisans (
   craft_type VARCHAR(100) NOT NULL,
   experience_years INT NOT NULL DEFAULT 1,
   bio TEXT,
-  profile_image VARCHAR(500),
+  profile_image LONGTEXT,
   is_verified BOOLEAN NOT NULL DEFAULT TRUE,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -132,21 +132,30 @@ CREATE TABLE pricing_analysis (
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );
 
--- Bulk Inquiries Table (B2B Flow)
+-- Inquiries & Orders Table (B2B Bulk Wholesale & B2C Direct Purchases)
 CREATE TABLE inquiries (
   id VARCHAR(36) PRIMARY KEY,
-  buyer_id VARCHAR(36) NOT NULL,
+  type ENUM('BULK_INQUIRY', 'DIRECT_ORDER') NOT NULL DEFAULT 'BULK_INQUIRY',
+  buyer_id VARCHAR(36) NULL,
   artisan_id VARCHAR(36) NOT NULL,
   product_id VARCHAR(36) NOT NULL,
   quantity INT NOT NULL,
   target_price DECIMAL(10, 2) NOT NULL,
+  total_amount DECIMAL(10, 2) NULL,
+  payment_method VARCHAR(100) DEFAULT 'Direct Invoice',
+  buyer_name VARCHAR(255) NULL,
+  buyer_company VARCHAR(255) NULL,
+  buyer_phone VARCHAR(50) NULL,
+  buyer_email VARCHAR(255) NULL,
   message TEXT,
   delivery_location VARCHAR(255) NOT NULL,
-  status ENUM('NEW', 'ACCEPTED', 'COUNTERED', 'DECLINED', 'CANCELLED') NOT NULL DEFAULT 'NEW',
+  status ENUM('NEW', 'ACCEPTED', 'COUNTERED', 'DECLINED', 'DISPATCHED', 'COMPLETED', 'CANCELLED') NOT NULL DEFAULT 'NEW',
   counter_price DECIMAL(10, 2),
+  is_archived BOOLEAN NOT NULL DEFAULT FALSE,
+  completed_at DATETIME NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (buyer_id) REFERENCES buyers(id) ON DELETE CASCADE,
+  FOREIGN KEY (buyer_id) REFERENCES buyers(id) ON DELETE SET NULL,
   FOREIGN KEY (artisan_id) REFERENCES artisans(id) ON DELETE CASCADE,
   FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
 );

@@ -15,8 +15,12 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { LanguagePage } from './pages/LanguagePage';
 import { ArtisanDashboardPage } from './pages/ArtisanDashboardPage';
+import { ArtisanAnalyticsPage } from './pages/ArtisanAnalyticsPage';
+import { ArtisanCatalogueAnalyticsPage } from './pages/ArtisanCatalogueAnalyticsPage';
 import { AddProductWizardPage } from './pages/AddProductWizardPage';
 import { ArtisanInquiriesPage } from './pages/ArtisanInquiriesPage';
+import { ArtisanOrdersPage } from './pages/ArtisanOrdersPage';
+import { ArtisanHistoryPage } from './pages/ArtisanHistoryPage';
 import { BuyerDashboardPage } from './pages/BuyerDashboardPage';
 import { BuyerProfilePage } from './pages/BuyerProfilePage';
 import { CartPage } from './pages/CartPage';
@@ -44,9 +48,14 @@ export const App: React.FC = () => {
               
               {/* Artisan Routes */}
               <Route path="/artisan/dashboard" element={<ArtisanDashboardPage />} />
+              <Route path="/artisan/analytics" element={<ArtisanAnalyticsPage />} />
+              <Route path="/artisan/catalogue-analytics" element={<ArtisanCatalogueAnalyticsPage />} />
+              <Route path="/artisan/profile" element={<ArtisanProfilePage />} />
               <Route path="/artisan/products" element={<ArtisanDashboardPage />} />
               <Route path="/artisan/products/new" element={<AddProductWizardPage />} />
               <Route path="/artisan/inquiries" element={<ArtisanInquiriesPage />} />
+              <Route path="/artisan/orders" element={<ArtisanOrdersPage />} />
+              <Route path="/artisan/history" element={<ArtisanHistoryPage />} />
               
               {/* Buyer Routes */}
               <Route path="/buyer/dashboard" element={<BuyerDashboardPage />} />
