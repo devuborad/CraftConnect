@@ -39,7 +39,7 @@ export const ArtisanAnalyticsPage: React.FC = () => {
 
   const loadData = async () => {
     setLoading(true);
-    const allInquiries = await inquiryService.getInquiriesByArtisan(currentUser?.id, currentUser?.name);
+    const allInquiries = await inquiryService.getActiveInquiriesByArtisan(currentUser?.id, currentUser?.name);
     setInquiries(allInquiries);
     setLoading(false);
   };
