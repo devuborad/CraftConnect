@@ -1,17 +1,19 @@
 import { Router } from 'express';
 import {
   getProducts,
+  getProductAnalytics,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
   incrementProductView,
 } from '../controllers/product.controller.js';
-import { requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth } from '../middleware/auth.middleware.js';
 import { requireRole } from '../middleware/role.middleware.js';
 
 const router = Router();
 
+router.get('/analytics', optionalAuth, getProductAnalytics);
 router.get('/', getProducts);
 router.get('/:id', getProductById);
 router.post('/', requireAuth, requireRole('artisan', 'admin'), createProduct);

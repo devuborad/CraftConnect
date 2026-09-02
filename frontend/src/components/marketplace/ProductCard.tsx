@@ -173,7 +173,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
           {/* Bottom Area: Two Row Layout for 100% Full Visibility */}
           <div className="pt-3 border-t border-stone-100 space-y-2.5 mt-auto">
             
-            {/* Row 1: Direct Artisan Price */}
+            {/* Row 1: Direct Artisan Price & Stock Status */}
             <div className="flex items-center justify-between">
               <div>
                 <span className="text-[9px] text-stone-400 uppercase tracking-wider font-bold block leading-none mb-1">
@@ -184,15 +184,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
                 </span>
               </div>
 
-              <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
-                100% Fair Price
-              </span>
+              {product.stock === 0 ? (
+                <span className="text-[10px] bg-red-100 text-red-800 font-extrabold px-2.5 py-0.5 rounded-full border border-red-300">
+                  Out of Stock ⚠️
+                </span>
+              ) : (
+                <span className="text-[10px] bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded-full border border-emerald-200">
+                  {product.stock !== undefined ? product.stock : 10} units
+                </span>
+              )}
             </div>
 
             {/* Action Buttons Section */}
             <div className="space-y-2 w-full pt-2">
               
-              {/* Row 1: View Product Details (Full-Width See Details button) */}
+              {/* Row 1: View Product Details */}
               <Link
                 to={`/product/${product.id}`}
                 className="w-full bg-stone-100 hover:bg-stone-200 text-stone-800 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 border border-stone-200/80 transition-colors shadow-xs"
@@ -202,42 +208,51 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
                 <span>View Details</span>
               </Link>
 
-              {/* Row 2: 3 Action Buttons (Cart, Buy Now, Bulk Order) in 3 equal columns */}
-              <div className="grid grid-cols-3 gap-1.5 w-full">
-                {/* Button 1: Add to Cart */}
+              {product.stock === 0 ? (
                 <button
-                  onClick={handleAddToCartClick}
-                  className={`py-2 px-1 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs border ${
-                    inCartQty > 0
-                      ? 'bg-amber-100 text-[#4A2E1B] border-amber-300 font-extrabold'
-                      : 'bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border-amber-200'
-                  }`}
-                  title={inCartQty > 0 ? `In Cart (${inCartQty})` : 'Add to Cart (+1)'}
+                  disabled
+                  className="w-full bg-stone-100 text-stone-500 py-2 px-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1 border border-stone-300 cursor-not-allowed"
                 >
-                  <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">{inCartQty > 0 ? `(${inCartQty})` : '+1'}</span>
+                  <span>Out of Stock ⚠️ (Restocking Soon)</span>
                 </button>
+              ) : (
+                /* Row 2: 3 Action Buttons (Cart, Buy Now, Bulk Order) */
+                <div className="grid grid-cols-3 gap-1.5 w-full">
+                  {/* Button 1: Add to Cart */}
+                  <button
+                    onClick={handleAddToCartClick}
+                    className={`py-2 px-1 rounded-xl text-xs font-bold flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs border ${
+                      inCartQty > 0
+                        ? 'bg-amber-100 text-[#4A2E1B] border-amber-300 font-extrabold'
+                        : 'bg-amber-50 text-[#4A2E1B] hover:bg-[#4A2E1B] hover:text-white border-amber-200'
+                    }`}
+                    title={inCartQty > 0 ? `In Cart (${inCartQty})` : 'Add to Cart (+1)'}
+                  >
+                    <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">{inCartQty > 0 ? `(${inCartQty})` : '+1'}</span>
+                  </button>
 
-                {/* Button 2: Buy Now */}
-                <button
-                  onClick={handleBuyNowClick}
-                  className="py-2 px-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 border border-amber-500/40 text-xs font-black flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs"
-                  title="Instant Express Buy Now"
-                >
-                  <Zap className="w-3.5 h-3.5 fill-stone-950 text-stone-950 shrink-0" />
-                  <span>Buy</span>
-                </button>
+                  {/* Button 2: Buy Now */}
+                  <button
+                    onClick={handleBuyNowClick}
+                    className="py-2 px-1 rounded-xl bg-amber-400 hover:bg-amber-300 text-stone-950 border border-amber-500/40 text-xs font-black flex items-center justify-center space-x-1 transition-all active:scale-95 shadow-xs"
+                    title="Instant Express Buy Now"
+                  >
+                    <Zap className="w-3.5 h-3.5 fill-stone-950 text-stone-950 shrink-0" />
+                    <span>Buy</span>
+                  </button>
 
-                {/* Button 3: Bulk Order */}
-                <button
-                  onClick={handleBulkOrderClick}
-                  className="py-2 px-1 rounded-xl bg-[#C85A32] hover:bg-[#b04b27] text-white text-xs font-bold flex items-center justify-center space-x-1 shadow-xs transition-all active:scale-95"
-                  title="Wholesale Bulk Order Inquiry"
-                >
-                  <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
-                  <span className="truncate">Bulk</span>
-                </button>
-              </div>
+                  {/* Button 3: Bulk Order */}
+                  <button
+                    onClick={handleBulkOrderClick}
+                    className="py-2 px-1 rounded-xl bg-[#C85A32] hover:bg-[#b04b27] text-white text-xs font-bold flex items-center justify-center space-x-1 shadow-xs transition-all active:scale-95"
+                    title="Wholesale Bulk Order Inquiry"
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">Bulk</span>
+                  </button>
+                </div>
+              )}
 
             </div>
 
