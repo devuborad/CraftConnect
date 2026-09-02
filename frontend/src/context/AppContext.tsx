@@ -18,7 +18,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-b1',
     targetRole: 'BUYER',
-    title: 'Order Confirmed 🎉',
+    title: 'Order Confirmed',
     message: 'Your bulk order for Kutch Handwoven Shawls (#ORD-9021) has been accepted by Meena Ben Vankar.',
     timestamp: '10m ago',
     type: 'order',
@@ -28,7 +28,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-b2',
     targetRole: 'BUYER',
-    title: 'Artisan Counter Offer 💬',
+    title: 'Artisan Counter Offer',
     message: 'Ramesh Prajapati replied to your bulk inquiry for Terracotta Vases with a target price quote.',
     timestamp: '1h ago',
     type: 'inquiry',
@@ -38,7 +38,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-b3',
     targetRole: 'BUYER',
-    title: 'Direct Artisan Price Drop 🏷️',
+    title: 'Direct Artisan Price Drop',
     message: 'Jaipur Blue Pottery Dinner Set is now available at direct artisan wholesale discount.',
     timestamp: '5h ago',
     type: 'price',
@@ -48,7 +48,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-b4',
     targetRole: 'BUYER',
-    title: 'AI Sourcing Update 🤖',
+    title: 'AI Sourcing Update',
     message: 'CraftConnect AI matched 3 new verified master handloom weavers to your boutique requirements.',
     timestamp: '1d ago',
     type: 'ai',
@@ -60,7 +60,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-a1',
     targetRole: 'ARTISAN',
-    title: 'New Bulk Inquiry Received 📦',
+    title: 'New Bulk Inquiry Received',
     message: 'Anita Sharma (Heritage Craft Boutique) sent a bulk quote request for 50 Ajrakh Shawls.',
     timestamp: '5m ago',
     type: 'inquiry',
@@ -70,7 +70,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-a2',
     targetRole: 'ARTISAN',
-    title: 'AI Craft Pricing Advice 💡',
+    title: 'AI Craft Pricing Advice',
     message: 'CraftConnect AI engine recommends pricing your Hand-painted Terracotta Pot at ₹850 (+30% profit margin).',
     timestamp: '2h ago',
     type: 'ai',
@@ -80,7 +80,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-a3',
     targetRole: 'ARTISAN',
-    title: 'Product Craft Verified ✅',
+    title: 'Product Craft Verified',
     message: 'Your Kutch Handloom Shawl was certified as 100% Authentic Handloom by GI Master Tag.',
     timestamp: '1d ago',
     type: 'system',
@@ -90,7 +90,7 @@ const INITIAL_NOTIFICATIONS: AppNotification[] = [
   {
     id: 'notif-a4',
     targetRole: 'ARTISAN',
-    title: '5-Star Buyer Review ⭐',
+    title: '5-Star Buyer Review',
     message: 'Boutique Buyer Anita left a 5-star review: "Superior quality weaving, direct from village artisan!"',
     timestamp: '2d ago',
     type: 'order',

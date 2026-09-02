@@ -14,7 +14,9 @@ import {
   Menu, 
   X, 
   LogOut,
-  User
+  User,
+  BarChart3,
+  Shield
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -219,18 +221,18 @@ export const Navbar: React.FC = () => {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden glass-card fixed inset-x-4 top-22 z-40 p-5 space-y-4 rounded-3xl border border-stone-200/80 shadow-2xl animate-in slide-in-from-top duration-200">
+        <div className="md:hidden glass-card fixed inset-x-4 top-22 z-40 p-5 space-y-4 rounded-3xl border border-stone-200/80 shadow-2xl ios-scale-in origin-top">
           <Link
             to="/"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-base font-semibold text-stone-800 py-1"
+            className="block text-base font-semibold text-stone-800 py-1 hover:text-[#C85A32] transition-colors"
           >
             Home
           </Link>
           <Link
             to="/marketplace"
             onClick={() => setMobileMenuOpen(false)}
-            className="block text-base font-semibold text-stone-800 py-1"
+            className="block text-base font-semibold text-stone-800 py-1 hover:text-[#C85A32] transition-colors"
           >
             Marketplace
           </Link>
@@ -238,7 +240,7 @@ export const Navbar: React.FC = () => {
             <Link
               to="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="block text-base font-semibold text-stone-800 py-1"
+              className="block text-base font-semibold text-stone-800 py-1 hover:text-[#C85A32] transition-colors"
             >
               How It Works
             </Link>
@@ -255,7 +257,7 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/buyer/profile"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-base font-semibold text-stone-800 py-1"
+                className="block text-base font-semibold text-stone-800 py-1 hover:text-[#C85A32] transition-colors"
               >
                 My Profile
               </Link>
@@ -267,14 +269,15 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/artisan/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-sm font-semibold text-[#4A2E1B]"
+                className="flex items-center space-x-2 text-sm font-semibold text-[#4A2E1B]"
               >
-                📊 Artisan Dashboard
+                <BarChart3 className="w-4 h-4 text-[#C85A32]" />
+                <span>Artisan Dashboard</span>
               </Link>
               <Link
                 to="/artisan/products/new"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-center bg-[#C85A32] text-white py-2.5 rounded-xl font-semibold text-sm shadow"
+                className="block text-center bg-[#C85A32] text-white py-2.5 rounded-xl font-semibold text-sm shadow-md active:scale-95 transition-transform"
               >
                 + Add New Product
               </Link>
@@ -286,9 +289,10 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/buyer/dashboard"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-sm font-semibold text-[#4A2E1B]"
+                className="flex items-center space-x-2 text-sm font-semibold text-[#4A2E1B]"
               >
-                🛍️ Buyer Dashboard
+                <ShoppingBag className="w-4 h-4 text-[#C85A32]" />
+                <span>Buyer Dashboard</span>
               </Link>
             </div>
           )}
@@ -298,9 +302,10 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/admin"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block text-sm font-semibold text-stone-900"
+                className="flex items-center space-x-2 text-sm font-semibold text-stone-900"
               >
-                🛡️ Admin Dashboard
+                <Shield className="w-4 h-4 text-[#C85A32]" />
+                <span>Admin Dashboard</span>
               </Link>
             </div>
           )}
