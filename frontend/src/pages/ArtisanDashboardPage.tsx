@@ -229,7 +229,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 3. Bulk Inquiries (Rich Terracotta Orange Theme) */}
         <Link
           to="/artisan/inquiries"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
+          className="glass-card bg-[#FAF7F2] p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view New Wholesale Bulk Inquiries"
         >
           <div className="flex items-center justify-between">
