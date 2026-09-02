@@ -4,7 +4,7 @@ import { Heart, ShieldCheck, Sparkles, MapPin } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const Footer: React.FC = () => {
-  const { t } = useApp();
+  const { t, role } = useApp();
 
   return (
     <footer className="bg-[#1C1917] text-stone-300 pt-16 pb-12 border-t border-stone-800 relative overflow-hidden">
@@ -91,11 +91,15 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Legal */}
         <div className="pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-stone-500 gap-4">
-          <div className="flex items-center space-x-1">
-            <span>Made with</span>
-            <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline" />
-            <span>for Rural Indian Artisans • Hackathon Edition</span>
-          </div>
+          {role !== 'BUYER' ? (
+            <div className="flex items-center space-x-1">
+              <span>Made with</span>
+              <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 inline" />
+              <span>for Rural Indian Artisans • Hackathon Edition</span>
+            </div>
+          ) : (
+            <div></div>
+          )}
 
           <div className="flex items-center space-x-6">
             <span className="flex items-center space-x-1 text-stone-400">
