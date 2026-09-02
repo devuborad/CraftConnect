@@ -27,6 +27,7 @@ import { productService } from '../services/products';
 import { inquiryService } from '../services/inquiries';
 import type { Product, BulkInquiry } from '../types';
 import { useApp } from '../context/AppContext';
+import { ModalPortal } from '../components/common/ModalPortal';
 
 export const ArtisanDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -419,115 +420,117 @@ export const ArtisanDashboardPage: React.FC = () => {
 
       {/* SAVED DRAFTS MODAL OVERLAY ON DASHBOARD */}
       {showDraftsModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowDraftsModal(false);
-          }}
-        >
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-stone-200 max-h-[85vh] overflow-y-auto relative my-auto ios-scale-in">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <FolderOpen className="w-5 h-5" />
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDraftsModal(false);
+            }}
+          >
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-stone-200 flex flex-col max-h-[85vh] relative ios-scale-in">
+              <div className="flex items-center justify-between pb-4 border-b border-stone-100 shrink-0">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                    <FolderOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-lg text-stone-900">All Saved Product Drafts</h3>
+                    <p className="text-xs text-stone-500">Persisted drafts ready for review or publishing live</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-display font-extrabold text-lg text-stone-900">All Saved Product Drafts</h3>
-                  <p className="text-xs text-stone-500">Persisted drafts ready for review or publishing live</p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDraftsModal(false)}
+                  className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowDraftsModal(false)}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {savedDrafts.length === 0 ? (
-              <div className="py-12 text-center space-y-3">
-                <div className="w-14 h-14 bg-amber-50 text-[#C85A32] rounded-full flex items-center justify-center mx-auto text-2xl">
-                  📁
-                </div>
-                <h4 className="font-bold text-stone-900 text-sm">No Saved Drafts Found</h4>
-                <p className="text-xs text-stone-500 max-w-xs mx-auto">
-                  When you save drafts while adding products in AI Assist, they will be saved here.
-                </p>
+              <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
+                {savedDrafts.length === 0 ? (
+                  <div className="py-12 text-center space-y-3">
+                    <div className="w-14 h-14 bg-amber-50 text-[#C85A32] rounded-full flex items-center justify-center mx-auto text-2xl">
+                      📁
+                    </div>
+                    <h4 className="font-bold text-stone-900 text-sm">No Saved Drafts Found</h4>
+                    <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                      When you save drafts while adding products in AI Assist, they will be saved here.
+                    </p>
+                    <Link
+                      to="/artisan/products/new"
+                      onClick={() => setShowDraftsModal(false)}
+                      className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2 cursor-pointer"
+                    >
+                      + Add Product & Save Draft
+                    </Link>
+                  </div>
+                ) : (
+                  savedDrafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={draft.originalImage || draft.enhancedImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800'}
+                          alt={draft.title}
+                          className="w-16 h-16 object-cover rounded-xl border border-amber-200"
+                        />
+                        <div>
+                          <h4 className="font-extrabold text-sm text-stone-900 line-clamp-1">{draft.title}</h4>
+                          <p className="text-xs text-[#C85A32] font-bold">₹{(draft.price || 2499).toLocaleString('en-IN')}</p>
+                          <span className="inline-block bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">
+                            Draft 📁
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 self-end sm:self-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowDraftsModal(false);
+                            navigate('/artisan/products/new');
+                          }}
+                          className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Resume / Edit ✏️</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handlePublishDraft(draft)}
+                          className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                        >
+                          Publish 🚀
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-stone-100 flex justify-between items-center shrink-0">
                 <Link
                   to="/artisan/products/new"
                   onClick={() => setShowDraftsModal(false)}
-                  className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2 cursor-pointer"
+                  className="text-xs font-bold text-[#C85A32] hover:underline"
                 >
-                  + Add Product & Save Draft
+                  + Create New Product Draft
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowDraftsModal(false)}
+                  className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
+                >
+                  Close Window
+                </button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {savedDrafts.map((draft) => (
-                  <div
-                    key={draft.id}
-                    className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={draft.originalImage || draft.enhancedImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800'}
-                        alt={draft.title}
-                        className="w-16 h-16 object-cover rounded-xl border border-amber-200"
-                      />
-                      <div>
-                        <h4 className="font-extrabold text-sm text-stone-900 line-clamp-1">{draft.title}</h4>
-                        <p className="text-xs text-[#C85A32] font-bold">₹{(draft.price || 2499).toLocaleString('en-IN')}</p>
-                        <span className="inline-block bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">
-                          Draft 📁
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2 self-end sm:self-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowDraftsModal(false);
-                          navigate('/artisan/products/new');
-                        }}
-                        className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Resume / Edit ✏️</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handlePublishDraft(draft)}
-                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
-                      >
-                        Publish 🚀
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-4 border-t border-stone-100 flex justify-between items-center">
-              <Link
-                to="/artisan/products/new"
-                onClick={() => setShowDraftsModal(false)}
-                className="text-xs font-bold text-[#C85A32] hover:underline"
-              >
-                + Create New Product Draft
-              </Link>
-              <button
-                type="button"
-                onClick={() => setShowDraftsModal(false)}
-                className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
-              >
-                Close Window
-              </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );
