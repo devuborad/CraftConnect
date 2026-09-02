@@ -24,7 +24,10 @@ export interface Artisan {
   languages: LanguageCode[];
   isVerified: boolean;
   publishedCount: number;
-  totalSales: string;
+  totalSales?: string;
+  businessName?: string;
+  email?: string;
+  city?: string;
 }
 
 export interface Product {
@@ -36,6 +39,8 @@ export interface Product {
   artisanName: string;
   artisanAvatar: string;
   artisanLocation: string;
+  location?: string;
+  minOrderQuantity?: number;
   category: 'Textiles' | 'Pottery' | 'Woodcraft' | 'Jewellery' | 'Handicrafts' | 'Art' | 'Home Decor';
   material: string;
   craftType: string;

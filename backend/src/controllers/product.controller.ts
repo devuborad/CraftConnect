@@ -4,6 +4,60 @@ import { cryptoRandomUUID } from '../utils/uuid.js';
 import { AuthRequest } from '../middleware/auth.middleware.js';
 import { PricingService } from '../services/pricing.service.js';
 
+/**
+ * Helper to resolve artisan profile ID from authenticated user
+ */
+async function resolveArtisanId(req: AuthRequest): Promise<string> {
+  const userId = req.user?.id;
+  if (!userId) throw new Error('Authentication required.');
+
+  if (req.user?.artisanId) return req.user.artisanId;
+
+  const [rows]: any = await db.execute(`SELECT id FROM artisans WHERE user_id = ?`, [userId]);
+  if (rows && rows.length > 0) {
+    return rows[0].id;
+  }
+
+  // Create artisan profile for user if it doesn't exist yet
+  const newArtisanId = cryptoRandomUUID();
+  const userName = req.user?.name || 'Master Artisan';
+  await db.execute(
+    `INSERT INTO artisans (id, user_id, business_name, location, state, craft_type, experience_years, is_verified, created_at, updated_at)
+     VALUES (?, ?, ?, 'Gujarat, India', 'Gujarat', 'Handloom & Handicrafts', 3, TRUE, NOW(), NOW())`,
+    [newArtisanId, userId, `${userName} Craft Studio`]
+  );
+  return newArtisanId;
+}
+
+/**
+ * Helper to resolve category ID by name or slug
+ */
+async function resolveCategoryId(categoryName?: string): Promise<string> {
+  const nameToMatch = categoryName || 'Textiles';
+  const [catRows]: any = await db.execute(
+    `SELECT id FROM categories WHERE LOWER(name) = LOWER(?) OR LOWER(slug) = LOWER(?) LIMIT 1`,
+    [nameToMatch, nameToMatch]
+  );
+  if (catRows && catRows.length > 0) {
+    return catRows[0].id;
+  }
+
+  const [allCats]: any = await db.execute(`SELECT id FROM categories LIMIT 1`);
+  if (allCats && allCats.length > 0) {
+    return allCats[0].id;
+  }
+
+  const newCatId = cryptoRandomUUID();
+  await db.execute(
+    `INSERT INTO categories (id, name, slug, description, status, created_at, updated_at) VALUES (?, ?, ?, 'Handmade artisan crafts', 'active', NOW(), NOW())`,
+    [newCatId, nameToMatch, nameToMatch.toLowerCase().replace(/\s+/g, '-')]
+  );
+  return newCatId;
+}
+
+/**
+ * Public Marketplace Listing (defaults to published products)
+ */
 export const getProducts = async (req: Request, res: Response): Promise<void> => {
   try {
     const {
@@ -26,7 +80,6 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
     let whereClause = `WHERE 1=1`;
     const queryParams: any[] = [];
 
-    // Public users only see published products, unless specified or filtered
     if (status) {
       whereClause += ` AND p.status = ?`;
       queryParams.push(status);
@@ -68,12 +121,10 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       queryParams.push(parseFloat(maxPrice as string));
     }
 
-    // Count query
     const countSql = `SELECT COUNT(*) as total FROM products p LEFT JOIN categories c ON p.category_id = c.id LEFT JOIN artisans a ON p.artisan_id = a.id ${whereClause}`;
     const [countRows]: any = await db.execute(countSql, queryParams);
     const total = countRows[0]?.total || 0;
 
-    // Fetch query
     const fetchSql = `
       SELECT p.*, c.name as category_name, c.slug as category_slug, 
              a.business_name as artisan_name, a.location as artisan_location, a.profile_image as artisan_avatar,
@@ -94,6 +145,7 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
     const products = rows.map((r: any) => ({
       id: r.id,
       title: r.name,
+      name: r.name,
       titleGujarati: r.name_gujarati,
       titleHindi: r.name_hindi,
       artisanId: r.artisan_id,
@@ -136,6 +188,74 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+/**
+ * Get products belonging to the authenticated artisan (drafts, published, archived)
+ */
+export const getMyProducts = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const artisanId = await resolveArtisanId(req);
+    const { status } = req.query;
+
+    let sql = `
+      SELECT p.*, c.name as category_name,
+             pc.total_cost as production_cost,
+             pa.recommended_price, pa.market_min, pa.market_max
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN product_costs pc ON p.id = pc.product_id
+      LEFT JOIN pricing_analysis pa ON p.id = pa.product_id
+      WHERE p.artisan_id = ?
+    `;
+
+    const queryParams: any[] = [artisanId];
+    if (status) {
+      sql += ` AND p.status = ?`;
+      queryParams.push(status);
+    }
+
+    sql += ` ORDER BY p.updated_at DESC`;
+
+    const [rows]: any = await db.execute(sql, queryParams);
+
+    const products = rows.map((r: any) => ({
+      id: r.id,
+      title: r.name,
+      name: r.name,
+      titleGujarati: r.name_gujarati,
+      titleHindi: r.name_hindi,
+      artisanId: r.artisan_id,
+      category: r.category_name,
+      material: r.material,
+      craftType: r.craft_type,
+      origin: r.origin,
+      price: parseFloat(r.price),
+      originalImage: r.original_image_url,
+      enhancedImage: r.enhanced_image_url,
+      descriptionEn: r.description_en,
+      descriptionHi: r.description_hi,
+      descriptionGu: r.description_gu,
+      status: r.status,
+      views: r.views_count,
+      stock: r.stock_quantity,
+      productionCost: r.production_cost ? parseFloat(r.production_cost) : undefined,
+      recommendedPrice: r.recommended_price ? parseFloat(r.recommended_price) : undefined,
+      createdAt: r.created_at,
+      updatedAt: r.updated_at,
+    }));
+
+    res.json({
+      success: true,
+      data: products,
+    });
+  } catch (err: any) {
+    console.error('getMyProducts error:', err);
+    res.status(500).json({ success: false, message: 'Failed to retrieve artisan products' });
+  }
+};
+
+/**
+ * Product detail view
+ */
 export const getProductById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -163,6 +283,7 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
     const product = {
       id: r.id,
       title: r.name,
+      name: r.name,
       titleGujarati: r.name_gujarati,
       titleHindi: r.name_hindi,
       artisanId: r.artisan_id,
@@ -198,141 +319,202 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
   }
 };
 
+/**
+ * Create product helper
+ */
+async function processProductCreation(req: AuthRequest, targetStatus: 'draft' | 'published') {
+  const {
+    name,
+    title,
+    nameGujarati,
+    titleGujarati,
+    nameHindi,
+    titleHindi,
+    categoryName,
+    category,
+    material = 'Organic Fabric',
+    craftType = 'Handmade',
+    origin = 'Gujarat, India',
+    originalImageUrl,
+    originalImage,
+    imageUrl,
+    enhancedImageUrl,
+    enhancedImage,
+    price,
+    stockQuantity,
+    stock,
+    quantity,
+    descriptionEn,
+    description,
+    descriptionHi,
+    descriptionGu,
+    costs,
+  } = req.body;
+
+  const productName = name || title;
+  const prodDescription = descriptionEn || description || productName;
+  const mainImage = originalImageUrl || originalImage || imageUrl;
+  const prodPrice = price !== undefined ? Number(price) : 0;
+  const prodStock = stockQuantity !== undefined ? Number(stockQuantity) : stock !== undefined ? Number(stock) : quantity !== undefined ? Number(quantity) : 1;
+  const catName = categoryName || category || 'Textiles';
+
+  if (prodPrice < 0) {
+    const err: any = new Error('Price cannot be negative.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  if (prodStock < 0) {
+    const err: any = new Error('Stock quantity cannot be negative.');
+    err.statusCode = 400;
+    throw err;
+  }
+
+  // If creating published product directly, validate required fields
+  if (targetStatus === 'published') {
+    if (!productName || productName.trim() === '') {
+      const err: any = new Error('Product cannot be published because product name is missing.');
+      err.statusCode = 400;
+      throw err;
+    }
+    if (!prodDescription || prodDescription.trim() === '') {
+      const err: any = new Error('Product cannot be published because description is missing.');
+      err.statusCode = 400;
+      throw err;
+    }
+    if (!mainImage || mainImage.trim() === '') {
+      const err: any = new Error('Product cannot be published because product image is missing.');
+      err.statusCode = 400;
+      throw err;
+    }
+    if (prodPrice <= 0) {
+      const err: any = new Error('Product cannot be published because price must be greater than 0.');
+      err.statusCode = 400;
+      throw err;
+    }
+  }
+
+  const artisanId = await resolveArtisanId(req);
+  const categoryId = await resolveCategoryId(catName);
+  const productId = cryptoRandomUUID();
+
+  await db.execute(
+    `INSERT INTO products (id, artisan_id, category_id, name, name_gujarati, name_hindi, description_en, description_hi, description_gu, material, craft_type, origin, original_image_url, enhanced_image_url, price, stock_quantity, status, views_count, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, NOW(), NOW())`,
+    [
+      productId,
+      artisanId,
+      categoryId,
+      productName || 'Draft Product',
+      nameGujarati || titleGujarati || null,
+      nameHindi || titleHindi || null,
+      prodDescription,
+      descriptionHi || null,
+      descriptionGu || null,
+      material,
+      craftType,
+      origin,
+      mainImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800',
+      enhancedImageUrl || enhancedImage || mainImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800',
+      prodPrice,
+      prodStock,
+      targetStatus,
+    ]
+  );
+
+  if (costs) {
+    const costId = cryptoRandomUUID();
+    const totalCost = PricingService.calculateTotalCost(costs);
+    await db.execute(
+      `INSERT INTO product_costs (id, product_id, raw_material_cost, labour_cost, packaging_cost, other_cost, total_cost, created_at, updated_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
+      [costId, productId, costs.rawMaterialCost || costs.rawMaterial || 0, costs.labourCost || costs.labor || 0, costs.packagingCost || costs.packaging || 0, costs.otherCost || costs.other || 0, totalCost]
+    );
+
+    const pricingRec = PricingService.generatePriceRecommendation(costs, craftType, catName);
+    const paId = cryptoRandomUUID();
+    await db.execute(
+      `INSERT INTO pricing_analysis (id, product_id, market_min, market_max, recommended_price, confidence, reasoning, data_source, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+      [paId, productId, pricingRec.marketRange.min, pricingRec.marketRange.max, pricingRec.recommendedPrice, pricingRec.confidence, pricingRec.reasoning, pricingRec.dataSource]
+    );
+  }
+
+  return { id: productId, name: productName, price: prodPrice, status: targetStatus };
+}
+
+/**
+ * Create & publish product (or set status specified in body)
+ */
 export const createProduct = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const {
-      name,
-      nameGujarati,
-      nameHindi,
-      categoryName = 'Textiles',
-      material = 'Organic Cotton',
-      craftType = 'Handwoven',
-      origin = 'Gujarat',
-      originalImageUrl,
-      enhancedImageUrl,
-      price,
-      stockQuantity = 1,
-      descriptionEn,
-      descriptionHi,
-      descriptionGu,
-      costs,
-    } = req.body;
-
-    if (!name || !price || !originalImageUrl) {
-      res.status(400).json({ success: false, message: 'Name, price, and original image URL are required.' });
-      return;
-    }
-
-    // Resolve artisan ID
-    let artisanId = req.user?.artisanId;
-    if (!artisanId) {
-      const [artisanRows]: any = await db.execute(`SELECT id FROM artisans WHERE user_id = ?`, [req.user?.id || '']);
-      if (artisanRows.length > 0) {
-        artisanId = artisanRows[0].id;
-      } else {
-        // Fallback default artisan for testing
-        const [defaultRows]: any = await db.execute(`SELECT id FROM artisans LIMIT 1`);
-        artisanId = defaultRows[0]?.id || 'art-1';
-      }
-    }
-
-    // Check if product with same name already exists for this artisan
-    const [existingProd]: any = await db.execute(
-      `SELECT id, stock_quantity FROM products WHERE artisan_id = ? AND LOWER(name) = LOWER(?) LIMIT 1`,
-      [artisanId, name.trim()]
-    );
-
-    if (existingProd && existingProd.length > 0) {
-      const existingId = existingProd[0].id;
-      const addQty = parseInt(stockQuantity, 10) || 1;
-      await db.execute(
-        `UPDATE products SET stock_quantity = stock_quantity + ?, price = ?, updated_at = NOW() WHERE id = ?`,
-        [addQty, parseFloat(price), existingId]
-      );
-
-      res.status(200).json({
-        success: true,
-        message: `Product "${name}" stock incremented by ${addQty} units.`,
-        data: { id: existingId }
-      });
-      return;
-    }
-
-    const productId = cryptoRandomUUID();
-
-    // Resolve Category ID
-    const [catRows]: any = await db.execute(`SELECT id FROM categories WHERE name = ? OR slug = ? LIMIT 1`, [categoryName, categoryName.toLowerCase()]);
-    const categoryId = catRows[0]?.id || 'cat-1';
-
-    // Insert Product
-    await db.execute(
-      `INSERT INTO products (id, artisan_id, category_id, name, name_gujarati, name_hindi, description_en, description_hi, description_gu, material, craft_type, origin, original_image_url, enhanced_image_url, price, stock_quantity, status, views_count, created_at, updated_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'published', 0, NOW(), NOW())`,
-      [
-        productId,
-        artisanId,
-        categoryId,
-        name,
-        nameGujarati || null,
-        nameHindi || null,
-        descriptionEn || name,
-        descriptionHi || null,
-        descriptionGu || null,
-        material,
-        craftType,
-        origin,
-        originalImageUrl,
-        enhancedImageUrl || originalImageUrl,
-        parseFloat(price),
-        parseInt(stockQuantity, 10) || 1,
-      ]
-    );
-
-    // Insert Costs if provided
-    if (costs) {
-      const costId = cryptoRandomUUID();
-      const totalCost = PricingService.calculateTotalCost(costs);
-      await db.execute(
-        `INSERT INTO product_costs (id, product_id, raw_material_cost, labour_cost, packaging_cost, other_cost, total_cost, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-        [costId, productId, costs.rawMaterialCost || 0, costs.labourCost || 0, costs.packagingCost || 0, costs.otherCost || 0, totalCost]
-      );
-
-      // Generate & insert AI pricing analysis
-      const pricingRec = PricingService.generatePriceRecommendation(costs, craftType, categoryName);
-      const paId = cryptoRandomUUID();
-      await db.execute(
-        `INSERT INTO pricing_analysis (id, product_id, market_min, market_max, recommended_price, confidence, reasoning, data_source, created_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-        [paId, productId, pricingRec.marketRange.min, pricingRec.marketRange.max, pricingRec.recommendedPrice, pricingRec.confidence, pricingRec.reasoning, pricingRec.dataSource]
-      );
-    }
+    const requestedStatus = req.body?.status === 'draft' ? 'draft' : 'published';
+    const data = await processProductCreation(req, requestedStatus);
 
     res.status(201).json({
       success: true,
-      message: 'Product created and published successfully.',
-      data: { id: productId, name, price },
+      message: requestedStatus === 'draft' ? 'Product draft saved successfully.' : 'Product created and published successfully.',
+      data,
     });
   } catch (err: any) {
-    console.error('createProduct error:', err);
-    res.status(500).json({ success: false, message: 'Failed to create product.' });
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({ success: false, message: err.message || 'Failed to create product.' });
   }
 };
 
+/**
+ * Save product as draft
+ */
+export const saveProductDraft = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const data = await processProductCreation(req, 'draft');
+
+    res.status(201).json({
+      success: true,
+      message: 'Product saved as draft successfully.',
+      data,
+    });
+  } catch (err: any) {
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({ success: false, message: err.message || 'Failed to save product draft.' });
+  }
+};
+
+/**
+ * Update product details with ownership verification
+ */
 export const updateProduct = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { name, price, stockQuantity, material, craftType, descriptionEn, status } = req.body;
+    const { name, title, price, stockQuantity, stock, material, craftType, descriptionEn, description, status } = req.body;
 
-    // Verify ownership or admin role
-    const [prodRows]: any = await db.execute(`SELECT artisan_id FROM products WHERE id = ?`, [id]);
+    const [prodRows]: any = await db.execute(`SELECT * FROM products WHERE id = ?`, [id]);
     if (!prodRows || prodRows.length === 0) {
       res.status(404).json({ success: false, message: 'Product not found' });
       return;
     }
 
-    if (req.user?.role !== 'admin' && prodRows[0].artisan_id !== req.user?.artisanId) {
-      res.status(403).json({ success: false, message: 'Unauthorized to edit this product' });
+    const product = prodRows[0];
+
+    // Ownership check
+    if (req.user?.role !== 'admin') {
+      const artisanId = await resolveArtisanId(req);
+      if (product.artisan_id !== artisanId) {
+        res.status(403).json({ success: false, message: "Unauthorized. You cannot edit another artisan's product." });
+        return;
+      }
+    }
+
+    const newPrice = price !== undefined ? Number(price) : undefined;
+    const newStock = stockQuantity !== undefined ? Number(stockQuantity) : stock !== undefined ? Number(stock) : undefined;
+
+    if (newPrice !== undefined && newPrice < 0) {
+      res.status(400).json({ success: false, message: 'Price cannot be negative.' });
+      return;
+    }
+
+    if (newStock !== undefined && newStock < 0) {
+      res.status(400).json({ success: false, message: 'Stock quantity cannot be negative.' });
       return;
     }
 
@@ -342,15 +524,120 @@ export const updateProduct = async (req: AuthRequest, res: Response): Promise<vo
            material = COALESCE(?, material), craft_type = COALESCE(?, craft_type), description_en = COALESCE(?, description_en),
            status = COALESCE(?, status), updated_at = NOW()
        WHERE id = ?`,
-      [name, price, stockQuantity, material, craftType, descriptionEn, status, id]
+      [
+        name || title || null,
+        newPrice !== undefined ? newPrice : null,
+        newStock !== undefined ? newStock : null,
+        material || null,
+        craftType || null,
+        descriptionEn || description || null,
+        status || null,
+        id,
+      ]
     );
 
     res.json({ success: true, message: 'Product updated successfully' });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: 'Failed to update product' });
+    res.status(500).json({ success: false, message: err.message || 'Failed to update product' });
   }
 };
 
+/**
+ * Publish product with validation
+ */
+export const publishProduct = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const [prodRows]: any = await db.execute(`SELECT * FROM products WHERE id = ?`, [id]);
+
+    if (!prodRows || prodRows.length === 0) {
+      res.status(404).json({ success: false, message: 'Product not found' });
+      return;
+    }
+
+    const product = prodRows[0];
+
+    // Ownership check
+    if (req.user?.role !== 'admin') {
+      const artisanId = await resolveArtisanId(req);
+      if (product.artisan_id !== artisanId) {
+        res.status(403).json({ success: false, message: "Unauthorized. You cannot publish another artisan's product." });
+        return;
+      }
+    }
+
+    // Publish Validation
+    if (!product.name || product.name.trim() === '') {
+      res.status(400).json({ success: false, message: 'Product cannot be published because product name is missing.' });
+      return;
+    }
+
+    if (!product.description_en || product.description_en.trim() === '') {
+      res.status(400).json({ success: false, message: 'Product cannot be published because description is missing.' });
+      return;
+    }
+
+    if (!product.price || Number(product.price) <= 0) {
+      res.status(400).json({ success: false, message: 'Product cannot be published because price must be greater than 0.' });
+      return;
+    }
+
+    if (!product.original_image_url || product.original_image_url.trim() === '') {
+      res.status(400).json({ success: false, message: 'Product cannot be published because product image is missing.' });
+      return;
+    }
+
+    await db.execute(`UPDATE products SET status = 'published', updated_at = NOW() WHERE id = ?`, [id]);
+
+    res.json({
+      success: true,
+      message: 'Product published live successfully',
+      data: { id, status: 'published' },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Failed to publish product' });
+  }
+};
+
+/**
+ * Archive product
+ */
+export const archiveProduct = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const [prodRows]: any = await db.execute(`SELECT * FROM products WHERE id = ?`, [id]);
+
+    if (!prodRows || prodRows.length === 0) {
+      res.status(404).json({ success: false, message: 'Product not found' });
+      return;
+    }
+
+    const product = prodRows[0];
+
+    // Ownership check
+    if (req.user?.role !== 'admin') {
+      const artisanId = await resolveArtisanId(req);
+      if (product.artisan_id !== artisanId) {
+        res.status(403).json({ success: false, message: "Unauthorized. You cannot archive another artisan's product." });
+        return;
+      }
+    }
+
+    await db.execute(`UPDATE products SET status = 'archived', updated_at = NOW() WHERE id = ?`, [id]);
+
+    res.json({
+      success: true,
+      message: 'Product archived successfully',
+      data: { id, status: 'archived' },
+    });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message || 'Failed to archive product' });
+  }
+};
+
+/**
+ * Delete product with ownership verification
+ */
 export const deleteProduct = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -361,9 +648,12 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
       return;
     }
 
-    if (req.user?.role !== 'admin' && prodRows[0].artisan_id !== req.user?.artisanId) {
-      res.status(403).json({ success: false, message: 'Unauthorized to delete this product' });
-      return;
+    if (req.user?.role !== 'admin') {
+      const artisanId = await resolveArtisanId(req);
+      if (prodRows[0].artisan_id !== artisanId) {
+        res.status(403).json({ success: false, message: 'Unauthorized to delete this product' });
+        return;
+      }
     }
 
     await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
@@ -373,6 +663,9 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+/**
+ * Increment product view count
+ */
 export const incrementProductView = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

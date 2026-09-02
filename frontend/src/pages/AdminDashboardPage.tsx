@@ -13,19 +13,54 @@ import {
 import { MOCK_ARTISANS, MOCK_PRODUCTS, MOCK_AI_METRICS } from '../services/mockData';
 import { useApp } from '../context/AppContext';
 
+import { useEffect } from 'react';
+import { api } from '../services/api';
+
 export const AdminDashboardPage: React.FC = () => {
   const { showToast } = useApp();
   const [activeTab, setActiveTab] = useState<
     'dashboard' | 'artisans' | 'buyers' | 'products' | 'categories' | 'inquiries' | 'ai' | 'content' | 'settings'
   >('dashboard');
 
-  const [productsList, setProductsList] = useState(MOCK_PRODUCTS);
+  const [productsList, setProductsList] = useState<any[]>([]);
+  const [artisansList, setArtisansList] = useState<any[]>([]);
+  const [aiActivityList, setAiActivityList] = useState<any[]>([]);
+  const [overviewStats, setOverviewStats] = useState<any>(null);
+
+  useEffect(() => {
+    api.getAdminStats().then((res) => {
+      if (res.success && res.data) {
+        setOverviewStats(res.data);
+      }
+    });
+
+    api.getAdminProducts().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        setProductsList(res.data);
+      }
+    });
+
+    api.getAdminArtisans().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        setArtisansList(res.data);
+      }
+    });
+
+    api.getAdminAIActivity().then((res) => {
+      if (res.success && Array.isArray(res.data)) {
+        setAiActivityList(res.data);
+      }
+    });
+  }, []);
 
   const handleProductStatus = (id: string, newStatus: 'Published' | 'Rejected') => {
-    setProductsList((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
-    );
-    showToast(`Product status updated to ${newStatus}`, '', 'success');
+    const statusParam = newStatus.toLowerCase();
+    api.moderateProduct(id, statusParam).then(() => {
+      setProductsList((prev) =>
+        prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+      );
+      showToast(`Product status updated to ${newStatus}`, '', 'success');
+    });
   };
 
   return (
@@ -35,9 +70,14 @@ export const AdminDashboardPage: React.FC = () => {
         {/* Admin Navigation Sidebar (Desktop & Mobile Drawer) */}
         <div className="lg:col-span-3 space-y-2">
           <div className="glass-card bg-stone-900 text-stone-200 p-4 rounded-3xl space-y-1 shadow-xl">
-            <div className="p-3 mb-2 border-b border-stone-800 flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-amber-400" />
-              <h3 className="font-display font-bold text-white text-base">Admin Portal</h3>
+            <div className="p-3 mb-2 border-b border-stone-800 space-y-2.5">
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl shadow-xs inline-block">
+                <img src="/logo.png" alt="CraftConnect" className="h-6 w-auto object-contain" />
+              </div>
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-5 h-5 text-amber-400" />
+                <h3 className="font-display font-bold text-white text-base">Admin Portal</h3>
+              </div>
             </div>
 
             <button
@@ -131,26 +171,26 @@ export const AdminDashboardPage: React.FC = () => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="glass-card bg-white p-4 rounded-2xl border border-stone-200 space-y-1">
                   <span className="text-[10px] text-stone-400 font-bold uppercase">Total Artisans</span>
-                  <p className="font-extrabold text-2xl text-stone-900">1,240</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">+14% this month</span>
+                  <p className="font-extrabold text-2xl text-stone-900">{overviewStats?.artisans ?? overviewStats?.totalArtisans ?? 1240}</p>
+                  <span className="text-[10px] text-emerald-600 font-bold">Verified Artisans</span>
                 </div>
 
                 <div className="glass-card bg-white p-4 rounded-2xl border border-stone-200 space-y-1">
                   <span className="text-[10px] text-stone-400 font-bold uppercase">Total Products</span>
-                  <p className="font-extrabold text-2xl text-stone-900">3,850</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">3,410 Published</span>
+                  <p className="font-extrabold text-2xl text-stone-900">{overviewStats?.products ?? overviewStats?.totalProducts ?? 3850}</p>
+                  <span className="text-[10px] text-emerald-600 font-bold">{overviewStats?.publishedProducts ?? 3410} Published</span>
                 </div>
 
                 <div className="glass-card bg-white p-4 rounded-2xl border border-stone-200 space-y-1">
                   <span className="text-[10px] text-stone-400 font-bold uppercase">Buyer Inquiries</span>
-                  <p className="font-extrabold text-2xl text-[#C85A32]">890</p>
-                  <span className="text-[10px] text-emerald-600 font-bold">₹48.5L Volume</span>
+                  <p className="font-extrabold text-2xl text-[#C85A32]">{overviewStats?.inquiries ?? overviewStats?.totalInquiries ?? 890}</p>
+                  <span className="text-[10px] text-emerald-600 font-bold">B2B Sourcing Volume</span>
                 </div>
 
                 <div className="glass-card bg-white p-4 rounded-2xl border border-stone-200 space-y-1">
                   <span className="text-[10px] text-stone-400 font-bold uppercase">AI Requests</span>
-                  <p className="font-extrabold text-2xl text-stone-900">14,200</p>
-                  <span className="text-[10px] text-amber-600 font-bold">98.4% Success</span>
+                  <p className="font-extrabold text-2xl text-stone-900">{overviewStats?.aiRequests ?? overviewStats?.totalAIRequests ?? 14200}</p>
+                  <span className="text-[10px] text-amber-600 font-bold">Live AI Logs</span>
                 </div>
               </div>
 
@@ -235,15 +275,15 @@ export const AdminDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
-                    {MOCK_ARTISANS.map((a) => (
+                    {artisansList.map((a: any) => (
                       <tr key={a.id} className="hover:bg-stone-50">
                         <td className="p-3 font-bold text-stone-900 flex items-center space-x-2">
-                          <img src={a.avatar} alt={a.name} className="w-6 h-6 rounded-full object-cover" />
+                          <img src={a.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400'} alt={a.name} className="w-6 h-6 rounded-full object-cover" />
                           <span>{a.name}</span>
                         </td>
-                        <td className="p-3">{a.location}</td>
-                        <td className="p-3">{a.craftType}</td>
-                        <td className="p-3">{a.experienceYears} yrs</td>
+                        <td className="p-3">{a.location || 'Gujarat'}</td>
+                        <td className="p-3">{a.craftType || 'Handicrafts'}</td>
+                        <td className="p-3">{a.experienceYears || 5} yrs</td>
                         <td className="p-3">
                           <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
                             Verified
@@ -283,21 +323,21 @@ export const AdminDashboardPage: React.FC = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-stone-100">
-                    {productsList.map((p) => (
+                    {productsList.map((p: any) => (
                       <tr key={p.id} className="hover:bg-stone-50">
                         <td className="p-3 font-bold text-stone-900 flex items-center space-x-2">
-                          <img src={p.originalImage} alt={p.title} className="w-8 h-8 rounded-lg object-cover" />
-                          <span className="line-clamp-1">{p.title}</span>
+                          <img src={p.originalImage || p.original_image_url} alt={p.title || p.name} className="w-8 h-8 rounded-lg object-cover" />
+                          <span className="line-clamp-1">{p.title || p.name}</span>
                         </td>
-                        <td className="p-3">{p.artisanName}</td>
-                        <td className="p-3">{p.category}</td>
+                        <td className="p-3">{p.artisanName || 'Artisan'}</td>
+                        <td className="p-3">{p.category || p.category_name}</td>
                         <td className="p-3 font-bold">₹{p.price}</td>
                         <td className="p-3">
                           <span
                             className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                              p.status === 'Published'
+                              (p.status || '').toLowerCase() === 'published'
                                 ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-red-100 text-red-800'
+                                : 'bg-amber-100 text-amber-800'
                             }`}
                           >
                             {p.status}
@@ -331,19 +371,19 @@ export const AdminDashboardPage: React.FC = () => {
               <h2 className="font-display font-bold text-xl text-stone-900">AI Assist Request Log</h2>
 
               <div className="space-y-3">
-                {MOCK_AI_METRICS.map((m) => (
+                {aiActivityList.map((m: any) => (
                   <div key={m.id} className="bg-[#FAF7F2] p-4 rounded-2xl border border-stone-200 flex items-center justify-between text-xs">
                     <div className="flex items-center space-x-3">
                       <Sparkles className="w-4 h-4 text-[#C85A32]" />
                       <div>
-                        <p className="font-bold text-stone-900">{m.type} • {m.artisanName}</p>
-                        <p className="text-[10px] text-stone-500">{m.timestamp}</p>
+                        <p className="font-bold text-stone-900">{(m.feature || m.type || 'AI_FEATURE').toUpperCase()} • {m.userName || m.artisanName || 'Artisan'}</p>
+                        <p className="text-[10px] text-stone-500">{m.createdAt || m.timestamp}</p>
                       </div>
                     </div>
 
                     <div className="text-right">
                       <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                        {m.status} ({m.durationMs}ms)
+                        {m.status} ({m.durationMs || m.processingTimeMs || 1200}ms)
                       </span>
                     </div>
                   </div>

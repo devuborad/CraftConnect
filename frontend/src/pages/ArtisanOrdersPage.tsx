@@ -23,7 +23,7 @@ import { useApp } from '../context/AppContext';
 export const ArtisanOrdersPage: React.FC = () => {
   const { showToast, addNotification, currentUser, userName } = useApp();
   const [orders, setOrders] = useState<BulkInquiry[]>([]);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'ACCEPTED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'ACCEPTED' | 'DISPATCHED'>('ALL');
   const [loading, setLoading] = useState(true);
 
   const loadOrders = async () => {

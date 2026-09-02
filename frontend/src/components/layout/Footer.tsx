@@ -16,14 +16,9 @@ export const Footer: React.FC = () => {
           
           {/* Brand & Purpose */}
           <div className="space-y-4 md:col-span-1">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#C85A32] to-amber-600 flex items-center justify-center text-white font-bold">
-                C
-              </div>
-              <span className="font-display text-xl font-bold text-white tracking-tight">
-                CraftConnect <span className="text-amber-400">AI</span>
-              </span>
-            </div>
+            <Link to="/" className="inline-block bg-white/95 px-3 py-1.5 rounded-xl shadow-md hover:bg-white transition-all group">
+              <img src="/logo.png" alt="CraftConnect" className="h-7 w-auto object-contain group-hover:scale-102 transition-transform" />
+            </Link>
             <p className="text-xs text-stone-400 leading-relaxed">
               {t('footer.mission')}
             </p>

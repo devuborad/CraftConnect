@@ -24,7 +24,7 @@ export const ArtisanInquiriesPage: React.FC = () => {
   const [inquiries, setInquiries] = useState<BulkInquiry[]>([]);
   const [counterInputId, setCounterInputId] = useState<string | null>(null);
   const [counterPrice, setCounterPrice] = useState<number>(0);
-  const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'ACCEPTED'>('ALL');
+  const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEW' | 'ACCEPTED' | 'DISPATCHED'>('ALL');
   const [loading, setLoading] = useState(true);
 
   const loadInquiries = async () => {

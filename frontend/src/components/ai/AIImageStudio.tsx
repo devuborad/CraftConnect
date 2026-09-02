@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Sparkles, CheckCircle2, Sliders, RefreshCw, ArrowRight } from 'lucide-react';
 import { aiService } from '../../services/ai';
 import type { ImageStudioResult } from '../../services/ai';
@@ -13,24 +13,57 @@ export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, onC
   const [result, setResult] = useState<ImageStudioResult | null>(null);
   const [sliderPos, setSliderPos] = useState(50);
   const [stepProgress, setStepProgress] = useState(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
 
   React.useEffect(() => {
-    let t1 = setTimeout(() => setStepProgress(2), 500);
-    let t2 = setTimeout(() => setStepProgress(3), 1000);
-    let t3 = setTimeout(() => {
-      setStepProgress(4);
-      aiService.enhanceImage(originalImage).then((res) => {
+    if (!originalImage) return;
+    setProcessing(true);
+    setStepProgress(1);
+
+    let isMounted = true;
+    let t1 = setTimeout(() => { if (isMounted) setStepProgress(2); }, 200);
+    let t2 = setTimeout(() => { if (isMounted) setStepProgress(3); }, 400);
+
+    aiService.enhanceImage(originalImage).then((res) => {
+      if (isMounted) {
+        setStepProgress(4);
         setResult(res);
         setProcessing(false);
-      });
-    }, 1500);
+      }
+    });
 
     return () => {
+      isMounted = false;
       clearTimeout(t1);
       clearTimeout(t2);
-      clearTimeout(t3);
     };
   }, [originalImage]);
+
+  const updateSliderFromEvent = useCallback((clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+    setSliderPos(Math.round(percentage));
+  }, []);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    isDraggingRef.current = true;
+    (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
+    updateSliderFromEvent(e.clientX);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (isDraggingRef.current || e.buttons === 1) {
+      updateSliderFromEvent(e.clientX);
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    isDraggingRef.current = false;
+    (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
+  };
 
   return (
     <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-md space-y-6">
@@ -41,7 +74,7 @@ export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, onC
             <span>AI IMAGE STUDIO</span>
           </span>
           <h3 className="font-display font-bold text-xl text-stone-900">
-            Professional Product Photography Clean
+            Professional Product Photography Enhancement
           </h3>
         </div>
       </div>
@@ -77,58 +110,70 @@ export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, onC
       ) : (
         <div className="space-y-5">
           {/* Comparison Slider */}
-          <div className="relative aspect-4/3 rounded-2xl overflow-hidden shadow-lg border border-stone-300 select-none group">
-            {/* Original Image (Left side) */}
+          <div
+            ref={containerRef}
+            onPointerDown={handlePointerDown}
+            onPointerMove={handlePointerMove}
+            onPointerUp={handlePointerUp}
+            className="relative aspect-[4/3] min-h-[340px] sm:min-h-[420px] w-full rounded-2xl overflow-hidden shadow-lg border border-stone-300 select-none group bg-stone-100 cursor-ew-resize touch-none"
+          >
+            {/* Original Image (Background / Right Side) */}
             <img
               src={originalImage}
               alt="Original"
               className="absolute inset-0 w-full h-full object-cover filter contrast-90 brightness-95"
             />
 
-            {/* Enhanced Overlay (Right side) */}
+            {/* Enhanced Image Overlay (Clipped on Left Side using clipPath) */}
             <div
-              className="absolute inset-0 overflow-hidden"
-              style={{ width: `${sliderPos}%` }}
+              className="absolute inset-0 overflow-hidden pointer-events-none"
+              style={{
+                clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
+              }}
             >
               <img
-                src={originalImage}
+                src={result?.enhancedUrl || originalImage}
                 alt="Enhanced"
                 className="w-full h-full object-cover filter brightness-105 contrast-105 saturate-110"
               />
-              <span className="absolute top-3 left-3 bg-amber-900/80 backdrop-blur text-amber-200 text-[10px] font-bold px-2 py-0.5 rounded shadow">
-                ✨ AI ENHANCED STUDIO
+              <span className="absolute top-3 left-3 bg-amber-900/90 backdrop-blur text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-md shadow flex items-center space-x-1 z-10">
+                <Sparkles className="w-3 h-3 text-amber-300" />
+                <span>✨ AI ENHANCED STUDIO</span>
               </span>
             </div>
 
-            <span className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur text-stone-200 text-[10px] font-bold px-2 py-0.5 rounded shadow">
+            <span className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur text-stone-200 text-[10px] font-bold px-2.5 py-1 rounded-md shadow z-10">
               📷 ORIGINAL PHOTO
             </span>
 
-            {/* Interactive Slider Bar */}
+            {/* Interactive Vertical Slider Line & Handle */}
             <div
-              className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize shadow-2xl"
+              className="absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize shadow-2xl z-20 pointer-events-none"
               style={{ left: `${sliderPos}%` }}
             >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-white text-stone-800 shadow-xl border border-stone-300 flex items-center justify-center text-xs font-bold">
+              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-9 h-9 rounded-full bg-white text-stone-800 shadow-2xl border-2 border-[#C85A32] flex items-center justify-center text-xs font-bold pointer-events-none">
                 <Sliders className="w-4 h-4 text-[#C85A32]" />
               </div>
             </div>
 
+            {/* Range Input Overlay for accessibility & drag */}
             <input
               type="range"
               min="0"
               max="100"
               value={sliderPos}
+              onInput={(e: any) => setSliderPos(Number(e.target.value))}
               onChange={(e) => setSliderPos(Number(e.target.value))}
-              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-30 touch-none pointer-events-auto"
             />
           </div>
 
-          <p className="text-center text-xs text-stone-500 font-medium">
-            Drag the slider to compare original photo vs AI enhanced studio version
+          <p className="text-center text-xs text-stone-500 font-medium flex items-center justify-center space-x-1">
+            <Sliders className="w-3.5 h-3.5 text-[#C85A32]" />
+            <span>Drag the slider left or right to compare original photo vs AI enhanced studio version</span>
           </p>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             <button
               onClick={() => {

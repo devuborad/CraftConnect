@@ -107,13 +107,9 @@ export const ArtisanProfilePage: React.FC = () => {
       setArtisan(ownArtisanData);
       populateEditForm(currentUser);
 
-      // Fetch products created by this artisan or catalogue products
-      productService.getProducts().then((allProds) => {
-        const artisanProducts = allProds.filter(
-          (p) => p.artisanId === currentUser.id || p.artisanName?.toLowerCase() === currentUser.name?.toLowerCase()
-        );
-        // If user is logged in, show their products or default studio catalogue
-        setProducts(artisanProducts.length > 0 ? artisanProducts : allProds.slice(0, 4));
+      // Fetch products created by this artisan (both Published and Draft)
+      productService.getMyProducts().then((myProds) => {
+        setProducts(myProds);
         setLoading(false);
       });
     } else if (id) {

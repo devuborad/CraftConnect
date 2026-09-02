@@ -56,7 +56,7 @@ export const LoginPage: React.FC = () => {
     const user = result.user;
     setRole(user.role, user);
 
-    const isAdmin = user.role === 'ADMIN' || user.email?.toLowerCase() === 'devborad22@gmail.com';
+    const isAdmin = user.role === 'ADMIN';
 
     // Push Notification directly into live Bell notification icon
     addNotification({
@@ -72,16 +72,12 @@ export const LoginPage: React.FC = () => {
     const targetRedirect = location.state?.redirect;
     if (isAdmin) {
       navigate('/admin');
-    } else if (user.role === 'BUYER') {
-      if (targetRedirect && targetRedirect !== '/about') {
-        navigate(targetRedirect);
-      } else {
-        navigate('/buyer/dashboard');
-      }
     } else if (targetRedirect) {
       navigate(targetRedirect);
     } else if (user.role === 'ARTISAN') {
       navigate('/artisan/dashboard');
+    } else if (user.role === 'BUYER') {
+      navigate('/buyer/dashboard');
     } else {
       navigate('/admin');
     }
