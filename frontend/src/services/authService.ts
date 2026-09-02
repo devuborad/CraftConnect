@@ -298,6 +298,8 @@ export const authService = {
       return { success: false, message: 'No user is currently signed in.' };
     }
 
+    const newAvatar = updatedData.profileImage || updatedData.avatar;
+
     // 1. Send update to Backend MySQL API
     const apiRes = await api.updateProfile({
       name: updatedData.name,
@@ -309,7 +311,8 @@ export const authService = {
       experienceYears: updatedData.experienceYears,
       location: updatedData.city,
       bio: updatedData.bio,
-      profileImage: updatedData.avatar,
+      profileImage: newAvatar,
+      avatar: newAvatar,
     });
 
     if (apiRes.success && apiRes.data) {
@@ -318,6 +321,7 @@ export const authService = {
         localStorage.setItem('craftconnect_token', resData.token);
       }
       const backendUser = resData.user || {};
+      const finalImg = backendUser.avatar || backendUser.profileImage || newAvatar || currentUser.avatar || currentUser.profileImage;
       const newUser: RegisteredUser = {
         ...currentUser,
         ...updatedData,
@@ -330,7 +334,8 @@ export const authService = {
         experienceYears: backendUser.experienceYears || updatedData.experienceYears || currentUser.experienceYears,
         city: backendUser.city || backendUser.location || updatedData.city || currentUser.city,
         bio: backendUser.bio || updatedData.bio || currentUser.bio,
-        avatar: backendUser.avatar || updatedData.avatar || currentUser.avatar,
+        avatar: finalImg,
+        profileImage: finalImg,
         password: updatedData.password || currentUser.password,
       };
 
@@ -347,9 +352,12 @@ export const authService = {
     }
 
     // 2. Fallback local update
+    const finalImg = newAvatar || currentUser.avatar || currentUser.profileImage;
     const newUser: RegisteredUser = {
       ...currentUser,
       ...updatedData,
+      avatar: finalImg,
+      profileImage: finalImg,
     };
     localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
     const allUsers = authService.getUsers();

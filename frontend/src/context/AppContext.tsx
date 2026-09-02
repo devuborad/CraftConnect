@@ -218,6 +218,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       const res = await authService.updateUserProfile(updatedData);
       if (res.success && res.user) {
         setCurrentUserState(res.user);
+        localStorage.setItem('craft_current_user', JSON.stringify(res.user));
+        window.dispatchEvent(new Event('storage'));
         showToast('Profile Updated! ✨', res.message, 'success');
         return true;
       } else {
