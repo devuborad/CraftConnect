@@ -35,9 +35,14 @@ export const AdminDashboardPage: React.FC = () => {
         {/* Admin Navigation Sidebar (Desktop & Mobile Drawer) */}
         <div className="lg:col-span-3 space-y-2">
           <div className="glass-card bg-stone-900 text-stone-200 p-4 rounded-3xl space-y-1 shadow-xl">
-            <div className="p-3 mb-2 border-b border-stone-800 flex items-center space-x-2">
-              <ShieldCheck className="w-5 h-5 text-amber-400" />
-              <h3 className="font-display font-bold text-white text-base">Admin Portal</h3>
+            <div className="p-3 mb-2 border-b border-stone-800 space-y-2.5">
+              <div className="bg-white/95 px-3 py-1.5 rounded-xl shadow-xs inline-block">
+                <img src="/logo.png" alt="CraftConnect" className="h-6 w-auto object-contain" />
+              </div>
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-5 h-5 text-amber-400" />
+                <h3 className="font-display font-bold text-white text-base">Admin Portal</h3>
+              </div>
             </div>
 
             <button
