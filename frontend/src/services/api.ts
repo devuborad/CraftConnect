@@ -42,6 +42,7 @@ export const api = {
   getMe: () => apiRequest('/auth/me'),
   getBuyerProfile: () => apiRequest('/buyers/profile/me'),
   updateBuyerProfile: (data: any) => apiRequest('/buyers/profile/me', { method: 'PUT', body: JSON.stringify(data) }),
+  updateProfile: (profileData: any) => apiRequest('/auth/profile', { method: 'PUT', body: JSON.stringify(profileData) }),
 
   // Products
   getProducts: (params: string = '') => apiRequest(`/products?${params}`),
