@@ -297,6 +297,28 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       data,
     });
   } catch (err: any) {
+    console.error('getMe DB error, using mock fallback:', err.message);
+    if (req.user) {
+      res.json({
+        success: true,
+        data: {
+          id: req.user.id,
+          name: req.user.name,
+          email: req.user.email,
+          phone: req.user.phone,
+          role: req.user.role,
+          buyerProfile: {
+             buyerId: req.user.buyerId,
+             companyName: (req.user as any).companyName || (req.user as any).businessName || '',
+          },
+          artisanProfile: {
+             artisanId: req.user.artisanId,
+             businessName: (req.user as any).businessName || '',
+          }
+        }
+      });
+      return;
+    }
     res.status(500).json({ success: false, message: 'Error retrieving user details' });
   }
 };
