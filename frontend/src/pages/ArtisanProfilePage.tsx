@@ -56,12 +56,14 @@ export const ArtisanProfilePage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Edit Profile Modal State
+  // Edit Profile Modal State with bidirectional spring animation
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditModalRendered, setIsEditModalRendered] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Lock background scrolling when edit profile modal is open
-  useBodyScrollLock(isEditModalOpen);
+  // Lock background scrolling when edit profile modal is rendered
+  useBodyScrollLock(isEditModalRendered);
 
   // Edit Form Fields
   const [editName, setEditName] = useState('');
@@ -172,6 +174,20 @@ export const ArtisanProfilePage: React.FC = () => {
       populateEditForm(currentUser);
     }
     setIsEditModalOpen(true);
+    setIsEditModalRendered(true);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsEditModalVisible(true);
+      });
+    });
+  };
+
+  const handleCloseEditModal = () => {
+    setIsEditModalVisible(false);
+    setTimeout(() => {
+      setIsEditModalRendered(false);
+      setIsEditModalOpen(false);
+    }, 300);
   };
 
   // Direct Quick Avatar Upload from Profile Cover Header
@@ -200,7 +216,7 @@ export const ArtisanProfilePage: React.FC = () => {
 
       setIsUploadingImage(false);
       if (success) {
-        showToast('Profile Photo / Logo Updated! 📸', 'Your picture is now live across your profile and studio.', 'success');
+        showToast('Profile Photo / Logo Updated!', 'Your picture is now live across your profile and studio.', 'success');
       }
     } catch (err: any) {
       setIsUploadingImage(false);
@@ -221,7 +237,7 @@ export const ArtisanProfilePage: React.FC = () => {
     try {
       const compressedData = await compressImage(file, 400, 400, 0.85);
       setEditProfileImage(compressedData);
-      showToast('Photo Loaded & Optimized 📸', 'Click Save & Update Profile to save your new photo.', 'info');
+      showToast('Photo Loaded & Optimized', 'Click Save & Update Profile to save your new photo.', 'info');
     } catch {
       showToast('Error', 'Failed to load photo', 'error');
     }
@@ -253,7 +269,7 @@ export const ArtisanProfilePage: React.FC = () => {
     setSaving(false);
 
     if (success) {
-      setIsEditModalOpen(false);
+      handleCloseEditModal();
       // Update local artisan preview state immediately
       setArtisan((prev) =>
         prev
@@ -526,16 +542,23 @@ export const ArtisanProfilePage: React.FC = () => {
         )}
       </div>
 
-      {/* Edit Profile Modal Dialog */}
-      {isEditModalOpen && (
+      {/* Edit Profile Modal Dialog with Bidirectional iOS Spring Animation */}
+      {isEditModalRendered && (
         <ModalPortal>
           <div 
-            className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[9999] flex items-center justify-center p-3 sm:p-6 bg-stone-900/30 backdrop-blur-sm animate-in fade-in duration-200 overscroll-contain"
+            className={`fixed inset-0 top-0 left-0 right-0 bottom-0 w-full h-full min-h-screen z-[9999] flex items-center justify-center p-3 sm:p-6 bg-stone-900/40 backdrop-blur-sm overscroll-contain transition-all duration-300 ${
+              isEditModalVisible ? 'opacity-100' : 'opacity-0 pointer-events-none'
+            }`}
             onClick={(e) => {
-              if (e.target === e.currentTarget) setIsEditModalOpen(false);
+              if (e.target === e.currentTarget) handleCloseEditModal();
             }}
           >
-            <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col max-h-[88vh] my-auto animate-in zoom-in-95 duration-200">
+            <div 
+              className={`bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-stone-200 overflow-hidden flex flex-col max-h-[88vh] my-auto transition-all duration-300 ${
+                isEditModalVisible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-95 translate-y-4'
+              }`}
+              style={{ transitionTimingFunction: 'var(--ease-ios-spring)' }}
+            >
               
               {/* Sticky Modal Header */}
               <div className="shrink-0 p-5 sm:p-6 bg-gradient-to-r from-[#4A2E1B] to-[#C85A32] text-white flex items-center justify-between shadow-xs">
@@ -550,8 +573,8 @@ export const ArtisanProfilePage: React.FC = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  onClick={handleCloseEditModal}
+                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors active:scale-95"
                   title="Close"
                 >
                   <X className="w-5 h-5" />
@@ -793,8 +816,8 @@ export const ArtisanProfilePage: React.FC = () => {
               <div className="shrink-0 bg-stone-50 px-6 py-4 border-t border-stone-200 flex items-center justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => setIsEditModalOpen(false)}
-                  className="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-bold text-xs hover:bg-stone-200 transition-colors"
+                  onClick={handleCloseEditModal}
+                  className="px-5 py-2.5 rounded-xl border border-stone-300 text-stone-700 font-bold text-xs hover:bg-stone-200 transition-colors active:scale-95"
                 >
                   Cancel
                 </button>

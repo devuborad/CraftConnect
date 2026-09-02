@@ -86,7 +86,7 @@ export const CartPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8 ios-fade-up">
       {/* Navigation Header */}
       <div className="flex items-center justify-between">
         <Link
@@ -109,14 +109,14 @@ export const CartPage: React.FC = () => {
 
       {/* Page Title */}
       <div className="space-y-2">
-        <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-[#C85A32] text-xs font-bold px-3 py-1 rounded-full uppercase">
+        <div className="inline-flex items-center space-x-1.5 bg-amber-100 text-[#C85A32] text-xs font-bold px-3 py-1 rounded-full uppercase shadow-xs">
           <ShoppingBag className="w-3.5 h-3.5" />
           <span>DIRECT ARTISAN CRAFT BASKET</span>
         </div>
-        <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-stone-900">
+        <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-stone-900 tracking-tight">
           Your Sourcing Cart ({cartCount} {cartCount === 1 ? 'Item' : 'Items'})
         </h1>
-        <p className="text-sm text-stone-600 max-w-2xl">
+        <p className="text-sm text-stone-600 max-w-2xl leading-relaxed">
           Review your selected handmade artisan items, manage quantities, and complete direct fair-trade purchases.
         </p>
       </div>
@@ -125,17 +125,17 @@ export const CartPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Cart Item List */}
           <div className="lg:col-span-8 space-y-4">
-            {cartItems.map(({ product, quantity }) => (
+            {cartItems.map(({ product, quantity }, idx) => (
               <div
                 key={product.id}
-                className="glass-card bg-white p-5 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 transition-all hover:shadow-md"
+                className={`glass-card bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm flex flex-col sm:flex-row items-center sm:items-start space-y-4 sm:space-y-0 sm:space-x-5 transition-all hover:shadow-lg hover:-translate-y-0.5 duration-300 ios-fade-up ${idx < 3 ? `ios-delay-${idx + 1}` : ''}`}
               >
                 {/* Product Thumbnail */}
                 <Link to={`/product/${product.id}`} className="shrink-0">
                   <img
                     src={product.originalImage}
                     alt={product.title}
-                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-amber-200"
+                    className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl object-cover border border-amber-200 hover:scale-105 transition-transform duration-300 shadow-xs"
                   />
                 </Link>
 

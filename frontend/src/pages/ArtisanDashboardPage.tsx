@@ -20,7 +20,8 @@ import {
   FolderOpen,
   X,
   Trash2,
-  Edit
+  Edit,
+  CheckCircle2
 } from 'lucide-react';
 import { productService } from '../services/products';
 import { inquiryService } from '../services/inquiries';
@@ -97,8 +98,8 @@ export const ArtisanDashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative">
-        {/* Top Welcome Banner */}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative ios-fade-up">
+      {/* Top Welcome Banner */}
       <div className="glass-card bg-[#FAF7F2] p-6 sm:p-8 rounded-3xl border border-amber-200/80 shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative overflow-hidden">
         <div className="flex items-center space-x-4 sm:space-x-5 relative z-10 flex-1">
           <div className="relative shrink-0">
@@ -107,7 +108,9 @@ export const ArtisanDashboardPage: React.FC = () => {
               alt={userName}
               className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400 shadow-md"
             />
-            <span className="absolute -bottom-1 -right-1 bg-emerald-500 w-4 h-4 rounded-full border-2 border-white" />
+            <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full border-2 border-white shadow-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+            </div>
           </div>
 
           <div className="space-y-1 min-w-0">
@@ -143,7 +146,7 @@ export const ArtisanDashboardPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <Link
               to="/artisan/profile"
-              className="bg-white hover:bg-stone-50 text-stone-800 border border-stone-300 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow-xs transition-all shrink-0 hover:border-[#C85A32]"
+              className="bg-white hover:bg-stone-50 active:scale-95 text-stone-800 border border-stone-300 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow-xs transition-all shrink-0 hover:border-[#C85A32]"
             >
               <User className="w-3.5 h-3.5 text-[#C85A32]" />
               <span>View Profile</span>
@@ -152,7 +155,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setShowDraftsModal(true)}
-              className="bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow-xs transition-all shrink-0 hover:border-purple-400 cursor-pointer"
+              className="bg-purple-50 hover:bg-purple-100 active:scale-95 text-purple-800 border border-purple-200 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 shadow-xs transition-all shrink-0 hover:border-purple-400 cursor-pointer"
               title="View all your saved product drafts"
             >
               <FolderOpen className="w-3.5 h-3.5 text-purple-600" />
@@ -163,7 +166,7 @@ export const ArtisanDashboardPage: React.FC = () => {
           {/* Bottom Row: + Add New Product */}
           <Link
             to="/artisan/products/new"
-            className="w-full sm:w-auto bg-[#C85A32] hover:bg-[#b04b27] text-white px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-md transition-all shrink-0 hover:scale-102"
+            className="w-full sm:w-auto bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-md transition-all shrink-0 hover:scale-102 cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>+ Add New Product</span>
@@ -176,7 +179,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 1. Total Products (Warm Amber Theme) */}
         <Link
           to="/artisan/catalogue-analytics"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] hover:bg-amber-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] hover:bg-amber-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view Studio Catalogue & Inventory Analytics"
         >
           <div className="flex items-center justify-between">
@@ -201,7 +204,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 2. Order Inquiries (Fresh Emerald Green Theme) */}
         <Link
           to="/artisan/orders"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view New Direct Customer Orders"
         >
           <div className="flex items-center justify-between">
@@ -226,7 +229,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 3. Bulk Inquiries (Rich Terracotta Orange Theme) */}
         <Link
           to="/artisan/inquiries"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view New Wholesale Bulk Inquiries"
         >
           <div className="flex items-center justify-between">
@@ -251,7 +254,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 4. AI Assist Used (Royal Purple Theme) */}
         <Link
           to="/artisan/products/new"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-purple-500 hover:bg-purple-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-purple-500 hover:bg-purple-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to open AI Assist Studio Tools"
         >
           <div className="flex items-center justify-between">
@@ -276,7 +279,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 5. Total Views (Ocean Sky Blue Theme - LAST Position!) */}
         <Link
           to="/artisan/analytics"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-sky-500 hover:bg-sky-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-sky-500 hover:bg-sky-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view Financial & Traffic Studio Analytics"
         >
           <div className="flex items-center justify-between">
@@ -302,7 +305,7 @@ export const ArtisanDashboardPage: React.FC = () => {
       </div>
 
       {/* Quick AI Shortcuts */}
-      <div className="glass-card bg-gradient-to-br from-[#FAF7F2] to-amber-500/5 p-6 rounded-3xl border border-amber-200/80 space-y-4">
+      <div className="glass-card bg-gradient-to-br from-[#FAF7F2] to-amber-500/5 p-6 rounded-3xl border border-amber-200/80 space-y-4 hover:shadow-lg transition-all duration-300 ios-fade-up">
         <h3 className="font-display font-bold text-lg text-stone-900 flex items-center space-x-2">
           <Sparkles className="w-5 h-5 text-[#C85A32]" />
           <span>CraftConnect AI Studio Tools</span>
@@ -311,34 +314,34 @@ export const ArtisanDashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Camera className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">📷 AI Image Enhancement</h4>
+            <h4 className="font-bold text-sm text-stone-900">AI Image Enhancement</h4>
             <p className="text-xs text-stone-500">AI cleans background & balances lighting for studio photography.</p>
           </button>
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Mic className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">🎤 Create Catalogue</h4>
+            <h4 className="font-bold text-sm text-stone-900">Create Catalogue</h4>
             <p className="text-xs text-stone-500">Speak Gujarati or Hindi. AI generates English descriptions.</p>
           </button>
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Calculator className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">💰 Check Fair Price</h4>
+            <h4 className="font-bold text-sm text-stone-900">Check Fair Price</h4>
             <p className="text-xs text-stone-500">Calculate living wage margins and benchmark market ranges.</p>
           </button>
         </div>
@@ -402,7 +405,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                   </Link>
                   <button
                     onClick={() => showToast('Share link copied!', p.title, 'success')}
-                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors"
+                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors cursor-pointer"
                     title="Share"
                   >
                     <Share2 className="w-4 h-4" />
@@ -422,7 +425,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             if (e.target === e.currentTarget) setShowDraftsModal(false);
           }}
         >
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-stone-200 max-h-[85vh] overflow-y-auto relative my-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-stone-200 max-h-[85vh] overflow-y-auto relative my-auto ios-scale-in">
             <div className="flex items-center justify-between pb-4 border-b border-stone-100">
               <div className="flex items-center space-x-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
@@ -436,7 +439,7 @@ export const ArtisanDashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowDraftsModal(false)}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer"
+                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer active:scale-90"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -454,7 +457,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                 <Link
                   to="/artisan/products/new"
                   onClick={() => setShowDraftsModal(false)}
-                  className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2"
+                  className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2 cursor-pointer"
                 >
                   + Add Product & Save Draft
                 </Link>
@@ -464,7 +467,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                 {savedDrafts.map((draft) => (
                   <div
                     key={draft.id}
-                    className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group"
+                    className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md"
                   >
                     <div className="flex items-center space-x-3">
                       <img
@@ -488,7 +491,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                           setShowDraftsModal(false);
                           navigate('/artisan/products/new');
                         }}
-                        className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
+                        className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
                       >
                         <Edit className="w-3.5 h-3.5" />
                         <span>Resume / Edit ✏️</span>
@@ -497,7 +500,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => handlePublishDraft(draft)}
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
                       >
                         Publish 🚀
                       </button>
@@ -518,7 +521,7 @@ export const ArtisanDashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowDraftsModal(false)}
-                className="bg-stone-100 hover:bg-stone-200 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer"
+                className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
               >
                 Close Window
               </button>

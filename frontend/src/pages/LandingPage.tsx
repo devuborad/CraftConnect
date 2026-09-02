@@ -54,7 +54,7 @@ export const LandingPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Hero Headline & CTA */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-6 ios-fade-up">
             <div className="inline-flex items-center space-x-2 bg-amber-100/80 border border-amber-300 text-[#4A2E1B] text-xs font-bold px-3.5 py-1.5 rounded-full shadow-sm">
               <Sparkles className="w-3.5 h-3.5 text-[#C85A32]" />
               <span>{t('hero.badge')}</span>
@@ -74,15 +74,15 @@ export const LandingPage: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 pt-2">
               <button
                 onClick={handleStartSelling}
-                className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-8 py-4 rounded-2xl font-bold text-base shadow-xl hover:shadow-2xl transition-all flex items-center justify-center space-x-2 group"
+                className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-[0.97] text-white px-8 py-4 rounded-2xl font-bold text-base shadow-xl hover:shadow-2xl transition-all flex items-center justify-center space-x-2 group"
               >
                 <span>{t('hero.startSelling')}</span>
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </button>
 
               <Link
                 to="/marketplace"
-                className="glass-card bg-white/90 text-stone-800 hover:bg-white px-8 py-4 rounded-2xl font-bold text-base border border-stone-300 flex items-center justify-center space-x-2 shadow-sm transition-all"
+                className="glass-card bg-white/90 active:scale-[0.97] text-stone-800 hover:bg-white px-8 py-4 rounded-2xl font-bold text-base border border-stone-300 flex items-center justify-center space-x-2 shadow-sm transition-all"
               >
                 <ShoppingBag className="w-5 h-5 text-[#4A2E1B]" />
                 <span>{t('hero.explore')}</span>
@@ -106,14 +106,14 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Voice AI Active Live Preview Card on Left Column */}
-            <div className="glass-card bg-white/95 p-3.5 rounded-2xl shadow-md border border-amber-900/10 max-w-lg space-y-1.5 flex items-start space-x-3 mt-4">
+            <div className="glass-card bg-white/95 p-3.5 rounded-2xl shadow-md border border-amber-900/10 max-w-lg space-y-1.5 flex items-start space-x-3 mt-4 hover:shadow-lg transition-all">
               <div className="w-9 h-9 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
                 <Mic className="w-5 h-5 text-[#C85A32] animate-pulse" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center space-x-2 text-xs font-bold text-[#4A2E1B]">
                   <span>{t('hero.voiceActive')}</span>
-                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider">Live</span>
+                  <span className="bg-emerald-100 text-emerald-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider animate-pulse">Live</span>
                 </div>
                 <p className="text-[11px] text-stone-600 mt-0.5">
                   {language === 'gu' ? 'ટ્રાન્સક્રિપ્શન: "કચ્છની પરંપરાગત વણાટ કામગીરી" → અંગ્રેજી લિસ્ટિંગ તૈયાર ✨' : language === 'hi' ? 'ट्रांसक्रिप्शन: "कच्छ की पारंपरिक बुनाई" → इंग्लिश लिस्टिंग तैयार ✨' : 'Transcribed: "Traditional Kutch weave" → English Listing Generated ✨'}
@@ -123,16 +123,16 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Hero Visual Card Stack */}
-          <div className="lg:col-span-5 relative">
+          <div className="lg:col-span-5 relative ios-fade-up ios-delay-2">
             <div className="relative mx-auto max-w-md">
               
               {/* Main Card: Handwoven Saree */}
-              <div className="glass-card bg-white/95 rounded-3xl p-5 shadow-2xl border border-stone-200 transform rotate-1 hover:rotate-0 transition-transform duration-300">
+              <div className="glass-card bg-white/95 rounded-3xl p-5 shadow-2xl border border-stone-200 ios-float hover:rotate-0 transition-all duration-500">
                 <div className="relative min-h-[340px] sm:min-h-[420px] max-h-[480px] rounded-2xl overflow-hidden mb-4 bg-stone-100/90 flex items-center justify-center p-2">
                   <img
                     src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800"
                     alt="Handwoven Ikat Saree"
-                    className="max-h-full max-w-full object-contain rounded-xl shadow-xs"
+                    className="max-h-full max-w-full object-contain rounded-xl shadow-xs transition-transform duration-700 hover:scale-105"
                   />
                   <div className="absolute top-3 left-3 bg-amber-900/80 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center space-x-1">
                     <Sparkles className="w-3 h-3 text-amber-300" />
@@ -224,41 +224,41 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200/90 space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 hover:border-amber-300/80 group">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                 <Languages className="w-5 h-5 text-[#C85A32]" />
               </div>
-              <h4 className="font-bold text-stone-900 text-sm">{t('problems.item1.title')}</h4>
+              <h4 className="font-bold text-stone-900 text-sm group-hover:text-[#C85A32] transition-colors">{t('problems.item1.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
                 {t('problems.item1.desc')}
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200/90 space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 hover:border-amber-300/80 group">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                 <Camera className="w-5 h-5 text-[#C85A32]" />
               </div>
-              <h4 className="font-bold text-stone-900 text-sm">{t('problems.item2.title')}</h4>
+              <h4 className="font-bold text-stone-900 text-sm group-hover:text-[#C85A32] transition-colors">{t('problems.item2.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
                 {t('problems.item2.desc')}
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200/90 space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 hover:border-amber-300/80 group">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                 <TrendingDown className="w-5 h-5 text-[#C85A32]" />
               </div>
-              <h4 className="font-bold text-stone-900 text-sm">{t('problems.item3.title')}</h4>
+              <h4 className="font-bold text-stone-900 text-sm group-hover:text-[#C85A32] transition-colors">{t('problems.item3.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
                 {t('problems.item3.desc')}
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
-              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200/90 space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 hover:border-amber-300/80 group">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs group-hover:scale-110 transition-transform">
                 <Handshake className="w-5 h-5 text-[#C85A32]" />
               </div>
-              <h4 className="font-bold text-stone-900 text-sm">{t('problems.item4.title')}</h4>
+              <h4 className="font-bold text-stone-900 text-sm group-hover:text-[#C85A32] transition-colors">{t('problems.item4.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
                 {t('problems.item4.desc')}
               </p>
@@ -282,45 +282,45 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
-            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">01</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter group-hover:text-[#C85A32] transition-colors">01</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 transition-transform">
               <Camera className="w-6 h-6" />
             </div>
             <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.1.title')}</h4>
             <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.1.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
-            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">02</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter group-hover:text-[#C85A32] transition-colors">02</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 transition-transform">
               <Mic className="w-6 h-6" />
             </div>
             <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.2.title')}</h4>
             <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.2.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
-            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">03</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter group-hover:text-[#C85A32] transition-colors">03</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 transition-transform">
               <Sparkles className="w-6 h-6" />
             </div>
             <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.3.title')}</h4>
             <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.3.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
-            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">04</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter group-hover:text-[#C85A32] transition-colors">04</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 transition-transform">
               <Calculator className="w-6 h-6" />
             </div>
             <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.4.title')}</h4>
             <p className="text-xs text-stone-600 font-medium leading-relaxed">{t('steps.4.desc')}</p>
           </div>
 
-          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-lg transition-all">
-            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter">05</span>
-            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs">
+          <div className="glass-card bg-white p-6 rounded-3xl border border-stone-200 relative hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group">
+            <span className="text-3xl sm:text-4xl font-black text-stone-900 absolute top-4 right-4 tracking-tighter group-hover:text-[#C85A32] transition-colors">05</span>
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 text-[#C85A32] flex items-center justify-center mb-4 shadow-xs group-hover:scale-110 transition-transform">
               <ShoppingBag className="w-6 h-6" />
             </div>
             <h4 className="font-extrabold text-stone-900 text-base mb-1.5">{t('steps.5.title')}</h4>
