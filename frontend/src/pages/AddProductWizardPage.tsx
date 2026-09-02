@@ -27,8 +27,9 @@ export const AddProductWizardPage: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<number>(1);
 
   // Wizard state data
-  const [photoUrl, setPhotoUrl] = useState<string>('https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800');
+  const [photoUrl, setPhotoUrl] = useState<string>('');
   const [enhancedPhotoUrl, setEnhancedPhotoUrl] = useState<string>('');
+  const [rawStoryText, setRawStoryText] = useState<string>('');
   const [catalogue, setCatalogue] = useState<CatalogueResult | null>(null);
   const [price, setPrice] = useState<number>(2499);
   const [publishedProduct, setPublishedProduct] = useState<Product | null>(null);
@@ -50,9 +51,14 @@ export const AddProductWizardPage: React.FC = () => {
   };
 
   // Step 2 transcript complete -> generate catalogue
-  const handleTranscriptComplete = async (text: string) => {
+  const handleTranscriptComplete = async (text: string, langName: string = 'Gujarati') => {
+    setRawStoryText(text);
     setCurrentStep(3);
-    const cat = await aiService.generateCatalogue(text);
+    let langCode: 'gu' | 'hi' | 'en' = 'gu';
+    if (langName.toLowerCase().includes('hindi')) langCode = 'hi';
+    if (langName.toLowerCase().includes('english')) langCode = 'en';
+
+    const cat = await aiService.generateCatalogue(text, langCode, enhancedPhotoUrl || photoUrl);
     setCatalogue(cat);
   };
 
@@ -89,6 +95,70 @@ export const AddProductWizardPage: React.FC = () => {
     setPublishedProduct(created);
     setCurrentStep(6);
     showToast('Product published live! 🎉', 'Your craft is now visible to buyers', 'success');
+  };
+
+  const handleSaveDraft = async () => {
+    await productService.saveDraftProduct({
+      title: catalogue?.titleEn || 'Handwoven Craft Product Draft',
+      titleGujarati: catalogue?.titleGu,
+      titleHindi: catalogue?.titleHi,
+      category: catalogue?.category || 'Textiles',
+      material: catalogue?.material || 'Organic Cotton',
+      craftType: catalogue?.craftType || 'Handloom',
+      origin: catalogue?.origin || 'Gujarat',
+      price: price,
+      originalImage: photoUrl,
+      enhancedImage: enhancedPhotoUrl || photoUrl,
+      descriptionEn: catalogue?.descriptionEn || 'Draft product.',
+      descriptionHi: catalogue?.descriptionHi,
+      descriptionGu: catalogue?.descriptionGu
+    });
+
+    showToast('Product Saved as Draft 📁', 'Your product draft is saved in your dashboard', 'success');
+    navigate('/artisan/dashboard');
+  };
+
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Invalid file format', 'Please select an image file (JPG, PNG, WEBP)', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (evt.target?.result) {
+          setPhotoUrl(evt.target.result as string);
+          showToast('Photo Loaded Successfully 📷', 'You can now enhance it with AI or proceed', 'success');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        showToast('Invalid file format', 'Please select an image file (JPG, PNG, WEBP)', 'error');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (evt.target?.result) {
+          setPhotoUrl(evt.target.result as string);
+          showToast('Photo Dropped Successfully 📷', 'You can now enhance it with AI or proceed', 'success');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -135,35 +205,56 @@ export const AddProductWizardPage: React.FC = () => {
               Step 1: Upload Product Photo
             </h3>
 
-            <div className="border-2 border-dashed border-stone-300 rounded-3xl p-8 text-center space-y-4 bg-[#FAF7F2]">
-              <div className="w-16 h-16 rounded-full bg-amber-100 text-[#C85A32] flex items-center justify-center mx-auto">
-                <Upload className="w-8 h-8" />
-              </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+
+            <div
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className="border-2 border-dashed border-stone-300 hover:border-[#C85A32] rounded-3xl p-8 text-center space-y-4 bg-[#FAF7F2] transition-colors cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {photoUrl ? (
+                <div className="space-y-3">
+                  <img
+                    src={photoUrl}
+                    alt="Selected Product"
+                    className="w-40 h-40 object-cover rounded-2xl mx-auto shadow-md border-2 border-amber-300"
+                  />
+                  <p className="text-xs font-bold text-stone-700">Current Photo Loaded ✨</p>
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-amber-100 text-[#C85A32] flex items-center justify-center mx-auto">
+                  <Upload className="w-8 h-8" />
+                </div>
+              )}
+
               <div>
                 <h4 className="font-bold text-stone-900 text-sm">📷 Take Photo or Upload from Gallery</h4>
                 <p className="text-xs text-stone-500 mt-1">
-                  Drag & drop image file or tap button below
+                  Click anywhere here or drag & drop image file from your device
                 </p>
               </div>
 
-              <div className="flex justify-center space-x-3">
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-2" onClick={(e) => e.stopPropagation()}>
                 <button
-                  onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800')}
-                  className="bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow"
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-6 py-3 rounded-2xl font-bold text-xs shadow-lg flex items-center justify-center space-x-2"
                 >
-                  Sample Photo 1 (Saree)
-                </button>
-                <button
-                  onClick={() => setPhotoUrl('https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&q=80&w=800')}
-                  className="bg-stone-800 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow"
-                >
-                  Sample Photo 2 (Pottery)
+                  <Upload className="w-4 h-4" />
+                  <span>Choose Photo from Device / Camera</span>
                 </button>
               </div>
             </div>
           </div>
 
-          <AIImageStudio originalImage={photoUrl} onConfirmImage={handlePhotoConfirmed} />
+          {photoUrl && <AIImageStudio originalImage={photoUrl} onConfirmImage={handlePhotoConfirmed} />}
         </div>
       )}
 
@@ -180,6 +271,7 @@ export const AddProductWizardPage: React.FC = () => {
           {catalogue ? (
             <AICatalogueCard
               catalogue={catalogue}
+              rawStoryText={rawStoryText}
               onProceedToPricing={handleCatalogueConfirmed}
               onRegenerate={() => {
                 showToast('Regenerating catalogue...', '', 'info');
@@ -218,11 +310,13 @@ export const AddProductWizardPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <img
-              src={enhancedPhotoUrl || photoUrl}
-              alt="Listing preview"
-              className="w-full aspect-4/3 rounded-2xl object-cover border border-amber-200"
-            />
+            <div className="w-full min-h-[300px] max-h-[420px] rounded-2xl bg-stone-100/90 border border-amber-200 flex items-center justify-center p-2">
+              <img
+                src={enhancedPhotoUrl || photoUrl}
+                alt="Listing preview"
+                className="max-h-[390px] max-w-full object-contain rounded-xl"
+              />
+            </div>
 
             <div className="space-y-3 text-xs">
               <h4 className="font-display font-bold text-lg text-stone-900">{catalogue?.titleEn}</h4>
@@ -238,13 +332,24 @@ export const AddProductWizardPage: React.FC = () => {
             </div>
           </div>
 
-          <button
-            onClick={handlePublish}
-            className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-xl font-bold text-sm shadow-xl flex items-center justify-center space-x-2"
-          >
-            <span>Publish Product Live to Marketplace</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleSaveDraft}
+              className="w-full sm:w-1/2 bg-stone-100 hover:bg-stone-200 text-stone-800 border border-stone-300 py-3.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-sm transition-all"
+            >
+              <span>📁 Save as Draft</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handlePublish}
+              className="w-full sm:w-1/2 bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-xl font-bold text-xs shadow-xl flex items-center justify-center space-x-2 transition-all"
+            >
+              <span>🚀 Publish Product Live to Marketplace</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calculator, Sparkles, ChevronDown, ChevronUp, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Calculator, Sparkles, ChevronDown, ChevronUp, ShieldCheck, ArrowRight, DollarSign } from 'lucide-react';
 import { aiService } from '../../services/ai';
 import type { PricingResult } from '../../services/ai';
 
@@ -15,6 +15,7 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
 
   const [loading, setLoading] = useState(false);
   const [pricingResult, setPricingResult] = useState<PricingResult | null>(null);
+  const [customPrice, setCustomPrice] = useState<number | null>(null);
   const [showWhy, setShowWhy] = useState(true);
 
   const totalCost = rawMaterial + labor + packaging + other;
@@ -28,8 +29,11 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
       other
     });
     setPricingResult(res);
+    setCustomPrice(res.recommendedPrice);
     setLoading(false);
   };
+
+  const finalSellingPrice = customPrice !== null ? customPrice : (pricingResult?.recommendedPrice || 2499);
 
   return (
     <div className="bg-white rounded-3xl p-6 border border-stone-200 shadow-md space-y-6">
@@ -102,6 +106,7 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
         </div>
 
         <button
+          type="button"
           onClick={calculatePrice}
           disabled={loading}
           className="w-full bg-[#4A2E1B] hover:bg-[#382213] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow transition-all"
@@ -111,7 +116,7 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
         </button>
       </div>
 
-      {/* AI Result Card */}
+      {/* AI Result & Artisan Custom Price Overrides */}
       {pricingResult && (
         <div className="bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-6 rounded-3xl border border-amber-500/30 space-y-5 animate-in fade-in duration-200">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-amber-900/10">
@@ -128,7 +133,7 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
             </div>
 
             <div className="bg-white/80 backdrop-blur px-4 py-2 rounded-2xl border border-amber-200 text-xs">
-              <span className="text-stone-500 text-[10px] block font-semibold">MARKET RANGE [DEMO DATA]</span>
+              <span className="text-stone-500 text-[10px] block font-semibold">MARKET RANGE</span>
               <span className="font-bold text-stone-900">
                 ₹{pricingResult.marketRange.min.toLocaleString('en-IN')} – ₹{pricingResult.marketRange.max.toLocaleString('en-IN')}
               </span>
@@ -139,9 +144,30 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
             </div>
           </div>
 
+          {/* Artisan Price Edit Override Section */}
+          <div className="bg-white p-4.5 rounded-2xl border border-amber-300 shadow-sm space-y-2">
+            <label className="block text-xs font-extrabold text-[#4A2E1B] uppercase tracking-wider flex items-center space-x-1.5">
+              <DollarSign className="w-4 h-4 text-[#C85A32]" />
+              <span>Set Your Final Selling Price (Artisan Choice)</span>
+            </label>
+            <div className="flex items-center space-x-3">
+              <span className="text-2xl font-extrabold text-[#4A2E1B]">₹</span>
+              <input
+                type="number"
+                value={finalSellingPrice}
+                onChange={(e) => setCustomPrice(Number(e.target.value))}
+                className="w-full bg-stone-50 border border-stone-300 rounded-xl px-4 py-2.5 text-xl font-extrabold text-stone-900 focus:ring-2 focus:ring-[#C85A32] focus:outline-none"
+              />
+            </div>
+            <p className="text-[11px] text-stone-500 font-medium">
+              AI recommended ₹{pricingResult.recommendedPrice.toLocaleString('en-IN')}. You can set any price you want for your listing.
+            </p>
+          </div>
+
           {/* Expandable Why This Price */}
           <div>
             <button
+              type="button"
               onClick={() => setShowWhy(!showWhy)}
               className="text-xs font-bold text-[#4A2E1B] flex items-center justify-between w-full py-1"
             >
@@ -165,10 +191,11 @@ export const AIPricingAssistant: React.FC<AIPricingAssistantProps> = ({ onPricin
           </div>
 
           <button
-            onClick={() => onPricingConfirmed(pricingResult.recommendedPrice, pricingResult)}
-            className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md"
+            type="button"
+            onClick={() => onPricingConfirmed(finalSellingPrice, pricingResult)}
+            className="w-full bg-[#C85A32] hover:bg-[#b04b27] text-white py-3.5 rounded-xl font-bold text-xs flex items-center justify-center space-x-2 shadow-md"
           >
-            <span>Confirm & Review Listing</span>
+            <span>Confirm ₹{finalSellingPrice.toLocaleString('en-IN')} & Review Listing</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>

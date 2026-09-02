@@ -43,7 +43,7 @@ export const requireAuth = (req: AuthRequest, res: Response, next: NextFunction)
   }
 };
 
-export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
+export const optionalAuth = (req: AuthRequest, _res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -55,7 +55,5 @@ export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction
       // Ignore token decode error for optional auth
     }
   }
-
   next();
 };
-

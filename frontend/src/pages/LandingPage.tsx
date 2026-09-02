@@ -109,11 +109,11 @@ export const LandingPage: React.FC = () => {
               
               {/* Main Card: Handwoven Saree */}
               <div className="glass-card bg-white/95 rounded-3xl p-5 shadow-2xl border border-stone-200 transform rotate-1 hover:rotate-0 transition-transform duration-300">
-                <div className="relative aspect-4/3 rounded-2xl overflow-hidden mb-4">
+                <div className="relative min-h-[340px] sm:min-h-[420px] max-h-[480px] rounded-2xl overflow-hidden mb-4 bg-stone-100/90 flex items-center justify-center p-2">
                   <img
                     src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800"
                     alt="Handwoven Ikat Saree"
-                    className="w-full h-full object-cover"
+                    className="max-h-full max-w-full object-contain rounded-xl shadow-xs"
                   />
                   <div className="absolute top-3 left-3 bg-amber-900/80 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center space-x-1">
                     <Sparkles className="w-3 h-3 text-amber-300" />

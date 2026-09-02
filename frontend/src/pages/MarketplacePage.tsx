@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Sparkles, MapPin } from 'lucide-react';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { BulkInquiryModal } from '../components/marketplace/BulkInquiryModal';
-import { MOCK_PRODUCTS } from '../services/mockData';
+import { productService } from '../services/products';
 import type { Product } from '../types';
 
 export const MarketplacePage: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
   const [selectedLocation, setSelectedLocation] = useState<string>('ALL');
   const [inquiryProduct, setInquiryProduct] = useState<Product | null>(null);
 
+  useEffect(() => {
+    productService.getProducts().then((res) => setProducts(res));
+  }, []);
+
   const categories = ['ALL', 'Textiles', 'Pottery', 'Woodcraft', 'Jewellery', 'Handicrafts', 'Art', 'Home Decor'];
   const locations = ['ALL', 'Gujarat', 'Rajasthan', 'Bihar', 'Karnataka'];
 
-  const filteredProducts = MOCK_PRODUCTS.filter((prod) => {
+  const filteredProducts = products.filter((prod) => {
     const matchesSearch =
       prod.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       prod.artisanName.toLowerCase().includes(searchTerm.toLowerCase()) ||

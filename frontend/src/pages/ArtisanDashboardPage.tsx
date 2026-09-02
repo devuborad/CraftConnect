@@ -11,42 +11,16 @@ import {
   Share2,
   User,
   Building2,
-  Award,
-  Package,
-  Inbox,
-  ShoppingBag,
-  Zap,
-  ArrowRight,
-  History
+  Award
 } from 'lucide-react';
 import { productService } from '../services/products';
-import { inquiryService } from '../services/inquiries';
-import type { Product, BulkInquiry } from '../types';
+import type { Product } from '../types';
 import { useApp } from '../context/AppContext';
 
 export const ArtisanDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { role, currentUser, showToast, userName } = useApp();
   const [products, setProducts] = useState<Product[]>([]);
-  const [inquiries, setInquiries] = useState<BulkInquiry[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  // Load products and real inquiries
-  const loadDashboardData = async () => {
-    setLoading(true);
-    const [allProducts, allInquiries] = await Promise.all([
-      productService.getProducts(),
-      inquiryService.getInquiriesByArtisan(currentUser?.id, currentUser?.name)
-    ]);
-
-    // Filter products for this artisan, fallback to catalogue
-    const artisanProds = allProducts.filter(
-      (p) => p.artisanId === currentUser?.id || p.artisanName?.toLowerCase() === currentUser?.name?.toLowerCase()
-    );
-    setProducts(artisanProds.length > 0 ? artisanProds : allProducts.slice(0, 4));
-    setInquiries(allInquiries);
-    setLoading(false);
-  };
 
   useEffect(() => {
     if (!currentUser || role === 'GUEST') {
@@ -54,48 +28,14 @@ export const ArtisanDashboardPage: React.FC = () => {
       navigate('/login', { state: { role: 'ARTISAN', redirect: '/artisan/dashboard' } });
       return;
     }
-    loadDashboardData();
-
-    // Listen for real-time buyer order updates across browser tabs & window focus
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'craft_live_inquiries_orders' || !e.key) {
-        loadDashboardData();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    window.addEventListener('focus', loadDashboardData);
-
-    // Periodic sync interval for instant real-time live buyer updates
-    const intervalId = setInterval(loadDashboardData, 4000);
-
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', loadDashboardData);
-      clearInterval(intervalId);
-    };
+    productService.getMyProducts().then((res) => setProducts(res));
   }, [currentUser, role, navigate, showToast]);
-
-  // Separate active wholesale inquiries, active direct orders, and completed history
-  const activeWholesale = inquiries.filter(
-    (i) => i.type !== 'DIRECT_ORDER' && !i.isArchived && i.status !== 'DISPATCHED' && i.status !== 'DECLINED'
-  );
-  const activeOrders = inquiries.filter(
-    (i) => i.type === 'DIRECT_ORDER' && !i.isArchived && i.status !== 'DISPATCHED' && i.status !== 'DECLINED'
-  );
-  const historyRecords = inquiries.filter(
-    (i) => i.isArchived || i.status === 'DISPATCHED' || i.status === 'DECLINED' || i.status === 'COMPLETED'
-  );
-  const totalOrderValue = inquiries.reduce(
-    (acc, curr) => acc + (curr.totalAmount || curr.quantity * curr.targetPrice),
-    0
-  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
       
       {/* Dashboard Greeting Header */}
-      <div className="glass-card bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-900/10 p-6 sm:p-8 rounded-3xl border border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-sm">
+      <div className="glass-card bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-900/10 p-8 rounded-3xl border border-amber-500/20 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center space-x-5">
           {/* Artisan Profile Picture / Company Logo */}
           <Link to="/artisan/profile" className="shrink-0 relative group" title="Click to view/edit profile & photo">
@@ -133,7 +73,7 @@ export const ArtisanDashboardPage: React.FC = () => {
               Good morning, {userName} 👋
             </h1>
             <p className="text-xs sm:text-sm text-stone-600">
-              Manage your craft catalogue, active wholesale buyer inquiries, direct orders, and completed history.
+              Let's bring your authentic handloom craft to more urban buyers and retail stores today.
             </p>
           </div>
         </div>
@@ -157,247 +97,145 @@ export const ArtisanDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Bordered Stats Grid with 5 Focused KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Total Products / Catalogue Card - Links to Full Page Catalogue Studio */}
-        <Link
-          to="/artisan/catalogue-analytics"
-          className="glass-card bg-amber-50/20 hover:bg-amber-50/50 p-5 rounded-3xl border-2 border-stone-200 hover:border-[#C85A32]/70 space-y-2 shadow-sm transition-all group block relative overflow-hidden"
-          title="Click to view detailed catalogue valuation & inventory studio"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider group-hover:text-[#C85A32] transition-colors">Catalogue</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-100 group-hover:bg-[#C85A32] text-[#C85A32] group-hover:text-white flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm relative">
-              <Package className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            </div>
-          </div>
-          <div>
-            <p className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900 group-hover:text-[#C85A32] transition-colors">{products.length}</p>
-            <div className="flex items-center justify-between mt-0.5">
-              <p className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>{products.filter((p) => (p.status || 'Published') === 'Published').length} Published Live</span>
-              </p>
-              <span className="text-[10px] font-bold text-[#C85A32] group-hover:underline flex items-center space-x-0.5">
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </div>
-        </Link>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Total Products</span>
+          <p className="font-extrabold text-2xl text-stone-900">{products.length}</p>
+          <span className="text-[10px] text-emerald-600 font-bold">Catalog listings</span>
+        </div>
 
-        {/* Active Bulk Inquiries Card */}
-        <Link
-          to="/artisan/inquiries"
-          className="glass-card bg-amber-50/30 hover:bg-amber-50/60 p-5 rounded-3xl border-2 border-amber-300/90 space-y-2 shadow-sm transition-all group block"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider">Bulk Inquiries</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-200 text-[#C85A32] flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Inbox className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <p className="font-display font-extrabold text-2xl sm:text-3xl text-[#C85A32]">{activeWholesale.length}</p>
-              {activeWholesale.filter((i) => i.status === 'NEW').length > 0 && (
-                <span className="text-[10px] font-bold bg-[#C85A32] text-white px-2 py-0.5 rounded-full">
-                  {activeWholesale.filter((i) => i.status === 'NEW').length} New
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-[#C85A32] font-bold flex items-center space-x-1 mt-0.5">
-              <span>View Wholesale Inbox</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-            </p>
-          </div>
-        </Link>
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Total Views</span>
+          <p className="font-extrabold text-2xl text-stone-900">
+            {products.reduce((acc, p) => acc + (p.views || 0), 142)}
+          </p>
+          <span className="text-[10px] text-emerald-600 font-bold">+18% this week</span>
+        </div>
 
-        {/* Active Direct Orders Card */}
-        <Link
-          to="/artisan/orders"
-          className="glass-card bg-emerald-50/30 hover:bg-emerald-50/60 p-5 rounded-3xl border-2 border-emerald-300/90 space-y-2 shadow-sm transition-all group block"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider">Direct Orders</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-200 text-emerald-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <Zap className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center space-x-2">
-              <p className="font-display font-extrabold text-2xl sm:text-3xl text-emerald-800">{activeOrders.length}</p>
-              {activeOrders.filter((i) => i.status === 'NEW').length > 0 && (
-                <span className="text-[10px] font-bold bg-emerald-600 text-white px-2 py-0.5 rounded-full">
-                  {activeOrders.filter((i) => i.status === 'NEW').length} New
-                </span>
-              )}
-            </div>
-            <p className="text-[11px] text-emerald-700 font-bold flex items-center space-x-1 mt-0.5">
-              <span>View Live Orders</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-            </p>
-          </div>
-        </Link>
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Bulk Inquiries</span>
+          <p className="font-extrabold text-2xl text-[#C85A32]">8</p>
+          <span className="text-[10px] text-amber-600 font-bold">Pending response</span>
+        </div>
 
-        {/* History Archive Card */}
-        <Link
-          to="/artisan/history"
-          className="glass-card bg-purple-50/30 hover:bg-purple-50/60 p-5 rounded-3xl border-2 border-purple-300/90 space-y-2 shadow-sm transition-all group block"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider">History Archive</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-200 text-purple-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-              <History className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <p className="font-display font-extrabold text-2xl sm:text-3xl text-purple-800">{historyRecords.length}</p>
-            <p className="text-[11px] text-purple-700 font-bold flex items-center space-x-1 mt-0.5">
-              <span>View History Log</span>
-              <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-            </p>
-          </div>
-        </Link>
-
-        {/* Pipeline Value Card - Links directly to Full Page Financial Analytics Studio */}
-        <Link 
-          to="/artisan/analytics"
-          className="glass-card bg-amber-50/20 hover:bg-amber-50/50 p-5 rounded-3xl border-2 border-amber-300/80 space-y-2 shadow-sm transition-all group block relative overflow-hidden"
-          title="Click to open full-page real-time financial & pipeline analytics studio"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider group-hover:text-[#C85A32] transition-colors">Pipeline Value</span>
-            <div className="w-9 h-9 rounded-xl bg-amber-100 group-hover:bg-[#C85A32] text-[#4A2E1B] group-hover:text-white flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm relative">
-              <TrendingUp className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            </div>
-          </div>
-          <div>
-            <p className="font-display font-extrabold text-2xl sm:text-3xl text-[#4A2E1B] group-hover:text-[#C85A32] transition-colors">
-              ₹{totalOrderValue.toLocaleString('en-IN')}
-            </p>
-            <div className="flex items-center justify-between mt-0.5">
-              <p className="text-[11px] text-stone-500 font-medium">
-                {inquiries.length} Lifetime Deals & Orders
-              </p>
-              <span className="text-[10px] font-bold text-[#C85A32] group-hover:underline flex items-center space-x-0.5">
-                <span>View Full Studio</span>
-                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
-              </span>
-            </div>
-          </div>
-        </Link>
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">AI Assist Used</span>
+          <p className="font-extrabold text-2xl text-stone-900">100%</p>
+          <span className="text-[10px] text-emerald-600 font-bold">Studio Enhanced</span>
+        </div>
       </div>
 
-      {/* AI Quick Tools Section */}
-      <div className="space-y-4">
-        <h3 className="font-display font-bold text-xl text-stone-900 flex items-center space-x-2">
+      {/* Quick AI Shortcuts */}
+      <div className="glass-card bg-gradient-to-br from-[#FAF7F2] to-amber-500/5 p-6 rounded-3xl border border-amber-200/80 space-y-4">
+        <h3 className="font-display font-bold text-lg text-stone-900 flex items-center space-x-2">
           <Sparkles className="w-5 h-5 text-[#C85A32]" />
-          <span>Quick AI Assist Tools</span>
+          <span>CraftConnect AI Studio Tools</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-3xl border-2 border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Camera className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">📷 AI Photo Studio</h4>
-            <p className="text-xs text-stone-500">AI cleans background & balances studio lighting for authentic crafts.</p>
+            <h4 className="font-bold text-sm text-stone-900">📷 AI Image Enhancement</h4>
+            <p className="text-xs text-stone-500">AI cleans background & balances lighting for studio photography.</p>
           </button>
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-3xl border-2 border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Mic className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">🎤 Voice Catalogue Assistant</h4>
-            <p className="text-xs text-stone-500">Speak Gujarati or Hindi. AI drafts English titles and export tags.</p>
+            <h4 className="font-bold text-sm text-stone-900">🎤 Create Catalogue</h4>
+            <p className="text-xs text-stone-500">Speak Gujarati or Hindi. AI generates English descriptions.</p>
           </button>
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-3xl border-2 border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md"
           >
-            <div className="w-10 h-10 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Calculator className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">💰 Fair Wage Price Engine</h4>
-            <p className="text-xs text-stone-500">Calculate living wage margins and wholesale discount thresholds.</p>
+            <h4 className="font-bold text-sm text-stone-900">💰 Check Fair Price</h4>
+            <p className="text-xs text-stone-500">Calculate living wage margins and benchmark market ranges.</p>
           </button>
         </div>
       </div>
 
-      {/* Artisan Products List */}
+      {/* Artisan Products List (Card Layout for Mobile/Desktop) */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Package className="w-5 h-5 text-[#C85A32]" />
-            <h3 className="font-display font-bold text-xl text-stone-900">
-              My Active Catalogue ({products.length})
-            </h3>
-          </div>
+          <h3 className="font-display font-bold text-xl text-stone-900">
+            My Product Catalogue & Drafts ({products.length})
+          </h3>
 
           <Link
-            to="/marketplace"
+            to="/artisan/products"
             className="text-xs font-bold text-[#C85A32] hover:underline"
           >
-            View in Marketplace →
+            View All Products
           </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="glass-card bg-white p-4 rounded-3xl border-2 border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <img
-                src={p.originalImage}
-                alt={p.title}
-                className="w-20 h-20 rounded-2xl object-cover border border-amber-200 shrink-0 bg-stone-100"
-              />
+          {products.map((p) => {
+            const isDraft = (p.status || '').toLowerCase() === 'draft';
+            return (
+              <div
+                key={p.id}
+                className="glass-card bg-white p-4 rounded-2xl border border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <img
+                  src={p.enhancedImage || p.originalImage}
+                  alt={p.title}
+                  className="w-20 h-20 rounded-xl object-cover border border-amber-200 shrink-0"
+                />
 
-              <div className="flex-1 overflow-hidden space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                    {p.status || 'Published'}
-                  </span>
-                  <span className="text-[10px] text-stone-400 font-medium">
-                    Stock: {p.stock !== undefined ? p.stock : 10} units
-                  </span>
+                <div className="flex-1 overflow-hidden space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        isDraft
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {isDraft ? '📁 Draft' : '🚀 Published'}
+                    </span>
+                    <span className="text-[10px] text-stone-400 font-medium">Views: {p.views || 0}</span>
+                  </div>
+
+                  <h4 className="font-bold text-stone-900 text-sm truncate">{p.title}</h4>
+
+                  <p className="text-xs font-extrabold text-[#4A2E1B]">₹{p.price.toLocaleString('en-IN')}</p>
                 </div>
 
-                <h4 className="font-bold text-stone-900 text-sm truncate">{p.title}</h4>
-
-                <p className="text-xs font-extrabold text-[#4A2E1B]">₹{p.price.toLocaleString('en-IN')}</p>
+                <div className="flex flex-col space-y-1">
+                  <Link
+                    to={`/product/${p.id}`}
+                    className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                    title="View"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => showToast('Share link copied!', p.title, 'success')}
+                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors"
+                    title="Share"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-
-              <div className="flex flex-col space-y-1.5">
-                <Link
-                  to={`/product/${p.id}`}
-                  className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
-                  title="View Details"
-                >
-                  <Eye className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={() => showToast('Share link copied!', p.title, 'success')}
-                  className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors"
-                  title="Share"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>
