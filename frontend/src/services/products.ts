@@ -17,6 +17,7 @@ const getStoredProducts = (): Product[] => {
 const saveStoredProducts = (products: Product[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(products));
+    window.dispatchEvent(new Event('storage'));
   } catch (e) {
     console.warn('Could not save products to localStorage:', e);
   }

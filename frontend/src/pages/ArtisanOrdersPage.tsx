@@ -151,14 +151,6 @@ export const ArtisanOrdersPage: React.FC = () => {
 
         {/* Action buttons */}
         <div className="flex items-center space-x-2 self-start md:self-auto">
-          <Link
-            to="/artisan/history"
-            className="bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 px-3.5 py-2 rounded-2xl text-xs font-bold transition-all flex items-center space-x-1.5 shadow-xs"
-          >
-            <History className="w-3.5 h-3.5" />
-            <span>View History Log</span>
-          </Link>
-
           <button
             onClick={handleSimulateOrder}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-2xl text-xs font-bold shadow-xs transition-all flex items-center space-x-1.5 cursor-pointer"
