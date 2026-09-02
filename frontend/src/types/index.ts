@@ -85,7 +85,7 @@ export interface BulkInquiry {
   state?: string;
   pincode?: string;
   paymentMethod?: string;
-  status: 'NEW' | 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED' | 'COMPLETED';
+  status: 'NEW' | 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED' | 'COMPLETED' | 'ARCHIVED';
   counterPrice?: number;
   isArchived?: boolean;
   completedAt?: string;

@@ -7,7 +7,10 @@ import {
   Mic, 
   Calculator, 
   ShoppingBag, 
-  CheckCircle2
+  CheckCircle2,
+  Languages,
+  TrendingDown,
+  Handshake
 } from 'lucide-react';
 import { ProductCard } from '../components/marketplace/ProductCard';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
@@ -205,9 +208,9 @@ export const LandingPage: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                🗣️
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Languages className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item1.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -215,9 +218,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                📷
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Camera className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item2.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -225,9 +228,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                💰
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <TrendingDown className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item3.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
@@ -235,9 +238,9 @@ export const LandingPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold">
-                🤝
+            <div className="bg-[#FAF7F2] p-6 rounded-2xl border border-stone-200 space-y-3 hover:shadow-md transition-shadow">
+              <div className="w-11 h-11 rounded-xl bg-amber-100/90 text-[#C85A32] flex items-center justify-center shadow-xs">
+                <Handshake className="w-5 h-5 text-[#C85A32]" />
               </div>
               <h4 className="font-bold text-stone-900 text-sm">{t('problems.item4.title')}</h4>
               <p className="text-xs text-stone-600 leading-relaxed">
