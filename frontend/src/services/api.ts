@@ -44,8 +44,11 @@ export const api = {
 
   // Products
   getProducts: (params: string = '') => apiRequest(`/products?${params}`),
+  getMyProducts: () => apiRequest('/products/my-products'),
   getProductById: (id: string) => apiRequest(`/products/${id}`),
   createProduct: (productData: any) => apiRequest('/products', { method: 'POST', body: JSON.stringify(productData) }),
+  saveProductDraft: (productData: any) => apiRequest('/products/draft', { method: 'POST', body: JSON.stringify(productData) }),
+  publishProduct: (id: string) => apiRequest(`/products/${id}/publish`, { method: 'POST' }),
   incrementView: (id: string) => apiRequest(`/products/${id}/view`, { method: 'POST' }),
 
   // Categories
@@ -69,9 +72,14 @@ export const api = {
   sendCraftMateMessage: (message: string) => apiRequest('/ai/chat', { method: 'POST', body: JSON.stringify({ message }) }),
 
   // Admin
-  getAdminStats: () => apiRequest('/admin/dashboard'),
+  getAdminStats: () => apiRequest('/admin/overview'),
   getAdminArtisans: () => apiRequest('/admin/artisans'),
   getAdminBuyers: () => apiRequest('/admin/buyers'),
   getAdminProducts: () => apiRequest('/admin/products'),
+  getAdminOrders: () => apiRequest('/admin/orders'),
+  getAdminInquiries: () => apiRequest('/admin/inquiries'),
+  getAdminAIActivity: () => apiRequest('/admin/ai-activity'),
+  getAdminAIStats: () => apiRequest('/admin/ai-stats'),
+  getAdminPricingAnalytics: () => apiRequest('/admin/pricing-analytics'),
   moderateProduct: (id: string, status: string) => apiRequest(`/admin/products/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }),
 };

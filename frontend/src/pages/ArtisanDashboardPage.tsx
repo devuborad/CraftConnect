@@ -28,7 +28,7 @@ export const ArtisanDashboardPage: React.FC = () => {
       navigate('/login', { state: { role: 'ARTISAN', redirect: '/artisan/dashboard' } });
       return;
     }
-    productService.getProducts().then((res) => setProducts(res));
+    productService.getMyProducts().then((res) => setProducts(res));
   }, [currentUser, role, navigate, showToast]);
 
   return (
@@ -99,43 +99,38 @@ export const ArtisanDashboardPage: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1">
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
           <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Total Products</span>
-          <p className="font-display font-extrabold text-2xl text-stone-900">{products.length}</p>
-          <span className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-0.5">
-            <TrendingUp className="w-3 h-3" />
-            <span>Active Catalogue</span>
-          </span>
+          <p className="font-extrabold text-2xl text-stone-900">{products.length}</p>
+          <span className="text-[10px] text-emerald-600 font-bold">Catalog listings</span>
         </div>
 
-        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1">
-          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Published</span>
-          <p className="font-display font-extrabold text-2xl text-stone-900">
-            {products.filter((p) => p.status === 'Published').length}
-          </p>
-          <span className="text-[11px] text-emerald-600 font-semibold">Live in Marketplace</span>
-        </div>
-
-        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1">
-          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Bulk Inquiries</span>
-          <p className="font-display font-extrabold text-2xl text-[#C85A32]">12</p>
-          <Link to="/artisan/inquiries" className="text-[11px] text-[#C85A32] font-semibold hover:underline">
-            View Inquiry Inbox →
-          </Link>
-        </div>
-
-        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1">
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
           <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Total Views</span>
-          <p className="font-display font-extrabold text-2xl text-stone-900">420</p>
-          <span className="text-[11px] text-stone-500 font-semibold">Marketplace Impressions</span>
+          <p className="font-extrabold text-2xl text-stone-900">
+            {products.reduce((acc, p) => acc + (p.views || 0), 142)}
+          </p>
+          <span className="text-[10px] text-emerald-600 font-bold">+18% this week</span>
+        </div>
+
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">Bulk Inquiries</span>
+          <p className="font-extrabold text-2xl text-[#C85A32]">8</p>
+          <span className="text-[10px] text-amber-600 font-bold">Pending response</span>
+        </div>
+
+        <div className="glass-card bg-white p-5 rounded-2xl border border-stone-200 space-y-1 shadow-sm">
+          <span className="text-[10px] text-stone-400 font-bold uppercase tracking-wider">AI Assist Used</span>
+          <p className="font-extrabold text-2xl text-stone-900">100%</p>
+          <span className="text-[10px] text-emerald-600 font-bold">Studio Enhanced</span>
         </div>
       </div>
 
-      {/* AI Quick Tools Section */}
-      <div className="space-y-4">
-        <h3 className="font-display font-bold text-xl text-stone-900 flex items-center space-x-2">
+      {/* Quick AI Shortcuts */}
+      <div className="glass-card bg-gradient-to-br from-[#FAF7F2] to-amber-500/5 p-6 rounded-3xl border border-amber-200/80 space-y-4">
+        <h3 className="font-display font-bold text-lg text-stone-900 flex items-center space-x-2">
           <Sparkles className="w-5 h-5 text-[#C85A32]" />
-          <span>Quick AI Assist Tools</span>
+          <span>CraftConnect AI Studio Tools</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -146,7 +141,7 @@ export const ArtisanDashboardPage: React.FC = () => {
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Camera className="w-5 h-5" />
             </div>
-            <h4 className="font-bold text-sm text-stone-900">📷 Improve Photo</h4>
+            <h4 className="font-bold text-sm text-stone-900">📷 AI Image Enhancement</h4>
             <p className="text-xs text-stone-500">AI cleans background & balances lighting for studio photography.</p>
           </button>
 
@@ -178,7 +173,7 @@ export const ArtisanDashboardPage: React.FC = () => {
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-display font-bold text-xl text-stone-900">
-            My Published Crafts ({products.length})
+            My Product Catalogue & Drafts ({products.length})
           </h3>
 
           <Link
@@ -190,48 +185,57 @@ export const ArtisanDashboardPage: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {products.map((p) => (
-            <div
-              key={p.id}
-              className="glass-card bg-white p-4 rounded-2xl border border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-shadow"
-            >
-              <img
-                src={p.originalImage}
-                alt={p.title}
-                className="w-20 h-20 rounded-xl object-cover border border-amber-200 shrink-0"
-              />
+          {products.map((p) => {
+            const isDraft = (p.status || '').toLowerCase() === 'draft';
+            return (
+              <div
+                key={p.id}
+                className="glass-card bg-white p-4 rounded-2xl border border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-shadow"
+              >
+                <img
+                  src={p.enhancedImage || p.originalImage}
+                  alt={p.title}
+                  className="w-20 h-20 rounded-xl object-cover border border-amber-200 shrink-0"
+                />
 
-              <div className="flex-1 overflow-hidden space-y-1">
-                <div className="flex items-center space-x-2">
-                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded">
-                    {p.status}
-                  </span>
-                  <span className="text-[10px] text-stone-400 font-medium">Views: {p.views}</span>
+                <div className="flex-1 overflow-hidden space-y-1">
+                  <div className="flex items-center space-x-2">
+                    <span
+                      className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                        isDraft
+                          ? 'bg-amber-100 text-amber-900 border border-amber-300'
+                          : 'bg-emerald-100 text-emerald-800'
+                      }`}
+                    >
+                      {isDraft ? '📁 Draft' : '🚀 Published'}
+                    </span>
+                    <span className="text-[10px] text-stone-400 font-medium">Views: {p.views || 0}</span>
+                  </div>
+
+                  <h4 className="font-bold text-stone-900 text-sm truncate">{p.title}</h4>
+
+                  <p className="text-xs font-extrabold text-[#4A2E1B]">₹{p.price.toLocaleString('en-IN')}</p>
                 </div>
 
-                <h4 className="font-bold text-stone-900 text-sm truncate">{p.title}</h4>
-
-                <p className="text-xs font-extrabold text-[#4A2E1B]">₹{p.price.toLocaleString('en-IN')}</p>
+                <div className="flex flex-col space-y-1">
+                  <Link
+                    to={`/product/${p.id}`}
+                    className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
+                    title="View"
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Link>
+                  <button
+                    onClick={() => showToast('Share link copied!', p.title, 'success')}
+                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors"
+                    title="Share"
+                  >
+                    <Share2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-
-              <div className="flex flex-col space-y-1">
-                <Link
-                  to={`/product/${p.id}`}
-                  className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
-                  title="View"
-                >
-                  <Eye className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={() => showToast('Share link copied!', p.title, 'success')}
-                  className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors"
-                  title="Share"
-                >
-                  <Share2 className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

@@ -56,7 +56,7 @@ export const LoginPage: React.FC = () => {
     const user = result.user;
     setRole(user.role, user);
 
-    const isAdmin = user.role === 'ADMIN' || user.email?.toLowerCase() === 'devborad22@gmail.com';
+    const isAdmin = user.role === 'ADMIN';
 
     // Push Notification directly into live Bell notification icon
     addNotification({

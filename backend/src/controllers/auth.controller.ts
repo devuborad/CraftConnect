@@ -19,10 +19,15 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const cleanEmail = email ? email.trim().toLowerCase() : null;
+    const cleanPhone = phone ? phone.trim() : null;
+    const normalizedRole = String(role || 'artisan').toLowerCase().trim();
+    const cleanRole = ['artisan', 'buyer', 'admin'].includes(normalizedRole) ? normalizedRole : 'artisan';
+
     // Check existing user
     const [existing]: any = await db.execute(
-      `SELECT id FROM users WHERE (email IS NOT NULL AND email = ?) OR (phone IS NOT NULL AND phone = ?)`,
-      [email || null, phone || null]
+      `SELECT id FROM users WHERE (email IS NOT NULL AND LOWER(email) = ?) OR (phone IS NOT NULL AND phone = ?)`,
+      [cleanEmail, cleanPhone]
     );
 
     if (existing && existing.length > 0) {
@@ -37,17 +42,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     const userId = cryptoRandomUUID();
     const passwordHash = await bcrypt.hash(password, 10);
 
-    // Insert user
+    // Insert user with exact selected role
     await db.execute(
       `INSERT INTO users (id, name, email, phone, password_hash, role, language, status, created_at, updated_at) 
        VALUES (?, ?, ?, ?, ?, ?, ?, 'active', NOW(), NOW())`,
-      [userId, name, email || null, phone || null, passwordHash, role, language]
+      [userId, name.trim(), cleanEmail, cleanPhone, passwordHash, cleanRole, language]
     );
 
     let artisanId: string | undefined;
     let buyerId: string | undefined;
 
-    if (role === 'artisan') {
+    if (cleanRole === 'artisan') {
       artisanId = cryptoRandomUUID();
       const expYears = parseInt(String(experienceYears || '1'), 10) || 1;
       await db.execute(
@@ -55,7 +60,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
          VALUES (?, ?, ?, ?, ?, ?, TRUE, NOW(), NOW())`,
         [artisanId, userId, businessName || `${name}'s Craft Studio`, location || 'Gujarat', craftType || 'Handloom & Handicrafts', expYears]
       );
-    } else if (role === 'buyer') {
+    } else if (cleanRole === 'buyer') {
       buyerId = cryptoRandomUUID();
       await db.execute(
         `INSERT INTO buyers (id, user_id, company_name, location, buyer_type, created_at, updated_at) 
@@ -64,22 +69,25 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       );
     }
 
-    const isArtisan = role === 'artisan' || Boolean(artisanId);
-    const isBuyer = role === 'buyer' || Boolean(buyerId);
+    const isArtisan = cleanRole === 'artisan';
+    const isBuyer = cleanRole === 'buyer';
 
     const payload = {
       id: userId,
-      name,
-      email,
-      phone,
-      role,
+      name: name.trim(),
+      email: cleanEmail,
+      phone: cleanPhone,
+      role: cleanRole,
       userType: isArtisan ? 'ARTISAN' : isBuyer ? 'BUYER' : 'ADMIN',
       isArtisan,
       isBuyer,
       artisanId,
       buyerId,
-      businessName,
+      businessName: businessName || `${name}'s Craft Studio`,
       companyName,
+      craftType: craftType || 'Handloom & Handicrafts',
+      experienceYears: parseInt(String(experienceYears || '1'), 10) || 1,
+      location: location || (isArtisan ? 'Gujarat' : 'India'),
     };
 
     const token = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });
@@ -117,53 +125,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     const cleanInput = emailOrPhone.trim().toLowerCase();
 
-    // Special auto-detect for Admin user devborad22@gmail.com
-    if (cleanInput === 'devborad22@gmail.com' && password === '492320Devu$') {
-      let [adminRows]: any = await db.execute(`SELECT * FROM users WHERE LOWER(email) = 'devborad22@gmail.com'`);
-      let adminId = 'usr-admin-dev';
-
-      if (!adminRows || adminRows.length === 0) {
-        const passwordHash = await bcrypt.hash('492320Devu$', 10);
-        await db.execute(
-          `INSERT INTO users (id, name, email, phone, password_hash, role, language, status, created_at, updated_at)
-           VALUES (?, 'CraftConnect Admin', 'devborad22@gmail.com', '+919876543210', ?, 'admin', 'en', 'active', NOW(), NOW())`,
-          [adminId, passwordHash]
-        );
-      } else {
-        adminId = adminRows[0].id;
-      }
-
-      const payload = {
-        id: adminId,
-        name: 'CraftConnect Admin',
-        email: 'devborad22@gmail.com',
-        phone: '+919876543210',
-        role: 'admin',
-        userType: 'ADMIN',
-        isArtisan: false,
-        isBuyer: false,
-      };
-
-      const token = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });
-
-      res.json({
-        success: true,
-        message: 'Admin login successful.',
-        data: {
-          token,
-          user: payload,
-        },
-      });
-      return;
-    }
-
     const [rows]: any = await db.execute(
-      `SELECT u.*, a.id as artisan_id, a.business_name, a.craft_type, b.id as buyer_id, b.company_name 
+      `SELECT u.*, a.id as artisan_id, a.business_name, a.craft_type, a.experience_years, a.location as artisan_location,
+              b.id as buyer_id, b.company_name, b.location as buyer_location
        FROM users u 
        LEFT JOIN artisans a ON u.id = a.user_id 
        LEFT JOIN buyers b ON u.id = b.user_id 
        WHERE LOWER(u.email) = ? OR u.phone = ?`,
-      [cleanInput, emailOrPhone]
+      [cleanInput, emailOrPhone.trim()]
     );
 
     if (!rows || rows.length === 0) {
@@ -196,15 +165,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const isArtisan = user.role === 'artisan' || Boolean(user.artisan_id);
-    const isBuyer = user.role === 'buyer' || Boolean(user.buyer_id);
+    const dbRole = String(user.role).toLowerCase();
+    const isArtisan = dbRole === 'artisan';
+    const isBuyer = dbRole === 'buyer';
 
     const payload = {
       id: user.id,
       name: user.name,
       email: user.email,
       phone: user.phone,
-      role: user.role,
+      role: dbRole,
       userType: isArtisan ? 'ARTISAN' : isBuyer ? 'BUYER' : 'ADMIN',
       isArtisan,
       isBuyer,
@@ -212,6 +182,9 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       buyerId: user.buyer_id || undefined,
       businessName: user.business_name || undefined,
       companyName: user.company_name || undefined,
+      craftType: user.craft_type || undefined,
+      experienceYears: user.experience_years || undefined,
+      location: user.artisan_location || user.buyer_location || undefined,
     };
 
     const token = jwt.sign(payload, ENV.JWT_SECRET, { expiresIn: '7d' });

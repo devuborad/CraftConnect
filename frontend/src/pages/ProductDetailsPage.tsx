@@ -78,11 +78,11 @@ export const ProductDetailsPage: React.FC = () => {
         
         {/* Left Column: Image Showcase */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="relative aspect-4/3 rounded-3xl overflow-hidden shadow-xl border border-stone-200 bg-stone-100">
+          <div className="relative min-h-[400px] sm:min-h-[500px] max-h-[600px] rounded-3xl overflow-hidden shadow-xl border border-stone-200 bg-stone-100/90 flex items-center justify-center p-3">
             <img
               src={product.originalImage}
               alt={product.title}
-              className="w-full h-full object-cover"
+              className="max-h-[560px] max-w-full object-contain rounded-2xl"
             />
             {product.isAiEnhanced && (
               <div className="absolute top-4 left-4 bg-amber-900/85 backdrop-blur text-amber-200 text-xs font-bold px-3 py-1 rounded-full border border-amber-400/30 flex items-center space-x-1.5 shadow">
