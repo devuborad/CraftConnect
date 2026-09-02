@@ -8,11 +8,10 @@ import {
   Eye, 
   TrendingUp, 
   Sparkles, 
-  Share2, 
-  User, 
-  Building2, 
+  Share2,
+  User,
+  Building2,
   Award,
-  CheckCircle2,
   Package,
   ShoppingBag,
   MessageSquare,
@@ -21,12 +20,14 @@ import {
   FolderOpen,
   X,
   Trash2,
-  Edit
+  Edit,
+  CheckCircle2
 } from 'lucide-react';
 import { productService } from '../services/products';
 import { inquiryService } from '../services/inquiries';
 import type { Product, BulkInquiry } from '../types';
 import { useApp } from '../context/AppContext';
+import { ModalPortal } from '../components/common/ModalPortal';
 
 export const ArtisanDashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -94,47 +95,46 @@ export const ArtisanDashboardPage: React.FC = () => {
       descriptionEn: draft.descriptionEn
     });
     await loadDashboardData();
-    showToast('Published Live!', `"${draft.title}" is now visible to buyers.`, 'success');
+    showToast('Published Live! 🚀', `"${draft.title}" is now visible to buyers.`, 'success');
   };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 relative ios-fade-up">
-      
       {/* Top Welcome Banner */}
       <div className="glass-card bg-[#FAF7F2] p-6 sm:p-8 rounded-3xl border border-amber-200/80 shadow-md flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 relative overflow-hidden">
         <div className="flex items-center space-x-4 sm:space-x-5 relative z-10 flex-1">
-          <Link to="/artisan/profile" className="relative shrink-0 group">
+          <div className="relative shrink-0">
             <img
               src={currentUser?.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200'}
               alt={userName}
-              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400 shadow-md group-hover:scale-105 transition-transform"
+              className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-400 shadow-md"
             />
             <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white p-1 rounded-full border-2 border-white shadow-xs">
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-white" />
             </div>
-          </Link>
+          </div>
 
           <div className="space-y-1 min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span className="bg-amber-100 text-[#C85A32] text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full border border-amber-300">
-                Artisan Studio Dashboard
+                ✨ Artisan Studio Dashboard
               </span>
               {currentUser?.craftType && (
-                <div className="bg-white/80 text-stone-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-stone-200 flex items-center space-x-1 shadow-xs">
+                <div className="bg-white/80 text-stone-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-stone-200 flex items-center space-x-1">
                   <Building2 className="w-3.5 h-3.5 text-[#C85A32]" />
                   <span>{currentUser.craftType}</span>
                 </div>
               )}
               {currentUser?.experienceYears && (
-                <div className="bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200 flex items-center space-x-1 shadow-xs">
+                <div className="bg-emerald-50 text-emerald-800 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-200 flex items-center space-x-1">
                   <Award className="w-3.5 h-3.5 text-emerald-600" />
                   <span>{currentUser.experienceYears} Years Master</span>
                 </div>
               )}
             </div>
 
-            <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900 tracking-tight truncate">
-              Good morning, {userName}
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900 truncate">
+              Good morning, {userName} 👋
             </h1>
             <p className="text-xs sm:text-sm text-stone-600">
               Let's bring your authentic handloom craft to more urban buyers and retail stores today.
@@ -167,7 +167,7 @@ export const ArtisanDashboardPage: React.FC = () => {
           {/* Bottom Row: + Add New Product */}
           <Link
             to="/artisan/products/new"
-            className="w-full sm:w-auto bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-md transition-all shrink-0 hover:scale-102"
+            className="w-full sm:w-auto bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-5 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center space-x-1.5 shadow-md transition-all shrink-0 hover:scale-102 cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>+ Add New Product</span>
@@ -180,7 +180,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 1. Total Products (Warm Amber Theme) */}
         <Link
           to="/artisan/catalogue-analytics"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] hover:bg-amber-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden ios-fade-up ios-delay-1"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] hover:bg-amber-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view Studio Catalogue & Inventory Analytics"
         >
           <div className="flex items-center justify-between">
@@ -205,7 +205,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 2. Order Inquiries (Fresh Emerald Green Theme) */}
         <Link
           to="/artisan/orders"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden ios-fade-up ios-delay-2"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-emerald-500 hover:bg-emerald-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view New Direct Customer Orders"
         >
           <div className="flex items-center justify-between">
@@ -222,7 +222,7 @@ export const ArtisanDashboardPage: React.FC = () => {
           </div>
           <div className="pt-1">
             <span className="inline-flex items-center text-xs text-emerald-700 font-bold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200/90 group-hover:bg-emerald-100 transition-colors">
-              {directOrders.length > 0 ? `${directOrders.length} New Orders` : 'All Clear'}
+              {directOrders.length > 0 ? 'New Action Needed' : 'All Clear 👍'}
             </span>
           </div>
         </Link>
@@ -230,7 +230,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 3. Bulk Inquiries (Rich Terracotta Orange Theme) */}
         <Link
           to="/artisan/inquiries"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden ios-fade-up ios-delay-3"
+          className="glass-card bg-[#FAF7F2] p-5 rounded-2xl border border-stone-200 hover:border-orange-500 hover:bg-orange-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view New Wholesale Bulk Inquiries"
         >
           <div className="flex items-center justify-between">
@@ -247,7 +247,7 @@ export const ArtisanDashboardPage: React.FC = () => {
           </div>
           <div className="pt-1">
             <span className="inline-flex items-center text-xs text-orange-800 font-bold bg-orange-50 px-3 py-1 rounded-full border border-orange-200/90 group-hover:bg-orange-100 transition-colors">
-              {bulkInquiries.length > 0 ? `${bulkInquiries.length} New Inquiries` : 'All Clear'}
+              {bulkInquiries.length > 0 ? 'New Action Needed' : 'All Clear 👍'}
             </span>
           </div>
         </Link>
@@ -255,7 +255,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 4. AI Assist Used (Royal Purple Theme) */}
         <Link
           to="/artisan/products/new"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-purple-500 hover:bg-purple-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden ios-fade-up ios-delay-4"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-purple-500 hover:bg-purple-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to open AI Assist Studio Tools"
         >
           <div className="flex items-center justify-between">
@@ -280,7 +280,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         {/* 5. Total Views (Ocean Sky Blue Theme - LAST Position!) */}
         <Link
           to="/artisan/analytics"
-          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-sky-500 hover:bg-sky-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden ios-fade-up ios-delay-5"
+          className="glass-card bg-white p-5 rounded-2xl border border-stone-200 hover:border-sky-500 hover:bg-sky-50/20 transition-all cursor-pointer shadow-xs hover:shadow-md block group space-y-2 relative overflow-hidden active:scale-95"
           title="Click to view Financial & Traffic Studio Analytics"
         >
           <div className="flex items-center justify-between">
@@ -315,7 +315,7 @@ export const ArtisanDashboardPage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Camera className="w-5 h-5" />
@@ -326,7 +326,7 @@ export const ArtisanDashboardPage: React.FC = () => {
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Mic className="w-5 h-5" />
@@ -337,7 +337,7 @@ export const ArtisanDashboardPage: React.FC = () => {
 
           <button
             onClick={() => navigate('/artisan/products/new')}
-            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer active:scale-95"
+            className="bg-white p-5 rounded-2xl border border-stone-200 hover:border-[#C85A32] active:scale-95 text-left space-y-2 transition-all group shadow-sm hover:shadow-md cursor-pointer"
           >
             <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#C85A32] flex items-center justify-center font-bold group-hover:scale-110 transition-transform">
               <Calculator className="w-5 h-5" />
@@ -348,8 +348,8 @@ export const ArtisanDashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Artisan Products List */}
-      <div className="space-y-4 ios-fade-up">
+      {/* Artisan Products List (Card Layout for Mobile/Desktop) */}
+      <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="font-display font-bold text-xl text-stone-900">
             My Product Catalogue & Drafts ({products.length})
@@ -369,12 +369,12 @@ export const ArtisanDashboardPage: React.FC = () => {
             return (
               <div
                 key={p.id}
-                className="glass-card bg-white p-4 rounded-2xl border border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-all group"
+                className="glass-card bg-white p-4 rounded-2xl border border-stone-200 flex items-center space-x-4 shadow-sm hover:shadow-md transition-shadow"
               >
                 <img
                   src={p.enhancedImage || p.originalImage}
                   alt={p.title}
-                  className="w-20 h-20 rounded-xl object-cover border border-amber-200 shrink-0 group-hover:scale-105 transition-transform"
+                  className="w-20 h-20 rounded-xl object-cover border border-amber-200 shrink-0"
                 />
 
                 <div className="flex-1 overflow-hidden space-y-1">
@@ -386,7 +386,7 @@ export const ArtisanDashboardPage: React.FC = () => {
                           : 'bg-emerald-100 text-emerald-800'
                       }`}
                     >
-                      {isDraft ? 'Draft' : 'Published'}
+                      {isDraft ? '📁 Draft' : '🚀 Published'}
                     </span>
                     <span className="text-[10px] text-stone-400 font-medium">Views: {p.views || 0}</span>
                   </div>
@@ -399,14 +399,14 @@ export const ArtisanDashboardPage: React.FC = () => {
                 <div className="flex flex-col space-y-1">
                   <Link
                     to={`/product/${p.id}`}
-                    className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors active:scale-95"
+                    className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
                     title="View"
                   >
                     <Eye className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => showToast('Share link copied!', p.title, 'success')}
-                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors active:scale-95"
+                    className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors cursor-pointer"
                     title="Share"
                   >
                     <Share2 className="w-4 h-4" />
@@ -420,115 +420,117 @@ export const ArtisanDashboardPage: React.FC = () => {
 
       {/* SAVED DRAFTS MODAL OVERLAY ON DASHBOARD */}
       {showDraftsModal && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto ios-fade-in"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowDraftsModal(false);
-          }}
-        >
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 space-y-6 shadow-2xl border border-stone-200 max-h-[85vh] overflow-y-auto relative my-auto ios-scale-in">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-100">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
-                  <FolderOpen className="w-5 h-5" />
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setShowDraftsModal(false);
+            }}
+          >
+            <div className="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl border border-stone-200 flex flex-col max-h-[85vh] relative ios-scale-in">
+              <div className="flex items-center justify-between pb-4 border-b border-stone-100 shrink-0">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-10 h-10 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center">
+                    <FolderOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-lg text-stone-900">All Saved Product Drafts</h3>
+                    <p className="text-xs text-stone-500">Persisted drafts ready for review or publishing live</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-display font-extrabold text-lg text-stone-900">All Saved Product Drafts</h3>
-                  <p className="text-xs text-stone-500">Persisted drafts ready for review or publishing live</p>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowDraftsModal(false)}
+                  className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer active:scale-90"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setShowDraftsModal(false)}
-                className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-600 flex items-center justify-center transition-colors cursor-pointer active:scale-90"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
 
-            {savedDrafts.length === 0 ? (
-              <div className="py-12 text-center space-y-3">
-                <div className="w-14 h-14 bg-amber-50 text-[#C85A32] rounded-full flex items-center justify-center mx-auto text-2xl">
-                  📁
-                </div>
-                <h4 className="font-bold text-stone-900 text-sm">No Saved Drafts Found</h4>
-                <p className="text-xs text-stone-500 max-w-xs mx-auto">
-                  When you save drafts while adding products in AI Assist, they will be saved here.
-                </p>
+              <div className="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
+                {savedDrafts.length === 0 ? (
+                  <div className="py-12 text-center space-y-3">
+                    <div className="w-14 h-14 bg-amber-50 text-[#C85A32] rounded-full flex items-center justify-center mx-auto text-2xl">
+                      📁
+                    </div>
+                    <h4 className="font-bold text-stone-900 text-sm">No Saved Drafts Found</h4>
+                    <p className="text-xs text-stone-500 max-w-xs mx-auto">
+                      When you save drafts while adding products in AI Assist, they will be saved here.
+                    </p>
+                    <Link
+                      to="/artisan/products/new"
+                      onClick={() => setShowDraftsModal(false)}
+                      className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2 cursor-pointer"
+                    >
+                      + Add Product & Save Draft
+                    </Link>
+                  </div>
+                ) : (
+                  savedDrafts.map((draft) => (
+                    <div
+                      key={draft.id}
+                      className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <img
+                          src={draft.originalImage || draft.enhancedImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800'}
+                          alt={draft.title}
+                          className="w-16 h-16 object-cover rounded-xl border border-amber-200"
+                        />
+                        <div>
+                          <h4 className="font-extrabold text-sm text-stone-900 line-clamp-1">{draft.title}</h4>
+                          <p className="text-xs text-[#C85A32] font-bold">₹{(draft.price || 2499).toLocaleString('en-IN')}</p>
+                          <span className="inline-block bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">
+                            Draft 📁
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center space-x-2 self-end sm:self-auto">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowDraftsModal(false);
+                            navigate('/artisan/products/new');
+                          }}
+                          className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
+                        >
+                          <Edit className="w-3.5 h-3.5" />
+                          <span>Resume / Edit ✏️</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handlePublishDraft(draft)}
+                          className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
+                        >
+                          Publish 🚀
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <div className="pt-4 border-t border-stone-100 flex justify-between items-center shrink-0">
                 <Link
                   to="/artisan/products/new"
                   onClick={() => setShowDraftsModal(false)}
-                  className="inline-block bg-[#C85A32] text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md mt-2 cursor-pointer active:scale-95"
+                  className="text-xs font-bold text-[#C85A32] hover:underline"
                 >
-                  + Add Product & Save Draft
+                  + Create New Product Draft
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => setShowDraftsModal(false)}
+                  className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
+                >
+                  Close Window
+                </button>
               </div>
-            ) : (
-              <div className="space-y-3">
-                {savedDrafts.map((draft) => (
-                  <div
-                    key={draft.id}
-                    className="p-4 rounded-2xl border border-stone-200 bg-[#FAF7F2] hover:border-[#C85A32] transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 group hover:shadow-md"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <img
-                        src={draft.originalImage || draft.enhancedImage || 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800'}
-                        alt={draft.title}
-                        className="w-16 h-16 object-cover rounded-xl border border-amber-200"
-                      />
-                      <div>
-                        <h4 className="font-extrabold text-sm text-stone-900 line-clamp-1">{draft.title}</h4>
-                        <p className="text-xs text-[#C85A32] font-bold">₹{(draft.price || 2499).toLocaleString('en-IN')}</p>
-                        <span className="inline-block bg-amber-100 text-[#C85A32] text-[10px] font-bold px-2 py-0.5 rounded-full mt-1">
-                          Draft
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center space-x-2 self-end sm:self-auto">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setShowDraftsModal(false);
-                          navigate('/artisan/products/new');
-                        }}
-                        className="bg-[#C85A32] hover:bg-[#b04b27] active:scale-95 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs flex items-center space-x-1.5"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Resume / Edit</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => handlePublishDraft(draft)}
-                        className="bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-xs"
-                      >
-                        Publish Live
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            <div className="pt-4 border-t border-stone-100 flex justify-between items-center">
-              <Link
-                to="/artisan/products/new"
-                onClick={() => setShowDraftsModal(false)}
-                className="text-xs font-bold text-[#C85A32] hover:underline"
-              >
-                + Create New Product Draft
-              </Link>
-              <button
-                type="button"
-                onClick={() => setShowDraftsModal(false)}
-                className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
-              >
-                Close Window
-              </button>
             </div>
           </div>
-        </div>
+        </ModalPortal>
       )}
     </div>
   );
