@@ -16,7 +16,7 @@ export const ENV = {
     return process.env.DB_USER || 'root';
   },
   get DB_PASSWORD(): string {
-    return process.env.DB_PASSWORD || 'root';
+    return process.env.DB_PASSWORD ?? 'root';
   },
   get DB_NAME(): string {
     return process.env.DB_NAME || 'craftconnect';
