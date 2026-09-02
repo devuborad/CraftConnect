@@ -108,22 +108,12 @@ export const ArtisanProfilePage: React.FC = () => {
       setArtisan(ownArtisanData);
       populateEditForm(currentUser);
 
-      // Fetch products created by this artisan (both Published and Catalogue Fallback)
-      if ((productService as any).getMyProducts) {
-        (productService as any).getMyProducts().then((myProds: Product[]) => {
-          if (myProds && myProds.length > 0) {
-            setProducts(myProds);
-            setLoading(false);
-          } else {
-            productService.getProducts().then((allProds) => {
-              const artisanProducts = allProds.filter(
-                (p) => p.artisanId === currentUser.id || p.artisanName?.toLowerCase() === currentUser.name?.toLowerCase()
-              );
-              setProducts(artisanProducts.length > 0 ? artisanProducts : allProds.slice(0, 4));
-              setLoading(false);
-            });
-          }
-        }).catch(() => {
+      // Fetch products created by this artisan (both Published and Draft)
+      productService.getMyProducts().then((myProds) => {
+        if (myProds && myProds.length > 0) {
+          setProducts(myProds);
+          setLoading(false);
+        } else {
           productService.getProducts().then((allProds) => {
             const artisanProducts = allProds.filter(
               (p) => p.artisanId === currentUser.id || p.artisanName?.toLowerCase() === currentUser.name?.toLowerCase()
@@ -131,16 +121,8 @@ export const ArtisanProfilePage: React.FC = () => {
             setProducts(artisanProducts.length > 0 ? artisanProducts : allProds.slice(0, 4));
             setLoading(false);
           });
-        });
-      } else {
-        productService.getProducts().then((allProds) => {
-          const artisanProducts = allProds.filter(
-            (p) => p.artisanId === currentUser.id || p.artisanName?.toLowerCase() === currentUser.name?.toLowerCase()
-          );
-          setProducts(artisanProducts.length > 0 ? artisanProducts : allProds.slice(0, 4));
-          setLoading(false);
-        });
-      }
+        }
+      });
     } else if (id) {
       productService.getArtisanById(id).then((foundArtisan) => {
         if (foundArtisan) {

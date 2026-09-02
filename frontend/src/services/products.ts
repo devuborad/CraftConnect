@@ -9,6 +9,12 @@ export const productService = {
     });
   },
 
+  getMyProducts: async (): Promise<Product[]> => {
+    return new Promise((resolve) => {
+      setTimeout(() => resolve([...MOCK_PRODUCTS]), 200);
+    });
+  },
+
   getProductById: async (id: string): Promise<Product | undefined> => {
     return new Promise((resolve) => {
       const found = MOCK_PRODUCTS.find((p) => p.id === id);
