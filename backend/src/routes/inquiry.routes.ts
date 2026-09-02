@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { 
   createInquiry, 
   getInquiries, 
+  getInquiryAnalytics,
   updateInquiryStatus, 
   restoreInquiry, 
   deleteInquiry 
@@ -9,6 +10,9 @@ import {
 import { optionalAuth, requireAuth } from '../middleware/auth.middleware.js';
 
 const router = Router();
+
+// Get real-time pipeline analytics summary
+router.get('/analytics', optionalAuth, getInquiryAnalytics);
 
 // Create inquiry or direct order (allows guest or logged-in buyer)
 router.post('/', optionalAuth, createInquiry);

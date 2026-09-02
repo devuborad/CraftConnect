@@ -66,6 +66,15 @@ export const createInquiry = async (req: AuthRequest, res: Response): Promise<vo
       ]
     );
 
+    // If product_id exists, decrement available stock in MySQL database
+    if (productId) {
+      const orderQty = parseInt(quantity, 10) || 1;
+      await db.execute(
+        `UPDATE products SET stock_quantity = GREATEST(0, stock_quantity - ?), updated_at = NOW() WHERE id = ?`,
+        [orderQty, productId]
+      );
+    }
+
     res.status(201).json({
       success: true,
       message: `${type === 'DIRECT_ORDER' ? 'Direct Order' : 'Bulk Inquiry'} recorded successfully.`,
@@ -181,6 +190,18 @@ export const updateInquiryStatus = async (req: AuthRequest, res: Response): Prom
       [status, counterPrice ? parseFloat(counterPrice) : null, isArchiveStatus, isArchiveStatus, id]
     );
 
+    if (['ACCEPTED', 'DISPATCHED'].includes(status)) {
+      const [inqRows]: any = await db.execute(`SELECT product_id, quantity FROM inquiries WHERE id = ?`, [id]);
+      if (inqRows && inqRows.length > 0 && inqRows[0].product_id) {
+        const prodId = inqRows[0].product_id;
+        const qty = parseInt(inqRows[0].quantity || 1, 10);
+        await db.execute(
+          `UPDATE products SET stock_quantity = GREATEST(0, stock_quantity - ?), updated_at = NOW() WHERE id = ?`,
+          [qty, prodId]
+        );
+      }
+    }
+
     res.json({ success: true, message: `Status updated to ${status}` });
   } catch (err: any) {
     console.error('updateInquiryStatus error:', err);
@@ -208,5 +229,64 @@ export const deleteInquiry = async (req: AuthRequest, res: Response): Promise<vo
     res.json({ success: true, message: 'Inquiry deleted successfully' });
   } catch (err: any) {
     res.status(500).json({ success: false, message: 'Failed to delete inquiry' });
+  }
+};
+
+export const getInquiryAnalytics = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const userRole = req.user?.role;
+    const userId = req.user?.id;
+
+    let sql = `
+      SELECT 
+        COUNT(*) as total_deals,
+        SUM(COALESCE(i.total_amount, i.quantity * i.target_price)) as grand_total_value,
+        SUM(i.quantity) as grand_total_units,
+        
+        SUM(CASE WHEN i.type != 'DIRECT_ORDER' THEN COALESCE(i.total_amount, i.quantity * i.target_price) ELSE 0 END) as bulk_total_value,
+        SUM(CASE WHEN i.type != 'DIRECT_ORDER' THEN i.quantity ELSE 0 END) as bulk_total_units,
+        COUNT(CASE WHEN i.type != 'DIRECT_ORDER' THEN 1 END) as bulk_count,
+
+        SUM(CASE WHEN i.type = 'DIRECT_ORDER' THEN COALESCE(i.total_amount, i.quantity * i.target_price) ELSE 0 END) as direct_total_value,
+        SUM(CASE WHEN i.type = 'DIRECT_ORDER' THEN i.quantity ELSE 0 END) as direct_total_units,
+        COUNT(CASE WHEN i.type = 'DIRECT_ORDER' THEN 1 END) as direct_count,
+
+        SUM(CASE WHEN i.status IN ('COMPLETED', 'DISPATCHED') THEN COALESCE(i.total_amount, i.quantity * i.target_price) ELSE 0 END) as realized_revenue,
+        SUM(CASE WHEN i.status IN ('NEW', 'COUNTERED', 'ACCEPTED') THEN COALESCE(i.total_amount, i.quantity * i.target_price) ELSE 0 END) as pending_pipeline,
+        SUM(CASE WHEN i.status = 'DECLINED' THEN COALESCE(i.total_amount, i.quantity * i.target_price) ELSE 0 END) as declined_value
+      FROM inquiries i
+      LEFT JOIN artisans a ON i.artisan_id = a.id
+      WHERE 1=1
+    `;
+
+    const params: any[] = [];
+    if (userRole === 'artisan') {
+      sql += ` AND (a.user_id = ? OR i.artisan_id = ?)`;
+      params.push(userId, req.user?.artisanId || '');
+    }
+
+    const [rows]: any = await db.execute(sql, params);
+    const data = rows[0] || {};
+
+    res.json({
+      success: true,
+      data: {
+        grandTotalValue: parseFloat(data.grand_total_value || 0),
+        grandTotalUnits: parseInt(data.grand_total_units || 0, 10),
+        totalDeals: parseInt(data.total_deals || 0, 10),
+        bulkTotalValue: parseFloat(data.bulk_total_value || 0),
+        bulkTotalUnits: parseInt(data.bulk_total_units || 0, 10),
+        bulkCount: parseInt(data.bulk_count || 0, 10),
+        directTotalValue: parseFloat(data.direct_total_value || 0),
+        directTotalUnits: parseInt(data.direct_total_units || 0, 10),
+        directCount: parseInt(data.direct_count || 0, 10),
+        realizedRevenue: parseFloat(data.realized_revenue || 0),
+        pendingPipeline: parseFloat(data.pending_pipeline || 0),
+        declinedValue: parseFloat(data.declined_value || 0),
+      }
+    });
+  } catch (err: any) {
+    console.error('getInquiryAnalytics error:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch analytics' });
   }
 };

@@ -1,5 +1,6 @@
 import type { Product, Artisan } from '../types';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from './mockData';
+import { api } from './api';
 
 export const productService = {
   getProducts: async (): Promise<Product[]> => {
@@ -29,6 +30,16 @@ export const productService = {
   },
 
   createProduct: async (newProduct: Partial<Product>): Promise<Product> => {
+    const titleNorm = (newProduct.title || '').trim().toLowerCase();
+    const existing = MOCK_PRODUCTS.find((p) => p.title.trim().toLowerCase() === titleNorm);
+
+    if (existing) {
+      const addedStock = newProduct.stock !== undefined ? newProduct.stock : 5;
+      existing.stock = (existing.stock || 0) + addedStock;
+      if (newProduct.price) existing.price = newProduct.price;
+      return existing;
+    }
+
     const created: Product = {
       id: `prod-${Date.now()}`,
       title: newProduct.title || 'Untitled Craft Product',
@@ -52,7 +63,7 @@ export const productService = {
       status: 'Published',
       views: 1,
       inquiriesCount: 0,
-      stock: newProduct.stock || 5,
+      stock: newProduct.stock !== undefined ? newProduct.stock : 5,
       productionCost: newProduct.productionCost || 1100,
       recommendedPrice: newProduct.recommendedPrice || 1999,
       marketRange: newProduct.marketRange || { min: 1800, max: 2200 },
@@ -62,5 +73,17 @@ export const productService = {
 
     MOCK_PRODUCTS.unshift(created);
     return created;
+  },
+
+  getCatalogueAnalytics: async (): Promise<any> => {
+    try {
+      const res: any = await api.get('/products/analytics');
+      if (res && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('Backend product analytics notice:', err);
+    }
+    return null;
   }
 };

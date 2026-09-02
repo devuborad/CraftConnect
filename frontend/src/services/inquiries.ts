@@ -31,6 +31,7 @@ const getStoredInquiries = (): BulkInquiry[] => {
 const saveInquiries = (list: BulkInquiry[]) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    window.dispatchEvent(new Event('storage'));
   } catch (err) {
     console.error('Failed to save inquiries:', err);
   }
@@ -254,13 +255,23 @@ export const inquiryService = {
   updateStatus: async (
     id: string,
     status: 'ACCEPTED' | 'COUNTERED' | 'DECLINED' | 'DISPATCHED' | 'COMPLETED',
-    counterPrice?: number
+    counterPrice?: number,
+    buyerMessage?: string
   ): Promise<BulkInquiry | undefined> => {
     const list = getStoredInquiries();
     const inq = list.find((i) => i.id === id);
     if (inq) {
       inq.status = status;
-      if (counterPrice !== undefined) inq.counterPrice = counterPrice;
+      if (counterPrice !== undefined) {
+        inq.counterPrice = counterPrice;
+        if (status === 'ACCEPTED') {
+          inq.targetPrice = counterPrice;
+          inq.totalAmount = counterPrice * inq.quantity;
+        }
+      }
+      if (buyerMessage) {
+        inq.message = `${inq.message || ''} | Note: "${buyerMessage}"`;
+      }
       // If status is DISPATCHED, COMPLETED or DECLINED, mark as completed/archived into history
       if (status === 'DISPATCHED' || status === 'COMPLETED' || status === 'DECLINED') {
         inq.isArchived = true;
@@ -318,5 +329,17 @@ export const inquiryService = {
   clearAllHistory: async (): Promise<void> => {
     const list = getStoredInquiries().filter((i) => !i.isArchived && i.status !== 'DISPATCHED' && i.status !== 'DECLINED');
     saveInquiries(list);
+  },
+
+  getAnalytics: async (): Promise<any> => {
+    try {
+      const res: any = await api.get('/inquiries/analytics');
+      if (res && res.data) {
+        return res.data;
+      }
+    } catch (err) {
+      console.warn('Backend analytics fetch notice:', err);
+    }
+    return null;
   }
 };

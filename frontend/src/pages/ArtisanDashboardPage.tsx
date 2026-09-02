@@ -55,6 +55,25 @@ export const ArtisanDashboardPage: React.FC = () => {
       return;
     }
     loadDashboardData();
+
+    // Listen for real-time buyer order updates across browser tabs & window focus
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'craft_live_inquiries_orders' || !e.key) {
+        loadDashboardData();
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('focus', loadDashboardData);
+
+    // Periodic sync interval for instant real-time live buyer updates
+    const intervalId = setInterval(loadDashboardData, 4000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('focus', loadDashboardData);
+      clearInterval(intervalId);
+    };
   }, [currentUser, role, navigate, showToast]);
 
   // Separate active wholesale inquiries, active direct orders, and completed history
@@ -140,22 +159,33 @@ export const ArtisanDashboardPage: React.FC = () => {
 
       {/* Bordered Stats Grid with 5 Focused KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* Total Products Card */}
-        <div className="glass-card bg-white p-5 rounded-3xl border-2 border-stone-200 space-y-2 shadow-sm hover:border-[#C85A32]/40 transition-colors">
+        {/* Total Products / Catalogue Card - Links to Full Page Catalogue Studio */}
+        <Link
+          to="/artisan/catalogue-analytics"
+          className="glass-card bg-amber-50/20 hover:bg-amber-50/50 p-5 rounded-3xl border-2 border-stone-200 hover:border-[#C85A32]/70 space-y-2 shadow-sm transition-all group block relative overflow-hidden"
+          title="Click to view detailed catalogue valuation & inventory studio"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-400 font-extrabold uppercase tracking-wider">Catalogue</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-100/70 text-[#C85A32] flex items-center justify-center">
+            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider group-hover:text-[#C85A32] transition-colors">Catalogue</span>
+            <div className="w-9 h-9 rounded-xl bg-amber-100 group-hover:bg-[#C85A32] text-[#C85A32] group-hover:text-white flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm relative">
               <Package className="w-4 h-4" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             </div>
           </div>
           <div>
-            <p className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900">{products.length}</p>
-            <p className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1 mt-0.5">
-              <TrendingUp className="w-3 h-3" />
-              <span>{products.filter((p) => p.status === 'Published').length} Published Live</span>
-            </p>
+            <p className="font-display font-extrabold text-2xl sm:text-3xl text-stone-900 group-hover:text-[#C85A32] transition-colors">{products.length}</p>
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-[11px] text-emerald-600 font-semibold flex items-center space-x-1">
+                <TrendingUp className="w-3 h-3" />
+                <span>{products.filter((p) => (p.status || 'Published') === 'Published').length} Published Live</span>
+              </p>
+              <span className="text-[10px] font-bold text-[#C85A32] group-hover:underline flex items-center space-x-0.5">
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
 
         {/* Active Bulk Inquiries Card */}
         <Link
@@ -231,21 +261,35 @@ export const ArtisanDashboardPage: React.FC = () => {
           </div>
         </Link>
 
-        {/* Pipeline Value Card */}
-        <div className="glass-card bg-white p-5 rounded-3xl border-2 border-stone-200 space-y-2 shadow-sm">
+        {/* Pipeline Value Card - Links directly to Full Page Financial Analytics Studio */}
+        <Link 
+          to="/artisan/analytics"
+          className="glass-card bg-amber-50/20 hover:bg-amber-50/50 p-5 rounded-3xl border-2 border-amber-300/80 space-y-2 shadow-sm transition-all group block relative overflow-hidden"
+          title="Click to open full-page real-time financial & pipeline analytics studio"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-stone-400 font-extrabold uppercase tracking-wider">Pipeline Value</span>
-            <div className="w-8 h-8 rounded-xl bg-amber-100 text-[#4A2E1B] flex items-center justify-center">
+            <span className="text-[10px] text-stone-600 font-extrabold uppercase tracking-wider group-hover:text-[#C85A32] transition-colors">Pipeline Value</span>
+            <div className="w-9 h-9 rounded-xl bg-amber-100 group-hover:bg-[#C85A32] text-[#4A2E1B] group-hover:text-white flex items-center justify-center transition-all duration-300 transform group-hover:scale-110 shadow-sm relative">
               <TrendingUp className="w-4 h-4" />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping"></span>
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
             </div>
           </div>
           <div>
-            <p className="font-display font-extrabold text-2xl sm:text-3xl text-[#4A2E1B]">₹{totalOrderValue.toLocaleString('en-IN')}</p>
-            <p className="text-[11px] text-stone-500 font-medium mt-0.5">
-              {inquiries.length} Lifetime Deals & Orders
+            <p className="font-display font-extrabold text-2xl sm:text-3xl text-[#4A2E1B] group-hover:text-[#C85A32] transition-colors">
+              ₹{totalOrderValue.toLocaleString('en-IN')}
             </p>
+            <div className="flex items-center justify-between mt-0.5">
+              <p className="text-[11px] text-stone-500 font-medium">
+                {inquiries.length} Lifetime Deals & Orders
+              </p>
+              <span className="text-[10px] font-bold text-[#C85A32] group-hover:underline flex items-center space-x-0.5">
+                <span>View Full Studio</span>
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </div>
           </div>
-        </div>
+        </Link>
       </div>
 
       {/* AI Quick Tools Section */}
