@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
-  const { role, language, setLanguage, setRole, cartCount, t } = useApp();
+  const { currentUser, role, language, setLanguage, setRole, cartCount, t, userName } = useApp();
   const [showLangModal, setShowLangModal] = useState(false);
   useBodyScrollLock(showLangModal);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -144,7 +144,7 @@ export const Navbar: React.FC = () => {
               <span>{activeLangObj.nativeName}</span>
             </button>
 
-            {/* Role Badge & Switcher */}
+            {/* Role Badge & Live User Profile Link */}
             {role === 'GUEST' ? (
               <div className="flex items-center space-x-2">
                 <Link
@@ -161,11 +161,26 @@ export const Navbar: React.FC = () => {
                 </Link>
               </div>
             ) : (
-              <div className="flex items-center space-x-2 bg-stone-100 p-1 rounded-2xl border border-stone-200">
-                <span className="text-[11px] font-extrabold text-[#4A2E1B] px-2.5 py-1 rounded-xl bg-white shadow-xs">
-                  {role === 'BUYER' && '🛍️ Buyer Account'}
-                  {role === 'ARTISAN' && '🎨 Artisan Account'}
-                  {role === 'ADMIN' && '🛡️ Admin Account'}
+              <div className="flex items-center space-x-2 bg-stone-100 p-1 pr-2 rounded-2xl border border-stone-200">
+                <Link
+                  to={role === 'ARTISAN' ? '/artisan/profile' : role === 'BUYER' ? '/buyer/dashboard' : '/admin'}
+                  className="flex items-center space-x-1.5 hover:opacity-85 transition-opacity"
+                  title="Click to view & edit your profile"
+                >
+                  <img
+                    src={currentUser?.avatar || currentUser?.profileImage || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400'}
+                    alt={userName}
+                    className="w-7 h-7 rounded-xl object-cover border border-amber-300 shadow-xs"
+                  />
+                  <span className="text-[11px] font-extrabold text-[#4A2E1B] max-w-[90px] truncate hidden lg:inline">
+                    {currentUser?.name || userName}
+                  </span>
+                </Link>
+
+                <span className="text-[10px] font-extrabold text-[#4A2E1B] px-2 py-0.5 rounded-lg bg-white shadow-xs hidden sm:inline">
+                  {role === 'BUYER' && 'Buyer'}
+                  {role === 'ARTISAN' && 'Artisan'}
+                  {role === 'ADMIN' && 'Admin'}
                 </span>
 
                 <button

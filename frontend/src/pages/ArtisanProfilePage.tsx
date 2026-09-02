@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { productService } from '../services/products';
+import { compressImage } from '../utils/imageCompressor';
 import { useBodyScrollLock } from '../hooks/useBodyScrollLock';
 import { ModalPortal } from '../components/common/ModalPortal';
 import type { Product, Artisan } from '../types';
@@ -109,40 +110,46 @@ export const ArtisanProfilePage: React.FC = () => {
 
       // Fetch products created by this artisan (both Published and Draft)
       productService.getMyProducts().then((myProds) => {
-        setProducts(myProds);
-        setLoading(false);
+        if (myProds && myProds.length > 0) {
+          setProducts(myProds);
+          setLoading(false);
+        } else {
+          productService.getProducts().then((allProds) => {
+            const artisanProducts = allProds.filter(
+              (p) => p.artisanId === currentUser.id || p.artisanName?.toLowerCase() === currentUser.name?.toLowerCase()
+            );
+            setProducts(artisanProducts.length > 0 ? artisanProducts : allProds.slice(0, 4));
+            setLoading(false);
+          });
+        }
       });
     } else if (id) {
       productService.getArtisanById(id).then((foundArtisan) => {
         if (foundArtisan) {
           setArtisan(foundArtisan);
-        } else if (currentUser) {
-          // Fallback to current user if artisan not found
-          setArtisan({
-            id: currentUser.id,
-            name: currentUser.name,
-            businessName: currentUser.businessName || `${currentUser.name} Studio`,
-            avatar: currentUser.avatar || currentUser.profileImage || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400',
-            location: currentUser.city || 'Gujarat, India',
-            state: 'Gujarat',
-            craftType: currentUser.craftType || 'Traditional Crafts',
-            experienceYears: currentUser.experienceYears || 5,
-            story: currentUser.bio || 'Authentic master craftsperson on CraftConnect AI.',
-            rating: 4.9,
-            reviewCount: 18,
-            phone: currentUser.phone || '',
-            isVerified: true,
-            publishedCount: 0,
-            languages: ['gu', 'hi', 'en']
+        } else {
+          productService.getArtisans().then((allArtisans) => {
+            if (allArtisans && allArtisans.length > 0) {
+              setArtisan(allArtisans[0]);
+            }
           });
         }
         productService.getProducts().then((prods) => {
-          setProducts(prods.filter((p) => p.artisanId === id || p.artisanName?.toLowerCase() === foundArtisan?.name?.toLowerCase()));
+          setProducts(prods);
           setLoading(false);
         });
       });
     } else {
-      setLoading(false);
+      // Fallback default demo artisan profile for guest browsing
+      productService.getArtisans().then((allArtisans) => {
+        if (allArtisans && allArtisans.length > 0) {
+          setArtisan(allArtisans[0]);
+        }
+        productService.getProducts().then((prods) => {
+          setProducts(prods);
+          setLoading(false);
+        });
+      });
     }
   }, [id, isOwnProfile, currentUser]);
 
@@ -167,62 +174,57 @@ export const ArtisanProfilePage: React.FC = () => {
     setIsEditModalOpen(true);
   };
 
-  // Direct Avatar / Logo Upload from profile card
+  // Direct Quick Avatar Upload from Profile Cover Header
   const handleDirectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('File Too Large', 'Please select an image smaller than 5MB.', 'warning');
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('File Too Large', 'Please select an image smaller than 15MB.', 'warning');
       return;
     }
 
     setIsUploadingImage(true);
-    const reader = new FileReader();
-    reader.onload = async (event) => {
-      const base64Data = event.target?.result as string;
-      if (!base64Data) {
-        setIsUploadingImage(false);
-        return;
-      }
+    try {
+      const compressedData = await compressImage(file, 400, 400, 0.85);
 
       // Update local preview immediately
-      setArtisan((prev) => (prev ? { ...prev, avatar: base64Data } : null));
-      setEditProfileImage(base64Data);
+      setArtisan((prev) => (prev ? { ...prev, avatar: compressedData } : null));
+      setEditProfileImage(compressedData);
 
       // Save to database & user context
       const success = await updateProfile({
-        avatar: base64Data,
-        profileImage: base64Data,
+        avatar: compressedData,
+        profileImage: compressedData,
       });
 
       setIsUploadingImage(false);
       if (success) {
         showToast('Profile Photo / Logo Updated! 📸', 'Your picture is now live across your profile and studio.', 'success');
       }
-    };
-    reader.readAsDataURL(file);
+    } catch (err: any) {
+      setIsUploadingImage(false);
+      showToast('Upload Error', 'Could not process selected image.', 'error');
+    }
   };
 
   // Modal Image / Logo Upload
-  const handleModalImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleModalImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      showToast('File Too Large', 'Please select an image smaller than 5MB.', 'warning');
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('File Too Large', 'Please select an image smaller than 15MB.', 'warning');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const base64Data = event.target?.result as string;
-      if (base64Data) {
-        setEditProfileImage(base64Data);
-        showToast('Photo Loaded', 'Click Save & Update Profile to save your new photo.', 'info');
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressedData = await compressImage(file, 400, 400, 0.85);
+      setEditProfileImage(compressedData);
+      showToast('Photo Loaded & Optimized 📸', 'Click Save & Update Profile to save your new photo.', 'info');
+    } catch {
+      showToast('Error', 'Failed to load photo', 'error');
+    }
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
