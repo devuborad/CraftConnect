@@ -1,8 +1,11 @@
 import { Router } from 'express';
-import { recommendPricing } from '../controllers/pricing.controller.js';
+import { analyzePricing } from '../controllers/pricing.controller.js';
+import { requireAuth } from '../middleware/auth.middleware.js';
 
 const router = Router();
 
-router.post('/recommend', recommendPricing);
+// Preferred endpoint & alias for frontend compatibility
+router.post('/analyze', requireAuth, analyzePricing);
+router.post('/recommend', requireAuth, analyzePricing);
 
 export default router;

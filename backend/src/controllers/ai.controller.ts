@@ -1,18 +1,41 @@
 import { Response } from 'express';
 import { AIService } from '../services/ai.service.js';
+import { ImageService } from '../services/image.service.js';
 import { AuthRequest } from '../middleware/auth.middleware.js';
 
 export const enhanceProductImage = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { imageUrl } = req.body;
-    const result = await AIService.enhanceImage(imageUrl, req.user?.id || null);
+    const imageUrl = req.body?.imageUrl || req.body?.image;
+    const productId = req.body?.productId;
+    const file = req.file;
+
+    const result = await ImageService.enhanceProductImage(
+      {
+        imageUrl,
+        file: file
+          ? {
+              buffer: file.buffer,
+              originalname: file.originalname,
+              mimetype: file.mimetype,
+              size: file.size,
+            }
+          : undefined,
+        productId,
+      },
+      req.user?.id || null
+    );
+
     res.json({
       success: true,
-      message: 'Image enhanced successfully',
+      message: 'Product image enhanced successfully',
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: 'Failed to enhance image' });
+    const statusCode = err.statusCode || 400;
+    res.status(statusCode).json({
+      success: false,
+      message: err.message || 'Image AI enhancement failed',
+    });
   }
 };
 
@@ -27,7 +50,10 @@ export const generateCatalogue = async (req: AuthRequest, res: Response): Promis
       data: result,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, message: 'Failed to generate catalogue' });
+    res.status(400).json({
+      success: false,
+      message: err.message || 'Failed to generate catalogue with Gemini AI',
+    });
   }
 };
 

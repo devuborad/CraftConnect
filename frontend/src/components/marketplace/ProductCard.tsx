@@ -98,13 +98,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
     <>
       <div className="glass-card bg-white rounded-3xl overflow-hidden border border-stone-200/80 hover:border-amber-900/20 shadow-sm hover:shadow-xl transition-all duration-300 group flex flex-col h-full w-full">
         
-        {/* Fixed Height Image Header */}
-        <div className="relative h-52 sm:h-56 w-full overflow-hidden bg-stone-100 shrink-0">
+        {/* Full Uncropped Photo Display Image Header */}
+        <div className="relative h-64 sm:h-72 w-full overflow-hidden bg-stone-100/90 shrink-0 flex items-center justify-center p-2">
           <img
             src={imgError ? fallbackImage : product.originalImage}
             alt={displayTitle}
             onError={() => setImgError(true)}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500 rounded-2xl"
           />
 
           {/* AI Enhanced Badge */}

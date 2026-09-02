@@ -175,10 +175,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [savedProductIds, setSavedProductIds] = useState<string[]>(['prod-1', 'prod-3']);
   const [demoProduct, setDemoProduct] = useState<Product | null>(null);
 
-  // Initial cart populated with 1 demo product for smooth testing
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    { product: MOCK_PRODUCTS[0], quantity: 1 }
-  ]);
+  // Initial cart populated safely
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (MOCK_PRODUCTS && MOCK_PRODUCTS.length > 0 && MOCK_PRODUCTS[0] && MOCK_PRODUCTS[0].price) {
+      return [{ product: MOCK_PRODUCTS[0], quantity: 1 }];
+    }
+    return [];
+  });
 
   // Notifications state
   const [allNotifications, setAllNotifications] = useState<AppNotification[]>(INITIAL_NOTIFICATIONS);
@@ -438,8 +441,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setCartItems([]);
   };
 
-  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-  const cartSubtotal = cartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const cartCount = cartItems.reduce((sum, item) => sum + (item?.quantity || 0), 0);
+  const cartSubtotal = cartItems.reduce((sum, item) => sum + ((item?.product?.price || 0) * (item?.quantity || 0)), 0);
 
   return (
     <AppContext.Provider

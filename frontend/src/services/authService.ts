@@ -41,17 +41,8 @@ export const safeSetLocalStorage = (key: string, value: string) => {
 // Pre-seeded default demo accounts including Admin
 const DEFAULT_USERS: RegisteredUser[] = [
   {
-    id: 'usr-admin-dax',
-    name: 'Dax Koladiya',
-    email: 'ticketfordax@gmail.com',
-    phone: '8141702217',
-    password: 'DAX!@#$%^&',
-    role: 'ADMIN',
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: 'usr-admin-dev',
-    name: 'CraftConnect Admin',
+    id: 'usr-dev-artisan-001',
+    name: 'Devu Borad (Admin)',
     email: 'devborad22@gmail.com',
     phone: '+919876543210',
     password: '492320Devu$',
@@ -92,12 +83,7 @@ export const authService = {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_USERS));
         return DEFAULT_USERS;
       }
-      const parsed: RegisteredUser[] = JSON.parse(stored);
-      if (!parsed.some(u => u.email.toLowerCase() === 'ticketfordax@gmail.com')) {
-        parsed.unshift(DEFAULT_USERS[0]);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
-      }
-      return parsed;
+      return JSON.parse(stored);
     } catch {
       return DEFAULT_USERS;
     }
@@ -133,7 +119,10 @@ export const authService = {
         email: backendUser.email || cleanEmail,
         phone: backendUser.phone || cleanPhone,
         role: (backendUser.role?.toUpperCase() as Role) || userData.role,
-        businessName: userData.businessName,
+        businessName: backendUser.businessName || userData.businessName,
+        craftType: backendUser.craftType || userData.craftType,
+        experienceYears: backendUser.experienceYears || userData.experienceYears,
+        city: backendUser.location || userData.city,
         createdAt: new Date().toISOString()
       };
 
@@ -183,59 +172,6 @@ export const authService = {
 
   loginUser: async (emailOrPhone: string, passwordInput: string): Promise<{ success: boolean; message: string; user?: RegisteredUser }> => {
     const cleanInput = emailOrPhone.trim().toLowerCase();
-    const cleanPhone = emailOrPhone.replace(/\D/g, '');
-
-    // Direct check for Admin user Dax Koladiya
-    if ((cleanInput === 'ticketfordax@gmail.com' || cleanPhone === '8141702217') && passwordInput === 'DAX!@#$%^&') {
-      const adminUser: RegisteredUser = {
-        id: 'usr-admin-dax',
-        name: 'Dax Koladiya',
-        email: 'ticketfordax@gmail.com',
-        phone: '8141702217',
-        role: 'ADMIN',
-        createdAt: new Date().toISOString()
-      };
-
-      api.login({ emailOrPhone: cleanInput, password: passwordInput }).then(res => {
-        const resData = res.data as any;
-        if (res.success && resData?.token) {
-          localStorage.setItem('craftconnect_token', resData.token);
-        }
-      }).catch(() => {});
-
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
-      return {
-        success: true,
-        message: 'Welcome back Admin Dax Koladiya!',
-        user: adminUser
-      };
-    }
-
-    // Direct check for Admin user devborad22@gmail.com
-    if (cleanInput === 'devborad22@gmail.com' && passwordInput === '492320Devu$') {
-      const adminUser: RegisteredUser = {
-        id: 'usr-admin-dev',
-        name: 'CraftConnect Admin',
-        email: 'devborad22@gmail.com',
-        phone: '+919876543210',
-        role: 'ADMIN',
-        createdAt: new Date().toISOString()
-      };
-
-      api.login({ emailOrPhone: cleanInput, password: passwordInput }).then(res => {
-        const resData = res.data as any;
-        if (res.success && resData?.token) {
-          localStorage.setItem('craftconnect_token', resData.token);
-        }
-      }).catch(() => {});
-
-      localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(adminUser));
-      return {
-        success: true,
-        message: 'Welcome back Admin!',
-        user: adminUser
-      };
-    }
 
     // 1. Attempt Backend Express + MySQL authentication
     const apiRes = await api.login({
@@ -256,6 +192,10 @@ export const authService = {
         email: u.email || cleanInput,
         phone: u.phone || '',
         role: normalizedRole,
+        businessName: u.businessName || u.companyName,
+        craftType: u.craftType,
+        experienceYears: u.experienceYears,
+        city: u.location,
         createdAt: new Date().toISOString()
       };
 
@@ -265,6 +205,13 @@ export const authService = {
         success: true,
         message: `Welcome back, ${loggedInUser.name}!`,
         user: loggedInUser
+      };
+    }
+
+    if (apiRes && !apiRes.success && apiRes.message && apiRes.message !== 'Network request failed') {
+      return {
+        success: false,
+        message: apiRes.message
       };
     }
 

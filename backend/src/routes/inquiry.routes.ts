@@ -1,32 +1,47 @@
 import { Router } from 'express';
-import { 
-  createInquiry, 
-  getInquiries, 
-  getInquiryAnalytics,
-  updateInquiryStatus, 
-  restoreInquiry, 
-  deleteInquiry 
+import {
+  createInquiry,
+  getBuyerInquiries,
+  getArtisanInquiries,
+  getInquiryById,
+  updateInquiryStatus,
+  restoreInquiry,
+  deleteInquiry,
+  getInquiryAnalytics
 } from '../controllers/inquiry.controller.js';
-import { optionalAuth, requireAuth } from '../middleware/auth.middleware.js';
+import { requireAuth, optionalAuth, AuthRequest } from '../middleware/auth.middleware.js';
+import { requireRole } from '../middleware/role.middleware.js';
 
 const router = Router();
 
-// Get real-time pipeline analytics summary
+// Analytics
 router.get('/analytics', optionalAuth, getInquiryAnalytics);
 
-// Create inquiry or direct order (allows guest or logged-in buyer)
+// Create new bulk inquiry or direct order
 router.post('/', optionalAuth, createInquiry);
 
-// Get inquiries and orders for authenticated user
-router.get('/', optionalAuth, getInquiries);
+// Get inquiries by participant
+router.get('/my', requireAuth, getBuyerInquiries);
+router.get('/artisan', requireAuth, requireRole('artisan', 'admin'), getArtisanInquiries);
 
-// Update status (Accept, Counter, Dispatch, Complete)
+// Get single inquiry detail (participant security check)
+router.get('/:id', requireAuth, getInquiryById);
+
+// Update inquiry status
+router.put('/:id/status', optionalAuth, updateInquiryStatus);
 router.patch('/:id/status', optionalAuth, updateInquiryStatus);
 
-// Restore archived inquiry back to active inbox
+// Restore & Delete
 router.post('/:id/restore', optionalAuth, restoreInquiry);
-
-// Delete inquiry/history record
 router.delete('/:id', optionalAuth, deleteInquiry);
+
+// General list fallback
+router.get('/', optionalAuth, (req: AuthRequest, res) => {
+  if (req.user?.role === 'artisan') {
+    getArtisanInquiries(req, res);
+  } else {
+    getBuyerInquiries(req, res);
+  }
+});
 
 export default router;
