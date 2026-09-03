@@ -37,6 +37,9 @@ export interface Product {
   titleHindi?: string;
   artisanId: string;
   artisanName: string;
+  businessName?: string;
+  companyName?: string;
+  ownerName?: string;
   artisanAvatar: string;
   artisanLocation: string;
   location?: string;

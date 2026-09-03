@@ -59,7 +59,37 @@ export const productService = {
       }
     }
 
-    return Array.from(productMap.values());
+    const all = Array.from(productMap.values());
+    const currentUser = authService.getCurrentUser();
+
+    // Dynamically synchronize products with current artisan's latest name, company/business name, avatar & location
+    if (currentUser && (currentUser.role === 'ARTISAN' || currentUser.role === 'ADMIN')) {
+      const currentArtisanId = currentUser.id;
+      const ownerName = currentUser.name || '';
+      const compName = currentUser.businessName || '';
+      const formattedName = compName && ownerName && compName !== ownerName
+        ? `${ownerName} • ${compName}`
+        : (compName || ownerName);
+
+      return all.map((p) => {
+        const isOwner = p.artisanId === currentArtisanId ||
+                        ((currentArtisanId === 'user-artisan-1' || currentArtisanId === 'artisan-1' || currentArtisanId === 'usr-dev-artisan-001') && (p.artisanId === 'artisan-1' || p.artisanId === currentArtisanId));
+        if (isOwner) {
+          return {
+            ...p,
+            artisanName: formattedName || p.artisanName,
+            businessName: compName || p.businessName,
+            companyName: compName || p.companyName,
+            ownerName: ownerName || p.ownerName,
+            artisanAvatar: currentUser.avatar || currentUser.profileImage || p.artisanAvatar,
+            artisanLocation: currentUser.city || currentUser.location || p.artisanLocation,
+          };
+        }
+        return p;
+      });
+    }
+
+    return all;
   },
 
   getMyProducts: async (): Promise<Product[]> => {
@@ -262,5 +292,61 @@ export const productService = {
     MOCK_PRODUCTS.unshift(created);
 
     return created;
+  },
+
+  updateArtisanProducts: (
+    artisanId: string,
+    artisanName?: string,
+    businessName?: string,
+    artisanAvatar?: string,
+    artisanLocation?: string
+  ): void => {
+    const formattedName = businessName && artisanName && businessName !== artisanName
+      ? `${artisanName} • ${businessName}`
+      : (businessName || artisanName || 'Master Artisan');
+
+    // 1. Update localStorage products ('craft_custom_products')
+    const stored = getStoredProducts();
+    const updatedStored = stored.map((p) => {
+      const isOwner = p.artisanId === artisanId || 
+                      (artisanId === 'user-artisan-1' && (p.artisanId === 'artisan-1' || p.artisanId === 'user-artisan-1')) ||
+                      (artisanId === 'usr-dev-artisan-001' && (p.artisanId === 'artisan-1' || p.artisanId === 'usr-dev-artisan-001'));
+      if (isOwner) {
+        return {
+          ...p,
+          artisanName: formattedName,
+          businessName: businessName || p.businessName,
+          companyName: businessName || p.companyName,
+          ownerName: artisanName || p.ownerName,
+          artisanAvatar: artisanAvatar || p.artisanAvatar,
+          artisanLocation: artisanLocation || p.artisanLocation,
+        };
+      }
+      return p;
+    });
+    saveStoredProducts(updatedStored);
+
+    // 2. Update in-memory MOCK_PRODUCTS array
+    for (let i = 0; i < MOCK_PRODUCTS.length; i++) {
+      const p = MOCK_PRODUCTS[i];
+      const isOwner = p.artisanId === artisanId ||
+                      (artisanId === 'user-artisan-1' && (p.artisanId === 'artisan-1' || p.artisanId === 'user-artisan-1')) ||
+                      (artisanId === 'usr-dev-artisan-001' && (p.artisanId === 'artisan-1' || p.artisanId === 'usr-dev-artisan-001'));
+      if (isOwner) {
+        MOCK_PRODUCTS[i] = {
+          ...p,
+          artisanName: formattedName,
+          businessName: businessName || p.businessName,
+          companyName: businessName || p.companyName,
+          ownerName: artisanName || p.ownerName,
+          artisanAvatar: artisanAvatar || p.artisanAvatar,
+          artisanLocation: artisanLocation || p.artisanLocation,
+        };
+      }
+    }
+
+    try {
+      window.dispatchEvent(new Event('storage'));
+    } catch (_) {}
   }
 };

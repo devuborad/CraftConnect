@@ -12,7 +12,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Truck,
-  MessageSquare
+  MessageSquare,
+  User
 } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
@@ -139,20 +140,56 @@ export const BuyerDashboardPage: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 ios-fade-up">
       
       {/* Header */}
-      <div className="glass-card bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-8 rounded-3xl shadow-2xl space-y-3 relative overflow-hidden border border-amber-900/30 hover:shadow-2xl transition-all">
-        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-        <div className="relative z-10 space-y-2">
-          <div className="inline-block">
-            <span className="bg-amber-400 text-stone-950 text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
-              BOUTIQUE BUYER DASHBOARD
-            </span>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#4A2E1B] via-[#6E3C1E] to-[#C85A32] text-white p-6 sm:p-8 shadow-xl border border-amber-900/20 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="absolute -right-10 -bottom-10 w-48 h-48 bg-amber-500/15 rounded-full blur-2xl pointer-events-none" />
+        
+        <div className="relative z-10 flex items-center gap-5">
+          {/* Buyer Avatar */}
+          <div className="relative shrink-0">
+            {currentUser?.avatar || currentUser?.profileImage ? (
+              <img
+                src={currentUser.avatar || currentUser.profileImage}
+                alt={userName}
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl object-cover border-2 border-amber-300 shadow-md"
+              />
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-amber-100 text-[#C85A32] flex items-center justify-center text-2xl font-bold uppercase border-2 border-amber-300 shadow-md">
+                {userName?.charAt(0) || 'B'}
+              </div>
+            )}
           </div>
-          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-white drop-shadow-sm">
-            Welcome back, {userName}
-          </h1>
-          <p className="text-xs sm:text-sm text-amber-100/95 font-medium tracking-wide">
-            Heritage Craft Boutique • Direct Rural Artisan Sourcing Portal
-          </p>
+
+          <div className="space-y-1.5">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="bg-amber-400 text-stone-950 text-[10px] sm:text-[11px] font-black px-3 py-1 rounded-full uppercase tracking-wider shadow-xs">
+                BOUTIQUE BUYER DASHBOARD
+              </span>
+              {currentUser?.city && (
+                <span className="bg-white/20 text-amber-100 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white/20 backdrop-blur-xs">
+                  📍 {currentUser.city}
+                </span>
+              )}
+            </div>
+            
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl lg:text-4xl text-white drop-shadow-sm">
+              Welcome back, {userName}
+            </h1>
+            
+            <p className="text-xs sm:text-sm text-amber-100/90 font-medium tracking-wide">
+              {currentUser?.businessName ? `${currentUser.businessName} • ` : ''}Direct Rural Artisan Sourcing Portal
+            </p>
+          </div>
+        </div>
+
+        {/* Quick Profile Link */}
+        <div className="relative z-10 flex items-center gap-3 shrink-0">
+          <Link
+            to="/buyer/profile"
+            className="bg-white/20 hover:bg-white/30 text-white border border-white/30 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-xs transition-all backdrop-blur-xs cursor-pointer"
+          >
+            <User className="w-4 h-4" />
+            <span>Buyer Profile</span>
+          </Link>
         </div>
       </div>
 

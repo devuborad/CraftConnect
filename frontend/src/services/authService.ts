@@ -24,16 +24,56 @@ export interface RegisteredUser {
 const STORAGE_KEY = 'craft_registered_users';
 const CURRENT_USER_KEY = 'craft_current_user';
 
-export const safeSetLocalStorage = (key: string, value: string) => {
+export const safeSetLocalStorage = (key: string, value: string): boolean => {
   try {
     localStorage.setItem(key, value);
+    return true;
   } catch (err: any) {
-    console.warn(`[LocalStorage Quota Exceeded] Clearing legacy cache to store ${key}:`, err);
+    console.warn(`[LocalStorage Quota Exceeded] Handling quota error for ${key}:`, err);
     try {
+      // 1. Remove non-critical and legacy caches
       localStorage.removeItem('craft_live_inquiries_orders');
+      localStorage.removeItem('craft_recent_ai_activity');
+      localStorage.removeItem('craft_temp_catalog');
+      localStorage.removeItem('craft_debug_log');
+
+      // 2. Prune heavy base64 strings from craft_registered_users
+      const allUsersRaw = localStorage.getItem('craft_registered_users');
+      if (allUsersRaw) {
+        try {
+          const parsed = JSON.parse(allUsersRaw);
+          if (Array.isArray(parsed)) {
+            const pruned = parsed.map((u: any) => ({
+              ...u,
+              avatar: u.avatar && u.avatar.startsWith('data:') && u.avatar.length > 500 ? undefined : u.avatar,
+              profileImage: u.profileImage && u.profileImage.startsWith('data:') && u.profileImage.length > 500 ? undefined : u.profileImage,
+            }));
+            localStorage.setItem('craft_registered_users', JSON.stringify(pruned));
+          }
+        } catch (_) {}
+      }
+
+      // Try saving again
       localStorage.setItem(key, value);
-    } catch {
-      // Ignore if quota still exceeded
+      return true;
+    } catch (secondErr) {
+      // 3. Fallback: If still failing and saving craft_current_user, save without the oversized data URL
+      try {
+        if (key === CURRENT_USER_KEY) {
+          const parsed = JSON.parse(value);
+          if (parsed.avatar && parsed.avatar.startsWith('data:')) {
+            const lightweightUser = {
+              ...parsed,
+              avatar: undefined,
+              profileImage: undefined,
+            };
+            localStorage.setItem(key, JSON.stringify(lightweightUser));
+            return true;
+          }
+        }
+      } catch (_) {}
+      console.warn(`[LocalStorage] Unable to save ${key} due to quota constraints.`);
+      return false;
     }
   }
 };
@@ -262,9 +302,9 @@ export const authService = {
 
     const rawAvatar = updatedData.profileImage || updatedData.avatar;
     let newAvatar = rawAvatar;
-    if (rawAvatar && rawAvatar.length > 500000) {
+    if (rawAvatar && rawAvatar.startsWith('data:') && rawAvatar.length > 15000) {
       try {
-        newAvatar = await compressImage(rawAvatar);
+        newAvatar = await compressImage(rawAvatar, 200, 200, 0.75);
       } catch {
         newAvatar = rawAvatar;
       }
@@ -311,7 +351,14 @@ export const authService = {
 
       safeSetLocalStorage(CURRENT_USER_KEY, JSON.stringify(newUser));
       const allUsers = authService.getUsers();
-      const updatedAll = allUsers.map(u => u.id === newUser.id || (u.email && u.email === newUser.email) ? newUser : u);
+      const updatedAll = allUsers.map(u => {
+        const target = u.id === newUser.id || (u.email && u.email === newUser.email) ? newUser : u;
+        return {
+          ...target,
+          avatar: target.avatar?.startsWith('data:') && target.avatar.length > 500 ? undefined : target.avatar,
+          profileImage: target.profileImage?.startsWith('data:') && target.profileImage.length > 500 ? undefined : target.profileImage,
+        };
+      });
       safeSetLocalStorage(STORAGE_KEY, JSON.stringify(updatedAll));
 
       return {
@@ -331,7 +378,14 @@ export const authService = {
     };
     safeSetLocalStorage(CURRENT_USER_KEY, JSON.stringify(newUser));
     const allUsers = authService.getUsers();
-    const updatedAll = allUsers.map(u => u.id === newUser.id ? newUser : u);
+    const updatedAll = allUsers.map(u => {
+      const target = u.id === newUser.id ? newUser : u;
+      return {
+        ...target,
+        avatar: target.avatar?.startsWith('data:') && target.avatar.length > 500 ? undefined : target.avatar,
+        profileImage: target.profileImage?.startsWith('data:') && target.profileImage.length > 500 ? undefined : target.profileImage,
+      };
+    });
     safeSetLocalStorage(STORAGE_KEY, JSON.stringify(updatedAll));
 
     return {

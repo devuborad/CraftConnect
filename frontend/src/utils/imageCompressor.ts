@@ -4,9 +4,9 @@
  */
 export const compressImage = (
   base64OrFile: string | File,
-  maxWidth: number = 350,
-  maxHeight: number = 350,
-  quality: number = 0.82
+  maxWidth: number = 220,
+  maxHeight: number = 220,
+  quality: number = 0.75
 ): Promise<string> => {
   return new Promise((resolve) => {
     const img = new Image();
