@@ -16,9 +16,58 @@ import { ProductCard } from '../components/marketplace/ProductCard';
 import { MOCK_PRODUCTS, MOCK_ARTISANS } from '../services/mockData';
 import { useApp } from '../context/AppContext';
 
+const RURAL_CRAFTS = [
+  {
+    id: 'pottery',
+    title: 'Handcrafted Terracotta & Pottery',
+    titleHi: 'पारंपरिक हस्तनिर्मित मिट्टी के बर्तन एवं टेराकोटा',
+    titleGu: 'પરંપરાગત માટીકામ અને ટેરાકોટા શિલ્પકળા',
+    artisanRegion: 'Kutch & Saurashtra • Rural Gujarat',
+    craftType: 'Clay Carving & Painting',
+    image: '/crafts/rural-pottery-craft.jpg',
+    description: 'Wheel-thrown natural clay pots, intricately carved and hand-painted by generational rural potters.',
+    tag: 'Terracotta & Pottery',
+    icon: '🏺',
+  },
+  {
+    id: 'embroidery',
+    title: 'Heritage Rural Needlework',
+    titleHi: 'ग्रामीण पारंपरिक सुई-धागा कशीदाकारी',
+    titleGu: 'ગ્રામીણ હસ્તકલા ભરતકામ અને કચ્છી સોયકામ',
+    artisanRegion: 'Banni & Kutch Rural Communities',
+    craftType: 'Authentic Hand Embroidery',
+    image: '/crafts/rural-embroidery-craft.jpg',
+    description: 'Meticulous threadwork stitched entirely by hand using traditional wooden hoops and organic threads.',
+    tag: 'Rural Needlework',
+    icon: '🪡',
+  },
+  {
+    id: 'textile',
+    title: 'Natural Dye Kalamkari & Block Print',
+    titleHi: 'प्राकृतिक रंगों से बनी कलमकारी एवं ब्लॉक प्रिंट',
+    titleGu: 'કુદરતી રંગોની કલમકારી અને પરંપરાગત વણાટકામ',
+    artisanRegion: 'Heritage Artisanal Clusters • Rural India',
+    craftType: 'Hand-Printed Sacred Motifs',
+    image: '/crafts/rural-textile-craft.jpg',
+    description: 'Hand-painted with bamboo pens and natural vegetable pigments, depicting peacocks, tigers, and sacred motifs.',
+    tag: 'Kalamkari & Textile',
+    icon: '🎨',
+  },
+];
+
 export const LandingPage: React.FC = () => {
   const { role, currentUser, setRole, showToast, t, language } = useApp();
   const navigate = useNavigate();
+  const [activeCraftIndex, setActiveCraftIndex] = React.useState(0);
+
+  React.useEffect(() => {
+    const timer = setInterval(() => {
+      setActiveCraftIndex((prev) => (prev + 1) % RURAL_CRAFTS.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, []);
+
+  const activeCraft = RURAL_CRAFTS[activeCraftIndex];
 
   const handleStartSelling = () => {
     if (!currentUser || role === 'GUEST') {
@@ -122,38 +171,105 @@ export const LandingPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Hero Visual Card Stack */}
+          {/* Hero Visual Card: Authentic Rural Crafts Showcase (No Pricing, 100% Handmade Heritage) */}
           <div className="lg:col-span-5 relative ios-fade-up ios-delay-2">
             <div className="relative mx-auto max-w-md">
               
-              {/* Main Card: Handwoven Saree */}
-              <div className="glass-card bg-white/95 rounded-3xl p-5 shadow-2xl border border-stone-200 ios-float hover:rotate-0 transition-all duration-500">
-                <div className="relative min-h-[340px] sm:min-h-[420px] max-h-[480px] rounded-2xl overflow-hidden mb-4 bg-stone-100/90 flex items-center justify-center p-2">
+              {/* Subtle Ambient Glass Glow Behind Frame */}
+              <div className="absolute -top-8 -right-8 w-44 h-44 bg-amber-400/25 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute -bottom-10 -left-8 w-48 h-48 bg-[#C85A32]/20 rounded-full blur-3xl pointer-events-none" />
+
+              {/* Main Frame Card with Frosted Glassmorphism */}
+              <div className="relative rounded-3xl p-5 sm:p-6 bg-white/55 backdrop-blur-2xl backdrop-saturate-200 border border-white/80 shadow-[0_20px_50px_rgba(74,46,27,0.12),inset_0_1px_1px_rgba(255,255,255,0.9)] space-y-4 hover:shadow-[0_28px_60px_rgba(74,46,27,0.18)] transition-all duration-300">
+                
+                {/* Top Header Pill */}
+                <div className="flex items-center justify-between gap-2 border-b border-stone-200/50 pb-3">
+                  <div className="flex items-center space-x-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+                    <span className="text-[11px] font-extrabold uppercase tracking-wider text-[#C85A32]">
+                      Authentic Rural Heritage
+                    </span>
+                  </div>
+                  <span className="bg-white/75 backdrop-blur-md text-[#4A2E1B] text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-white shadow-2xs">
+                    ✋ 100% Handmade
+                  </span>
+                </div>
+
+                {/* Featured Craft Image Display with Glass Reflection */}
+                <div className="relative h-72 sm:h-80 w-full rounded-2xl overflow-hidden bg-white/40 backdrop-blur-md border border-white/70 shadow-inner flex items-center justify-center p-2.5 group">
                   <img
-                    src="https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&q=80&w=800"
-                    alt="Handwoven Ikat Saree"
-                    className="max-h-full max-w-full object-contain rounded-xl shadow-xs transition-transform duration-700 hover:scale-105"
+                    key={activeCraft.id}
+                    src={activeCraft.image}
+                    alt={activeCraft.title}
+                    className="max-h-full max-w-full object-contain rounded-xl transition-all duration-700 group-hover:scale-105 animate-in fade-in zoom-in-95"
                   />
-                  <div className="absolute top-3 left-3 bg-amber-900/80 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-400/30 flex items-center space-x-1">
-                    <Sparkles className="w-3 h-3 text-amber-300" />
-                    <span>{t('hero.aiStudioBadge')}</span>
+                  
+                  {/* Floating Glass Tag */}
+                  <div className="absolute top-3 left-3 bg-stone-950/75 backdrop-blur-md text-amber-200 text-[10px] font-bold px-3 py-1 rounded-full border border-amber-400/30 flex items-center space-x-1.5 shadow-sm">
+                    <span>{activeCraft.icon}</span>
+                    <span>{activeCraft.tag}</span>
+                  </div>
+
+                  {/* Craft Type Glass Badge */}
+                  <div className="absolute bottom-3 right-3 bg-white/80 backdrop-blur-md text-stone-900 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-white/80 shadow-xs">
+                    {activeCraft.craftType}
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-[#C85A32]">{t('hero.cardCraft')}</span>
-                    <span className="text-xs font-extrabold text-[#4A2E1B] bg-amber-50 px-2 py-0.5 rounded-lg border border-amber-200">
-                      ₹2,499
-                    </span>
+                {/* 3 Craft Thumbnail Selector Tabs (Glassy Pills) */}
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {RURAL_CRAFTS.map((craft, idx) => (
+                    <button
+                      key={craft.id}
+                      type="button"
+                      onClick={() => setActiveCraftIndex(idx)}
+                      className={`p-1.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col items-center text-center group ${
+                        activeCraftIndex === idx
+                          ? 'border-[#C85A32] bg-white/95 shadow-md ring-2 ring-[#C85A32]/25 scale-[1.02]'
+                          : 'border-white/70 bg-white/35 backdrop-blur-md hover:bg-white/70 hover:border-white'
+                      }`}
+                    >
+                      <img
+                        src={craft.image}
+                        alt={craft.title}
+                        className="w-full h-14 object-cover rounded-lg mb-1.5 border border-white/80"
+                      />
+                      <span className={`text-[10px] font-bold leading-tight line-clamp-1 ${
+                        activeCraftIndex === idx ? 'text-[#C85A32]' : 'text-stone-700'
+                      }`}>
+                        {craft.tag}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Craft Title & Description (No Pricing!) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-[11px] text-stone-500 font-semibold">
+                    <span>📍 {activeCraft.artisanRegion}</span>
+                    <span className="text-emerald-700 font-bold">Living Heritage</span>
                   </div>
-                  <h3 className="font-display font-bold text-lg text-stone-900">
-                    {language === 'gu' ? 'હાથથી વણેલી કચ્છી સિંગલ ઇકત કોટન સાડી' : language === 'hi' ? 'हथकरघा कच्छ सिंगल इकत सूती साड़ी' : 'Handwoven Kutch Single Ikat Cotton Saree'}
+                  <h3 className="font-display font-extrabold text-base sm:text-lg text-stone-900 leading-snug">
+                    {language === 'gu' ? activeCraft.titleGu : language === 'hi' ? activeCraft.titleHi : activeCraft.title}
                   </h3>
-                  <p className="text-xs text-stone-500 line-clamp-2">
-                    {language === 'gu' ? '"આ હાથથી વણેલી કોટનની સાડી છે..." (વોઇસથી અંગ્રેજી AI કેટલોગ)' : language === 'hi' ? '"यह हाथ से बुनी सूती साड़ी है..." (वॉयस से इंग्लिश AI कैटलॉग)' : '"This is a handwoven cotton saree..." (Speech to English AI Catalogue)'}
+                  <p className="text-xs text-stone-600 leading-relaxed">
+                    {activeCraft.description}
                   </p>
                 </div>
+
+                {/* Heritage Value Badges with Glass Styling */}
+                <div className="flex flex-wrap items-center gap-1.5 pt-2 border-t border-stone-200/50">
+                  <span className="text-[10px] font-bold text-stone-700 bg-white/65 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-white/80 shadow-2xs">
+                    🌿 Natural Materials
+                  </span>
+                  <span className="text-[10px] font-bold text-stone-700 bg-white/65 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-white/80 shadow-2xs">
+                    🏛️ Generational Lineage
+                  </span>
+                  <span className="text-[10px] font-bold text-[#C85A32] bg-amber-50/80 backdrop-blur-xs px-2.5 py-1 rounded-lg border border-amber-300/60 shadow-2xs">
+                    ✨ Direct from Rural Masters
+                  </span>
+                </div>
+
               </div>
 
             </div>
