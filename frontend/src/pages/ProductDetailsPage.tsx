@@ -12,23 +12,50 @@ import {
   Globe, 
   ArrowLeft,
   MessageCircle,
-  Zap
+  Zap,
+  Trash2
 } from 'lucide-react';
 import { BulkInquiryModal } from '../components/marketplace/BulkInquiryModal';
 import { BuyNowModal } from '../components/marketplace/BuyNowModal';
 import { RolePromptModal } from '../components/common/RolePromptModal';
+import { ModalPortal } from '../components/common/ModalPortal';
 import { useApp } from '../context/AppContext';
 
 export const ProductDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { role, showToast, savedProductIds, toggleSaveProduct, cartItems, addToCart } = useApp();
+  const { role, currentUser, showToast, savedProductIds, toggleSaveProduct, cartItems, addToCart } = useApp();
   const [product, setProduct] = useState<Product | null>(null);
   const [activeLangTab, setActiveLangTab] = useState<'en' | 'hi' | 'gu'>('en');
   const [showInquiryModal, setShowInquiryModal] = useState(false);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
+
+  const isOwner = Boolean(
+    product &&
+    currentUser &&
+    (role === 'ARTISAN' || role === 'ADMIN') &&
+    (product.artisanId === currentUser.id ||
+      (product.artisanId === 'artisan-1' && (currentUser.id === 'user-artisan-1' || currentUser.id === 'artisan-1' || currentUser.id === 'usr-dev-artisan-001')) ||
+      (currentUser.name && product.artisanName?.toLowerCase().includes(currentUser.name.toLowerCase())))
+  );
+
+  const handleConfirmDelete = async () => {
+    if (!product) return;
+    setIsDeleting(true);
+    try {
+      await productService.deleteProduct(product.id);
+      showToast('Product Removed 🗑️', `"${product.title}" has been unlisted from the marketplace.`, 'info');
+      navigate('/marketplace');
+    } catch (err: any) {
+      showToast('Error', err.message || 'Failed to remove product', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -217,6 +244,18 @@ export const ProductDetailsPage: React.FC = () => {
                 <Heart className={`w-4 h-4 ${isSaved ? 'fill-white' : ''}`} />
               </button>
             </div>
+
+            {/* Owner Remove Option */}
+            {isOwner && (
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="w-full bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 py-3 rounded-xl font-bold text-xs flex items-center justify-center space-x-1.5 transition-all cursor-pointer shadow-xs"
+              >
+                <Trash2 className="w-4 h-4" />
+                <span>Remove This Craft from Marketplace</span>
+              </button>
+            )}
           </div>
 
           {/* Artisan Card Preview */}
@@ -298,6 +337,71 @@ export const ProductDetailsPage: React.FC = () => {
         onSuccess={handleRoleSwitchSuccess}
         actionName={pendingAction === 'CART' ? 'Add to Cart (+1)' : 'Wholesale Bulk Order'}
       />
+
+      {/* Owner Remove Confirm Modal */}
+      {showDeleteConfirm && (
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            onClick={() => setShowDeleteConfirm(false)}
+          >
+            <div
+              className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-stone-200 space-y-5 animate-in zoom-in-95 duration-200"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-display font-extrabold text-lg text-stone-900">Remove from Marketplace</h3>
+                  <p className="text-xs text-stone-500">Unlist product listing</p>
+                </div>
+              </div>
+
+              <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 flex items-center space-x-3">
+                <img
+                  src={product.enhancedImage || product.originalImage}
+                  alt={product.title}
+                  className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="font-bold text-xs text-stone-900 truncate">{product.title}</p>
+                  <p className="text-xs font-semibold text-[#C85A32]">₹{product.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Are you sure you want to remove <strong className="text-stone-900">"{product.title}"</strong> from the marketplace? Buyers will no longer be able to discover, view, or place orders for this craft.
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  disabled={isDeleting}
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  <span>{isDeleting ? 'Removing...' : 'Yes, Remove Product'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
     </div>
   );
 };

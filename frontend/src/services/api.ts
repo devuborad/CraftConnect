@@ -58,6 +58,8 @@ export const api = {
   createProduct: (productData: any) => apiRequest('/products', { method: 'POST', body: JSON.stringify(productData) }),
   saveProductDraft: (productData: any) => apiRequest('/products/draft', { method: 'POST', body: JSON.stringify(productData) }),
   publishProduct: (id: string) => apiRequest(`/products/${id}/publish`, { method: 'POST' }),
+  deleteProduct: (id: string) => apiRequest(`/products/${id}`, { method: 'DELETE' }),
+  archiveProduct: (id: string) => apiRequest(`/products/${id}/archive`, { method: 'PUT' }),
   incrementView: (id: string) => apiRequest(`/products/${id}/view`, { method: 'POST' }),
 
   // Categories
