@@ -16,7 +16,10 @@ import {
   LogOut,
   User,
   BarChart3,
-  Shield
+  Shield,
+  Home,
+  Store,
+  Sparkles
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -45,76 +48,113 @@ export const Navbar: React.FC = () => {
             />
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-7 text-sm font-medium text-stone-700">
-            <Link 
-              to="/" 
-              className={`hover:text-[#C85A32] transition-colors ${isActive('/') ? 'text-[#C85A32] font-semibold' : ''}`}
-            >
-              {t('nav.home')}
-            </Link>
-            <Link 
-              to="/marketplace" 
-              className={`hover:text-[#C85A32] transition-colors ${isActive('/marketplace') ? 'text-[#C85A32] font-semibold' : ''}`}
-            >
-              {t('nav.marketplace')}
-            </Link>
-            {role !== 'BUYER' && (
+          {/* Desktop Navigation Links (Aesthetic Glassy Pill Segmented Bar) */}
+          <div className="hidden md:flex items-center space-x-2">
+            <nav className="p-1.5 rounded-full bg-white/40 backdrop-blur-xl border border-white/70 shadow-xs flex items-center space-x-1 text-xs font-semibold">
               <Link 
-                to="/about" 
-                className={`hover:text-[#C85A32] transition-colors ${isActive('/about') ? 'text-[#C85A32] font-semibold' : ''}`}
+                to="/" 
+                className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                  isActive('/') 
+                    ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                    : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                }`}
               >
-                {t('nav.howItWorks')}
+                <Home className="w-3.5 h-3.5" />
+                <span>{t('nav.home')}</span>
               </Link>
-            )}
 
-            {role === 'ARTISAN' && (
-              <>
+              <Link 
+                to="/marketplace" 
+                className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                  isActive('/marketplace') 
+                    ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                    : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                }`}
+              >
+                <Store className="w-3.5 h-3.5" />
+                <span>{t('nav.marketplace')}</span>
+              </Link>
+
+              {role !== 'BUYER' && (
+                <Link 
+                  to="/about" 
+                  className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                    isActive('/about') 
+                      ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>{t('nav.howItWorks')}</span>
+                </Link>
+              )}
+
+              {role === 'ARTISAN' && (
                 <Link 
                   to="/artisan/dashboard" 
-                  className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/artisan/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
+                  className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                    isActive('/artisan/dashboard') 
+                      ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                  }`}
                 >
-                  <LayoutDashboard className="w-4 h-4" />
+                  <LayoutDashboard className="w-3.5 h-3.5" />
                   <span>{t('nav.artisanDashboard')}</span>
                 </Link>
-                <Link 
-                  to="/artisan/products/new" 
-                  className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-3.5 py-2 rounded-xl flex items-center space-x-1.5 shadow-sm transition-all transform active:scale-95"
-                >
-                  <PlusCircle className="w-4 h-4" />
-                  <span>{t('nav.addProduct')}</span>
-                </Link>
-              </>
-            )}
+              )}
 
-            {role === 'BUYER' && (
-              <>
-                <Link 
-                  to="/buyer/dashboard" 
-                  className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/dashboard') ? 'text-[#C85A32] font-semibold' : ''}`}
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>{t('nav.buyerDashboard')}</span>
-                </Link>
-                <Link 
-                  to="/buyer/profile" 
-                  className={`hover:text-[#C85A32] flex items-center space-x-1.5 ${isActive('/buyer/profile') ? 'text-[#C85A32] font-semibold' : ''}`}
-                >
-                  <User className="w-4 h-4" />
-                  <span>My Profile</span>
-                </Link>
-              </>
-            )}
+              {role === 'BUYER' && (
+                <>
+                  <Link 
+                    to="/buyer/dashboard" 
+                    className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                      isActive('/buyer/dashboard') 
+                        ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                        : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                    }`}
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>{t('nav.buyerDashboard')}</span>
+                  </Link>
+                  <Link 
+                    to="/buyer/profile" 
+                    className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                      isActive('/buyer/profile') 
+                        ? 'bg-white text-[#C85A32] shadow-sm font-bold border border-amber-900/10' 
+                        : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                    }`}
+                  >
+                    <User className="w-3.5 h-3.5" />
+                    <span>My Profile</span>
+                  </Link>
+                </>
+              )}
 
-            {role === 'ADMIN' && (
+              {role === 'ADMIN' && (
+                <Link 
+                  to="/admin" 
+                  className={`px-3.5 py-1.5 rounded-full flex items-center space-x-1.5 transition-all duration-200 ${
+                    isActive('/admin') 
+                      ? 'bg-stone-900 text-white shadow-sm font-bold' 
+                      : 'text-stone-700 hover:text-stone-950 hover:bg-white/60'
+                  }`}
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>{t('nav.adminPanel')}</span>
+                </Link>
+              )}
+            </nav>
+
+            {role === 'ARTISAN' && (
               <Link 
-                to="/admin" 
-                className="bg-stone-900 text-stone-100 hover:bg-stone-800 px-3.5 py-2 rounded-xl text-xs font-semibold"
+                to="/artisan/products/new" 
+                className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-4 py-2 rounded-full text-xs font-bold flex items-center space-x-1.5 shadow-sm transition-all transform active:scale-95 ml-2"
               >
-                {t('nav.adminPanel')}
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>{t('nav.addProduct')}</span>
               </Link>
             )}
-          </nav>
+          </div>
 
           {/* Right Action Tools (Cart Button for Buyers, Live Notifications, Language, Role Badge) */}
           <div className="hidden md:flex items-center space-x-3">

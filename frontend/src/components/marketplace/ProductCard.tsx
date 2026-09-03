@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { Product } from '../../types';
-import { Heart, Sparkles, MapPin, Eye, ShoppingBag, ShoppingCart, Zap } from 'lucide-react';
+import { Heart, Sparkles, MapPin, Eye, ShoppingBag, ShoppingCart, Zap, Trash2 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
+import { productService } from '../../services/products';
 import { RolePromptModal } from '../common/RolePromptModal';
 import { BulkInquiryModal } from './BulkInquiryModal';
 import { BuyNowModal } from './BuyNowModal';
+import { ModalPortal } from '../common/ModalPortal';
 
 interface ProductCardProps {
   product: Product;
@@ -14,10 +16,12 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry }) => {
   const navigate = useNavigate();
-  const { role, savedProductIds, toggleSaveProduct, cartItems, addToCart, language, t } = useApp();
+  const { role, currentUser, savedProductIds, toggleSaveProduct, cartItems, addToCart, language, t, showToast } = useApp();
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [showBuyNowModal, setShowBuyNowModal] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [pendingAction, setPendingAction] = useState<'CART' | 'BULK' | null>(null);
   const [imgError, setImgError] = useState(false);
 
@@ -25,6 +29,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
   const cartItem = cartItems.find((item) => item.product.id === product.id);
   const inCartQty = cartItem ? cartItem.quantity : 0;
   const isBuyer = role === 'BUYER';
+
+  const isOwner = Boolean(
+    currentUser &&
+    (role === 'ARTISAN' || role === 'ADMIN') &&
+    (product.artisanId === currentUser.id ||
+      (product.artisanId === 'artisan-1' && (currentUser.id === 'user-artisan-1' || currentUser.id === 'artisan-1' || currentUser.id === 'usr-dev-artisan-001')) ||
+      (currentUser.name && product.artisanName?.toLowerCase().includes(currentUser.name.toLowerCase())))
+  );
 
   const fallbackImage = 'https://images.unsplash.com/photo-1606744888344-493238951221?auto=format&fit=crop&q=80&w=600';
 
@@ -109,10 +121,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
 
           {/* AI Enhanced Badge */}
           {product.isAiEnhanced && (
-            <div className="absolute top-3 left-3 bg-amber-900/85 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30 flex items-center space-x-1 shadow-sm z-10">
+            <div className={`absolute ${isOwner ? 'top-12' : 'top-3'} left-3 bg-amber-900/85 backdrop-blur-md text-amber-200 text-[10px] font-bold px-2.5 py-1 rounded-full border border-amber-500/30 flex items-center space-x-1 shadow-sm z-10`}>
               <Sparkles className="w-3 h-3 text-amber-300" />
               <span>{t('card.verified')}</span>
             </div>
+          )}
+
+          {/* Owner Quick Remove Button */}
+          {isOwner && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              className="absolute top-3 left-3 p-2 rounded-full backdrop-blur-md bg-white/90 text-stone-600 hover:text-white hover:bg-red-600 transition-all z-20 shadow-md cursor-pointer"
+              title="Remove this product from the marketplace"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           )}
 
           {/* Save/Favorite Button */}
@@ -282,6 +310,88 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onBulkInquiry
           product={product}
           onClose={() => setShowBuyNowModal(false)}
         />
+      )}
+
+      {/* Owner Remove Product Confirmation Modal */}
+      {showDeleteConfirm && (
+        <ModalPortal>
+          <div
+            className="fixed inset-0 z-[120] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+          >
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-stone-200 space-y-5 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-display font-extrabold text-lg text-stone-900">Remove from Marketplace</h3>
+                  <p className="text-xs text-stone-500">Unlist this craft product</p>
+                </div>
+              </div>
+
+              <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 flex items-center space-x-3">
+                <img
+                  src={product.enhancedImage || product.originalImage}
+                  alt={product.title}
+                  className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="font-bold text-xs text-stone-900 truncate">{product.title}</p>
+                  <p className="text-xs font-semibold text-[#C85A32]">₹{product.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Are you sure you want to remove <strong className="text-stone-900">"{product.title}"</strong> from the market? Buyers will no longer be able to purchase or send inquiries for it.
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowDeleteConfirm(false);
+                  }}
+                  disabled={isDeleting}
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={async (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDeleting(true);
+                    try {
+                      await productService.deleteProduct(product.id);
+                      showToast('Product Removed 🗑️', `"${product.title}" unlisted from marketplace.`, 'info');
+                      setShowDeleteConfirm(false);
+                    } catch (err: any) {
+                      showToast('Error', err.message || 'Failed to remove product', 'error');
+                    } finally {
+                      setIsDeleting(false);
+                    }
+                  }}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  <span>{isDeleting ? 'Removing...' : 'Yes, Remove Product'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
       )}
     </>
   );

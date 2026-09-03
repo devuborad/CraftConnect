@@ -695,8 +695,13 @@ export const deleteProduct = async (req: AuthRequest, res: Response): Promise<vo
       }
     }
 
-    await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
-    res.json({ success: true, message: 'Product deleted successfully' });
+    try {
+      await db.execute(`DELETE FROM products WHERE id = ?`, [id]);
+    } catch (delErr: any) {
+      // If foreign key constraints prevent hard delete (e.g. past orders), archive so it is removed from marketplace
+      await db.execute(`UPDATE products SET status = 'archived', updated_at = NOW() WHERE id = ?`, [id]);
+    }
+    res.json({ success: true, message: 'Product removed from marketplace successfully' });
   } catch (err: any) {
     res.status(500).json({ success: false, message: 'Failed to delete product' });
   }

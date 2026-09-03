@@ -36,6 +36,8 @@ export const ArtisanDashboardPage: React.FC = () => {
   const [directOrders, setDirectOrders] = useState<BulkInquiry[]>([]);
   const [bulkInquiries, setBulkInquiries] = useState<BulkInquiry[]>([]);
   const [showDraftsModal, setShowDraftsModal] = useState<boolean>(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
   const savedDrafts = products.filter((p) => p.status === 'Draft' || p.id.startsWith('draft-'));
 
@@ -96,6 +98,21 @@ export const ArtisanDashboardPage: React.FC = () => {
     });
     await loadDashboardData();
     showToast('Published Live! 🚀', `"${draft.title}" is now visible to buyers.`, 'success');
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+    setIsDeleting(true);
+    try {
+      await productService.deleteProduct(productToDelete.id);
+      setProducts((prev) => prev.filter((p) => p.id !== productToDelete.id));
+      showToast('Product Removed 🗑️', `"${productToDelete.title}" has been removed from the marketplace.`, 'info');
+      setProductToDelete(null);
+    } catch (err: any) {
+      showToast('Error', err.message || 'Failed to remove product', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -400,16 +417,23 @@ export const ArtisanDashboardPage: React.FC = () => {
                   <Link
                     to={`/product/${p.id}`}
                     className="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors"
-                    title="View"
+                    title="View Product"
                   >
                     <Eye className="w-4 h-4" />
                   </Link>
                   <button
                     onClick={() => showToast('Share link copied!', p.title, 'success')}
                     className="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-[#C85A32] transition-colors cursor-pointer"
-                    title="Share"
+                    title="Share Product"
                   >
                     <Share2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => setProductToDelete(p)}
+                    className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-colors cursor-pointer"
+                    title="Remove Product from Marketplace"
+                  >
+                    <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -506,6 +530,15 @@ export const ArtisanDashboardPage: React.FC = () => {
                         >
                           Publish 🚀
                         </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setProductToDelete(draft)}
+                          className="p-2 rounded-xl bg-red-50 hover:bg-red-100 text-red-600 transition-all cursor-pointer shadow-xs"
+                          title="Delete Draft"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
                       </div>
                     </div>
                   ))
@@ -526,6 +559,65 @@ export const ArtisanDashboardPage: React.FC = () => {
                   className="bg-stone-100 hover:bg-stone-200 active:scale-95 text-stone-800 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all"
                 >
                   Close Window
+                </button>
+              </div>
+            </div>
+          </div>
+        </ModalPortal>
+      )}
+
+      {/* CONFIRM DELETE PRODUCT MODAL */}
+      {productToDelete && (
+        <ModalPortal>
+          <div className="fixed inset-0 z-[110] bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 sm:p-6 animate-in fade-in duration-200">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full shadow-2xl border border-stone-200 space-y-5 animate-in zoom-in-95 duration-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-12 h-12 rounded-2xl bg-red-100 text-red-600 flex items-center justify-center shrink-0">
+                  <Trash2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <h3 className="font-display font-extrabold text-lg text-stone-900">Remove Product</h3>
+                  <p className="text-xs text-stone-500">Unlist product from marketplace</p>
+                </div>
+              </div>
+
+              <div className="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 flex items-center space-x-3">
+                <img
+                  src={productToDelete.enhancedImage || productToDelete.originalImage}
+                  alt={productToDelete.title}
+                  className="w-12 h-12 rounded-xl object-cover border border-stone-200 shrink-0"
+                />
+                <div className="min-w-0">
+                  <p className="font-bold text-xs text-stone-900 truncate">{productToDelete.title}</p>
+                  <p className="text-xs font-semibold text-[#C85A32]">₹{productToDelete.price.toLocaleString('en-IN')}</p>
+                </div>
+              </div>
+
+              <p className="text-xs text-stone-600 leading-relaxed">
+                Are you sure you want to remove <strong className="text-stone-900">"{productToDelete.title}"</strong> from the marketplace? Buyers will no longer be able to discover or order this product.
+              </p>
+
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setProductToDelete(null)}
+                  disabled={isDeleting}
+                  className="px-4 py-2.5 rounded-xl border border-stone-300 text-xs font-bold text-stone-700 hover:bg-stone-100 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmDelete}
+                  disabled={isDeleting}
+                  className="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center space-x-1.5 cursor-pointer"
+                >
+                  {isDeleting ? (
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Trash2 className="w-4 h-4" />
+                  )}
+                  <span>{isDeleting ? 'Removing...' : 'Yes, Remove Product'}</span>
                 </button>
               </div>
             </div>

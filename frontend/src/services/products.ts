@@ -4,6 +4,16 @@ import { api } from './api';
 import { authService } from './authService';
 
 const STORAGE_KEY = 'craft_custom_products';
+const REMOVED_STORAGE_KEY = 'craft_removed_product_ids';
+
+const getRemovedProductIds = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem(REMOVED_STORAGE_KEY);
+    return new Set(raw ? JSON.parse(raw) : []);
+  } catch {
+    return new Set();
+  }
+};
 
 const getStoredProducts = (): Product[] => {
   try {
@@ -59,7 +69,8 @@ export const productService = {
       }
     }
 
-    const all = Array.from(productMap.values());
+    const removedIds = getRemovedProductIds();
+    const all = Array.from(productMap.values()).filter((p) => !removedIds.has(p.id));
     const currentUser = authService.getCurrentUser();
 
     // Dynamically synchronize products with current artisan's latest name, company/business name, avatar & location
@@ -348,5 +359,39 @@ export const productService = {
     try {
       window.dispatchEvent(new Event('storage'));
     } catch (_) {}
+  },
+
+  deleteProduct: async (productId: string): Promise<boolean> => {
+    // 1. Call Backend DELETE API
+    try {
+      await api.deleteProduct(productId);
+    } catch (e) {
+      console.warn('Backend deleteProduct fallback:', e);
+    }
+
+    // 2. Remove from craft_custom_products in localStorage
+    const stored = getStoredProducts();
+    const updatedStored = stored.filter((p) => p.id !== productId);
+    saveStoredProducts(updatedStored);
+
+    // 3. Mark in craft_removed_product_ids so it stays removed across sessions/reloads
+    try {
+      const removedIds = getRemovedProductIds();
+      removedIds.add(productId);
+      localStorage.setItem(REMOVED_STORAGE_KEY, JSON.stringify(Array.from(removedIds)));
+    } catch (_) {}
+
+    // 4. Filter out from in-memory MOCK_PRODUCTS
+    const idx = MOCK_PRODUCTS.findIndex((p) => p.id === productId);
+    if (idx !== -1) {
+      MOCK_PRODUCTS.splice(idx, 1);
+    }
+
+    // 5. Fire storage event so all pages & components instantly re-render
+    try {
+      window.dispatchEvent(new Event('storage'));
+    } catch (_) {}
+
+    return true;
   }
 };
