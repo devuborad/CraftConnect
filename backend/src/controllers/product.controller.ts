@@ -127,12 +127,22 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
 
     const fetchSql = `
       SELECT p.*, c.name as category_name, c.slug as category_slug, 
-             a.business_name as artisan_name, a.location as artisan_location, a.profile_image as artisan_avatar,
+             a.business_name,
+             u.name as owner_name,
+             CASE 
+               WHEN a.business_name IS NOT NULL AND a.business_name != '' AND u.name IS NOT NULL AND u.name != '' AND a.business_name != u.name
+                 THEN CONCAT(u.name, ' • ', a.business_name)
+               WHEN a.business_name IS NOT NULL AND a.business_name != ''
+                 THEN a.business_name
+               ELSE COALESCE(u.name, 'Master Artisan')
+             END as artisan_name,
+             a.location as artisan_location, a.profile_image as artisan_avatar,
              pc.raw_material_cost, pc.labour_cost, pc.packaging_cost, pc.other_cost, pc.total_cost as production_cost,
              pa.recommended_price, pa.market_min, pa.market_max, pa.confidence as pricing_confidence
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
       LEFT JOIN artisans a ON p.artisan_id = a.id
+      LEFT JOIN users u ON a.user_id = u.id
       LEFT JOIN product_costs pc ON p.id = pc.product_id
       LEFT JOIN pricing_analysis pa ON p.id = pa.product_id
       ${whereClause}
@@ -150,6 +160,8 @@ export const getProducts = async (req: Request, res: Response): Promise<void> =>
       titleHindi: r.name_hindi,
       artisanId: r.artisan_id,
       artisanName: r.artisan_name,
+      businessName: r.business_name || undefined,
+      ownerName: r.owner_name || undefined,
       artisanAvatar: r.artisan_avatar,
       artisanLocation: r.artisan_location,
       category: r.category_name,
@@ -198,10 +210,22 @@ export const getMyProducts = async (req: AuthRequest, res: Response): Promise<vo
 
     let sql = `
       SELECT p.*, c.name as category_name,
+             a.business_name,
+             u.name as owner_name,
+             CASE 
+               WHEN a.business_name IS NOT NULL AND a.business_name != '' AND u.name IS NOT NULL AND u.name != '' AND a.business_name != u.name
+                 THEN CONCAT(u.name, ' • ', a.business_name)
+               WHEN a.business_name IS NOT NULL AND a.business_name != ''
+                 THEN a.business_name
+               ELSE COALESCE(u.name, 'Master Artisan')
+             END as artisan_name,
+             a.location as artisan_location, a.profile_image as artisan_avatar,
              pc.total_cost as production_cost,
              pa.recommended_price, pa.market_min, pa.market_max
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN artisans a ON p.artisan_id = a.id
+      LEFT JOIN users u ON a.user_id = u.id
       LEFT JOIN product_costs pc ON p.id = pc.product_id
       LEFT JOIN pricing_analysis pa ON p.id = pa.product_id
       WHERE p.artisan_id = ?
@@ -224,6 +248,11 @@ export const getMyProducts = async (req: AuthRequest, res: Response): Promise<vo
       titleGujarati: r.name_gujarati,
       titleHindi: r.name_hindi,
       artisanId: r.artisan_id,
+      artisanName: r.artisan_name,
+      businessName: r.business_name || undefined,
+      ownerName: r.owner_name || undefined,
+      artisanAvatar: r.artisan_avatar,
+      artisanLocation: r.artisan_location,
       category: r.category_name,
       material: r.material,
       craftType: r.craft_type,
@@ -262,12 +291,22 @@ export const getProductById = async (req: Request, res: Response): Promise<void>
 
     const [rows]: any = await db.execute(
       `SELECT p.*, c.name as category_name, 
-              a.business_name as artisan_name, a.location as artisan_location, a.profile_image as artisan_avatar, a.bio as artisan_story, a.experience_years,
+              a.business_name,
+              u.name as owner_name,
+              CASE 
+                WHEN a.business_name IS NOT NULL AND a.business_name != '' AND u.name IS NOT NULL AND u.name != '' AND a.business_name != u.name
+                  THEN CONCAT(u.name, ' • ', a.business_name)
+                WHEN a.business_name IS NOT NULL AND a.business_name != ''
+                  THEN a.business_name
+                ELSE COALESCE(u.name, 'Master Artisan')
+              END as artisan_name,
+              a.location as artisan_location, a.profile_image as artisan_avatar, a.bio as artisan_story, a.experience_years,
               pc.raw_material_cost, pc.labour_cost, pc.packaging_cost, pc.other_cost, pc.total_cost as production_cost,
               pa.recommended_price, pa.market_min, pa.market_max, pa.confidence as pricing_confidence, pa.reasoning as pricing_reasoning
        FROM products p
        LEFT JOIN categories c ON p.category_id = c.id
        LEFT JOIN artisans a ON p.artisan_id = a.id
+       LEFT JOIN users u ON a.user_id = u.id
        LEFT JOIN product_costs pc ON p.id = pc.product_id
        LEFT JOIN pricing_analysis pa ON p.id = pa.product_id
        WHERE p.id = ?`,

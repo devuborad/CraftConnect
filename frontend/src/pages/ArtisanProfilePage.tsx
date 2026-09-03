@@ -202,7 +202,7 @@ export const ArtisanProfilePage: React.FC = () => {
 
     setIsUploadingImage(true);
     try {
-      const compressedData = await compressImage(file, 400, 400, 0.85);
+      const compressedData = await compressImage(file, 200, 200, 0.75);
 
       // Update local preview immediately
       setArtisan((prev) => (prev ? { ...prev, avatar: compressedData } : null));
@@ -216,7 +216,16 @@ export const ArtisanProfilePage: React.FC = () => {
 
       setIsUploadingImage(false);
       if (success) {
-        showToast('Profile Photo / Logo Updated!', 'Your picture is now live across your profile and studio.', 'success');
+        if (currentUser) {
+          productService.updateArtisanProducts(
+            currentUser.id,
+            currentUser.name,
+            currentUser.businessName,
+            compressedData,
+            currentUser.city
+          );
+        }
+        showToast('Profile Photo / Logo Updated!', 'Your picture is now live across your profile, studio, and products.', 'success');
       }
     } catch (err: any) {
       setIsUploadingImage(false);
@@ -270,16 +279,38 @@ export const ArtisanProfilePage: React.FC = () => {
 
     if (success) {
       handleCloseEditModal();
+      const updatedName = editName.trim();
+      const updatedBusiness = editBusinessName.trim() || undefined;
+      const updatedLocation = editLocation.trim() || undefined;
+
+      // Update all marketplace and studio products listed by this artisan immediately
+      if (currentUser) {
+        productService.updateArtisanProducts(
+          currentUser.id,
+          updatedName,
+          updatedBusiness,
+          editProfileImage || currentUser.avatar,
+          updatedLocation
+        );
+
+        // Refresh products list in state
+        productService.getMyProducts().then((prods) => {
+          if (prods && prods.length > 0) {
+            setProducts(prods);
+          }
+        });
+      }
+
       // Update local artisan preview state immediately
       setArtisan((prev) =>
         prev
           ? {
               ...prev,
-              name: editName.trim(),
-              businessName: editBusinessName.trim() || prev.businessName,
+              name: updatedName,
+              businessName: updatedBusiness || prev.businessName,
               craftType: editCraftType.trim() || prev.craftType,
               experienceYears: parseInt(editExperienceYears, 10) || prev.experienceYears,
-              location: editLocation.trim() || prev.location,
+              location: updatedLocation || prev.location,
               story: editBio.trim() || prev.story,
               phone: editPhone.trim() || prev.phone,
               avatar: editProfileImage || prev.avatar,
