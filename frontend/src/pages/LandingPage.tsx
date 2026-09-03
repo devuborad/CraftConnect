@@ -40,12 +40,12 @@ export const LandingPage: React.FC = () => {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover opacity-50"
+          className="w-full h-full object-cover opacity-75 sm:opacity-80 transition-opacity duration-700"
         >
           <source src="/hero-bg.mp4" type="video/mp4" />
         </video>
-        {/* Full Screen Vignette Overlays for Maximum Text Clarity */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/95 via-[#FAF7F2]/60 to-[#FAF7F2]/20" />
+        {/* Full Screen Vignette Overlays for Maximum Video Visibility with High Text Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FAF7F2]/80 via-[#FAF7F2]/40 to-[#FAF7F2]/10" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#FAF7F2]" />
       </div>
 
@@ -157,53 +157,6 @@ export const LandingPage: React.FC = () => {
               </div>
 
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* DUAL CONTINUOUS HORIZONTAL SALE TICKERS */}
-      <section className="relative overflow-hidden space-y-2.5 my-8 py-2">
-        {/* Track 1: Left to Right Marquee */}
-        <div className="bg-[#4A2E1B] text-amber-300 py-2.5 overflow-hidden shadow-md flex items-center border-y border-amber-500/20 transform -rotate-1 scale-105">
-          <div className="animate-marquee-ltr select-none flex items-center whitespace-nowrap">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span key={`ltr-1-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
-                <span className="text-amber-400">SALE</span>
-                <Sparkles className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
-                <span className="text-white">FESTIVE DISCOUNTS</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shrink-0" />
-              </span>
-            ))}
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span key={`ltr-2-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
-                <span className="text-amber-400">SALE</span>
-                <Sparkles className="w-3.5 h-3.5 text-[#C85A32] shrink-0" />
-                <span className="text-white">FESTIVE DISCOUNTS</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400/60 shrink-0" />
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Track 2: Right to Left Marquee */}
-        <div className="bg-[#C85A32] text-white py-2.5 overflow-hidden shadow-md flex items-center border-y border-orange-300/30 transform rotate-1 scale-105">
-          <div className="animate-marquee-rtl select-none flex items-center whitespace-nowrap">
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span key={`rtl-1-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
-                <span className="text-amber-200">SALE</span>
-                <span className="text-white font-black">•</span>
-                <span>LIMITED TIME ARTISAN OFFERS</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
-              </span>
-            ))}
-            {Array.from({ length: 16 }).map((_, i) => (
-              <span key={`rtl-2-${i}`} className="inline-flex items-center text-xs sm:text-sm font-extrabold tracking-widest uppercase mx-4 space-x-3">
-                <span className="text-amber-200">SALE</span>
-                <span className="text-white font-black">•</span>
-                <span>LIMITED TIME ARTISAN OFFERS</span>
-                <Sparkles className="w-3.5 h-3.5 text-amber-200 shrink-0" />
-              </span>
-            ))}
           </div>
         </div>
       </section>
