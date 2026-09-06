@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sparkles, Edit3, RefreshCw, ArrowRight, Globe, MessageSquareQuote } from 'lucide-react';
-import type { CatalogueResult } from '../../services/ai';
+import { aiService, type CatalogueResult } from '../../services/ai';
 
 interface AICatalogueCardProps {
   catalogue: CatalogueResult;
@@ -19,15 +19,47 @@ export const AICatalogueCard: React.FC<AICatalogueCardProps> = ({
   const [activeTab, setActiveTab] = useState<'en' | 'hi' | 'gu'>('en');
   const [editing, setEditing] = useState(false);
   const [useRawStory, setUseRawStory] = useState(false);
+  const [isPolishing, setIsPolishing] = useState(false);
+
+  const handlePolishWithAI = async () => {
+    setIsPolishing(true);
+    try {
+      const res = await aiService.generateMultilingualDescriptions({
+        title: catalogue.titleEn,
+        category: catalogue.category,
+        material: catalogue.material,
+        craftType: catalogue.craftType,
+        origin: catalogue.origin,
+        story: rawStoryText,
+      });
+      setCatalogue((prev) => ({
+        ...prev,
+        descriptionEn: res.descriptionEn,
+        descriptionHi: res.descriptionHi,
+        descriptionGu: res.descriptionGu,
+      }));
+    } catch (e) {
+      console.warn('Failed to polish descriptions with AI:', e);
+    } finally {
+      setIsPolishing(false);
+    }
+  };
 
   const toggleRawStory = (useRaw: boolean) => {
     setUseRawStory(useRaw);
     if (useRaw && rawStoryText) {
+      const guRegex = /[\u0A80-\u0AFF]/g;
+      const hiRegex = /[\u0900-\u097F]/g;
+      
+      const cleanEn = rawStoryText.replace(guRegex, '').replace(hiRegex, '').replace(/\s+/g, ' ').trim();
+      const cleanHi = rawStoryText.replace(guRegex, '').replace(/\s+/g, ' ').trim();
+      const cleanGu = rawStoryText.replace(hiRegex, '').replace(/\s+/g, ' ').trim();
+
       setCatalogue((prev) => ({
         ...prev,
-        descriptionEn: rawStoryText,
-        descriptionHi: rawStoryText,
-        descriptionGu: rawStoryText,
+        descriptionEn: cleanEn || rawStoryText,
+        descriptionHi: cleanHi || rawStoryText,
+        descriptionGu: cleanGu || rawStoryText,
       }));
     } else if (!useRaw) {
       setCatalogue(initialCatalogue);
@@ -153,27 +185,45 @@ export const AICatalogueCard: React.FC<AICatalogueCardProps> = ({
 
       {/* Title Edit */}
       <div>
-        <label className="block text-xs font-bold text-stone-700 mb-1">Product Title</label>
+        <div className="flex items-center justify-between mb-1">
+          <label className="block text-xs font-bold text-stone-700">
+            Product Title ({activeTab === 'gu' ? 'ગુજરાતી' : activeTab === 'hi' ? 'हिन्दी' : 'English'})
+          </label>
+        </div>
         {editing ? (
           <input
             type="text"
-            value={catalogue.titleEn}
-            onChange={(e) => setCatalogue({ ...catalogue, titleEn: e.target.value })}
+            value={activeTab === 'gu' ? (catalogue.titleGu || catalogue.titleEn) : activeTab === 'hi' ? (catalogue.titleHi || catalogue.titleEn) : catalogue.titleEn}
+            onChange={(e) => {
+              if (activeTab === 'gu') setCatalogue({ ...catalogue, titleGu: e.target.value });
+              else if (activeTab === 'hi') setCatalogue({ ...catalogue, titleHi: e.target.value });
+              else setCatalogue({ ...catalogue, titleEn: e.target.value });
+            }}
             className="w-full bg-stone-50 border border-stone-300 rounded-xl p-3 text-xs font-bold text-stone-900 focus:outline-none focus:ring-2 focus:ring-[#C85A32]"
           />
         ) : (
           <h4 className="font-display font-bold text-lg text-stone-900 bg-stone-50 p-3 rounded-xl border border-stone-200">
-            {catalogue.titleEn}
+            {activeTab === 'gu' ? (catalogue.titleGu || catalogue.titleEn) : activeTab === 'hi' ? (catalogue.titleHi || catalogue.titleEn) : catalogue.titleEn}
           </h4>
         )}
       </div>
 
       {/* Multilingual Description Tabs */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between border-b border-stone-200 pb-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 pb-2">
           <div className="flex items-center space-x-2">
             <Globe className="w-4 h-4 text-[#C85A32]" />
             <span className="text-xs font-bold text-stone-800">Multilingual Descriptions</span>
+            <button
+              type="button"
+              onClick={handlePolishWithAI}
+              disabled={isPolishing}
+              className="text-[11px] font-bold text-[#C85A32] bg-amber-50 hover:bg-amber-100 border border-amber-200 px-2.5 py-1 rounded-lg flex items-center space-x-1 transition-all disabled:opacity-50 shadow-sm ml-1"
+              title="Generate rich storytelling descriptions with Gemini AI"
+            >
+              <Sparkles className={`w-3 h-3 text-[#C85A32] ${isPolishing ? 'animate-spin' : ''}`} />
+              <span>{isPolishing ? 'Generating...' : 'Polish with AI'}</span>
+            </button>
           </div>
 
           <div className="flex items-center space-x-1">

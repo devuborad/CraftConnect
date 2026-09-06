@@ -9,10 +9,16 @@ export async function apiRequest<T>(
 ): Promise<{ success: boolean; data?: T; message?: string; error?: any }> {
   const token = localStorage.getItem('craftconnect_token');
 
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
+    ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
     ...(options.headers as Record<string, string>),
   };
+
+  if (isFormData && headers['Content-Type']) {
+    delete headers['Content-Type'];
+  }
 
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
@@ -76,8 +82,21 @@ export const api = {
 
   // AI & Pricing
   getPricingRecommendation: (costData: any) => apiRequest('/pricing/recommend', { method: 'POST', body: JSON.stringify(costData) }),
-  enhanceImage: (imageUrl: string) => apiRequest('/ai/image-enhance', { method: 'POST', body: JSON.stringify({ imageUrl }) }),
-  generateCatalogue: (voiceData: any) => apiRequest('/ai/catalog', { method: 'POST', body: JSON.stringify(voiceData) }),
+  generateProductPricing: (data: any) => apiRequest('/ai/pricing', { method: 'POST', body: JSON.stringify(data) }),
+  enhanceImage: (data: any) => {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      return apiRequest('/ai/image-enhance', { method: 'POST', body: data });
+    }
+    const payload = typeof data === 'string' ? { imageUrl: data } : data;
+    return apiRequest('/ai/image-enhance', { method: 'POST', body: JSON.stringify(payload) });
+  },
+  generateCatalogue: (data: any) => {
+    if (typeof FormData !== 'undefined' && data instanceof FormData) {
+      return apiRequest('/ai/catalog', { method: 'POST', body: data });
+    }
+    return apiRequest('/ai/catalog', { method: 'POST', body: JSON.stringify(data) });
+  },
+  generateDescriptions: (data: any) => apiRequest('/ai/descriptions', { method: 'POST', body: JSON.stringify(data) }),
   sendCraftMateMessage: (message: string) => apiRequest('/ai/chat', { method: 'POST', body: JSON.stringify({ message }) }),
 
   // Admin

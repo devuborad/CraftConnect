@@ -16,12 +16,23 @@ import aiRoutes from './routes/ai.routes.js';
 import adminRoutes from './routes/admin.routes.js';
 import buyerRoutes from './routes/buyer.routes.js';
 
+import path from 'path';
+import fs from 'fs';
+
+const uploadsDir = path.resolve(process.cwd(), 'uploads/products');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 export const app = express();
+
+// Serve local static uploaded product photos
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')));
 
 // Middleware
 app.use(
   cors({
-    origin: [ENV.FRONTEND_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    origin: true,
     credentials: true,
   })
 );

@@ -107,15 +107,17 @@ export const productService = {
     const allProducts = await productService.getProducts();
 
     const currentUserId = currentUser?.id || 'artisan-1';
+    const currentArtisanId = (currentUser as any)?.artisanId;
     const currentName = currentUser?.name?.toLowerCase().trim();
     const currentBusiness = currentUser?.businessName?.toLowerCase().trim();
 
     // STRICT FILTER: Only return products owned/created by THIS artisan
     return allProducts.filter((p) => {
       if (p.artisanId === currentUserId) return true;
+      if (currentArtisanId && p.artisanId === currentArtisanId) return true;
       if (currentName && p.artisanName?.toLowerCase().trim() === currentName) return true;
       if (currentBusiness && p.artisanName?.toLowerCase().trim() === currentBusiness) return true;
-      if ((currentUserId === 'user-artisan-1' || currentUserId === 'artisan-1' || currentUserId === 'usr-dev-artisan-001') && (p.artisanId === 'artisan-1' || p.artisanId === currentUserId)) return true;
+      if ((currentUserId === 'usr-prit-artisan' || currentUserId === 'user-artisan-1' || currentUserId === 'artisan-1' || currentUserId === 'usr-dev-artisan-001') && (p.artisanId === 'art-prit' || p.artisanId === 'art-1' || p.artisanId === 'art-devu' || p.artisanId === 'artisan-1' || p.artisanId === currentUserId)) return true;
       return false;
     });
   },
