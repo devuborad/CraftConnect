@@ -90,27 +90,36 @@ const DEFAULT_USERS: RegisteredUser[] = [
     createdAt: new Date().toISOString()
   },
   {
-    id: 'user-artisan-1',
-    name: 'Meena Ben Vankar',
-    email: 'meena@craftconnect.in',
-    phone: '9825012345',
+    id: 'usr-prit-artisan',
+    name: 'Prit Jasani (Artisan)',
+    email: 'pritjasani007@gmail.com',
+    phone: '+919876500007',
     password: 'password123',
     role: 'ARTISAN',
-    businessName: 'Kutch Weavers Heritage',
-    craftType: 'Handloom & Patola',
-    experienceYears: 18,
-    city: 'Bhuj, Gujarat',
+    businessName: 'Prit Jasani Craft Heritage Studio',
+    craftType: 'Handloom, Pottery & Handicrafts',
+    experienceYears: 10,
+    city: 'Gujarat',
     createdAt: new Date().toISOString()
   },
   {
-    id: 'user-buyer-1',
-    name: 'Anita Sharma',
-    email: 'anita@heritagecrafts.in',
-    phone: '9820011223',
+    id: 'usr-patel-buyer',
+    name: 'Patel DD (Buyer)',
+    email: 'pateldd2222@gmail.com',
+    phone: '+919876522222',
     password: 'password123',
     role: 'BUYER',
-    businessName: 'Heritage Craft Boutique',
-    city: 'Mumbai, Maharashtra',
+    businessName: 'Patel DD Heritage Collections',
+    city: 'Gujarat',
+    createdAt: new Date().toISOString()
+  },
+  {
+    id: 'usr-admin-dax',
+    name: 'Dax Koladiya (Admin)',
+    email: 'ticketfordax@gmail.com',
+    phone: '8141702217',
+    password: 'DAX!@#$%^&',
+    role: 'ADMIN',
     createdAt: new Date().toISOString()
   }
 ];

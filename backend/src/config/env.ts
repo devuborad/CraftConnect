@@ -30,8 +30,15 @@ export const ENV = {
   get GEMINI_API_KEY(): string {
     return process.env.GEMINI_API_KEY || '';
   },
+  get GEMINI_KEYS(): string[] {
+    const mainKey = (process.env.GEMINI_API_KEY || '').trim();
+    const rawList = (process.env.GEMINI_KEYS || '').split(',').map((k) => k.trim()).filter(Boolean);
+    const combined = [mainKey, ...rawList].filter(Boolean);
+    const unique = combined.filter((v, i, a) => a.indexOf(v) === i);
+    return unique;
+  },
   get GEMINI_MODEL(): string {
-    return process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+    return process.env.GEMINI_MODEL || 'gemini-3.6-flash';
   },
   get GEMINI_IMAGE_MODEL(): string {
     return process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';

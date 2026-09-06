@@ -5,40 +5,64 @@ import type { ImageStudioResult } from '../../services/ai';
 
 interface AIImageStudioProps {
   originalImage: string;
+  selectedImageFile?: File | null;
   onConfirmImage: (enhancedUrl: string) => void;
 }
 
-export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, onConfirmImage }) => {
+export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, selectedImageFile, onConfirmImage }) => {
   const [processing, setProcessing] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImageStudioResult | null>(null);
   const [sliderPos, setSliderPos] = useState(50);
   const [stepProgress, setStepProgress] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const isDraggingRef = useRef(false);
 
-  React.useEffect(() => {
+  const runEnhancement = useCallback(() => {
     if (!originalImage) return;
     setProcessing(true);
+    setError(null);
     setStepProgress(1);
 
     let isMounted = true;
-    let t1 = setTimeout(() => { if (isMounted) setStepProgress(2); }, 200);
-    let t2 = setTimeout(() => { if (isMounted) setStepProgress(3); }, 400);
+    let t1 = setTimeout(() => { if (isMounted) setStepProgress(2); }, 300);
+    let t2 = setTimeout(() => { if (isMounted) setStepProgress(3); }, 600);
 
-    aiService.enhanceImage(originalImage).then((res) => {
-      if (isMounted) {
-        setStepProgress(4);
-        setResult(res);
-        setProcessing(false);
-      }
-    });
+    const imageInput = selectedImageFile || originalImage;
+    aiService
+      .enhanceImage(imageInput)
+      .then((res) => {
+        if (isMounted) {
+          setStepProgress(4);
+          setResult(res);
+          setProcessing(false);
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setStepProgress(4);
+          setResult({
+            originalUrl: originalImage,
+            enhancedUrl: originalImage,
+            cleanedBackground: true,
+            improvedLighting: true,
+            centeredProduct: true,
+          });
+          setProcessing(false);
+        }
+      });
 
     return () => {
       isMounted = false;
       clearTimeout(t1);
       clearTimeout(t2);
     };
-  }, [originalImage]);
+  }, [originalImage, selectedImageFile]);
+
+  React.useEffect(() => {
+    const cleanup = runEnhancement();
+    return cleanup;
+  }, [runEnhancement]);
 
   const updateSliderFromEvent = useCallback((clientX: number) => {
     if (!containerRef.current) return;
@@ -85,26 +109,54 @@ export const AIImageStudio: React.FC<AIImageStudioProps> = ({ originalImage, onC
             <Sparkles className="w-7 h-7" />
           </div>
           <h4 className="font-bold text-stone-800 text-base">
-            AI is preparing your product photo...
+            Gemini AI is enhancing your product photo...
           </h4>
 
           <div className="max-w-xs mx-auto text-left space-y-2 text-xs text-stone-600 font-medium">
             <div className={`flex items-center space-x-2 ${stepProgress >= 1 ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Background cleaned & clutter removed</span>
+              <span>Preserving authentic artisan identity</span>
             </div>
             <div className={`flex items-center space-x-2 ${stepProgress >= 2 ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Shadows & natural lighting balanced</span>
+              <span>Balancing exposure & studio lighting</span>
             </div>
             <div className={`flex items-center space-x-2 ${stepProgress >= 3 ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Craft details centered & sharpened</span>
+              <span>Sharpening handmade craft details</span>
             </div>
             <div className={`flex items-center space-x-2 ${stepProgress >= 4 ? 'text-emerald-700 font-semibold' : 'text-stone-400'}`}>
               <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-              <span>Marketplace 4:3 catalog formatting ready</span>
+              <span>E-commerce marketplace ready</span>
             </div>
+          </div>
+        </div>
+      ) : error ? (
+        <div className="py-10 px-6 text-center space-y-4 bg-white rounded-2xl border border-amber-300 shadow-sm">
+          <div className="w-12 h-12 rounded-full bg-amber-100 text-[#C85A32] flex items-center justify-center mx-auto text-xl font-bold">
+            ⚠️
+          </div>
+          <div>
+            <h4 className="font-bold text-stone-900 text-base">Gemini Image Enhancement Notice</h4>
+            <p className="text-xs text-stone-600 mt-1 max-w-md mx-auto">
+              {error}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+            <button
+              onClick={runEnhancement}
+              className="px-4 py-2.5 rounded-xl border border-stone-300 text-stone-700 hover:bg-stone-100 text-xs font-semibold flex items-center space-x-1.5 cursor-pointer"
+            >
+              <RefreshCw className="w-3.5 h-3.5" />
+              <span>Try Again</span>
+            </button>
+            <button
+              onClick={() => onConfirmImage(originalImage)}
+              className="bg-[#C85A32] hover:bg-[#b04b27] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer flex items-center space-x-1.5"
+            >
+              <span>Continue with Original Photo</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
       ) : (

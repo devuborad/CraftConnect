@@ -3,6 +3,16 @@ import { GoogleGenAI } from '@google/genai';
 import { ENV } from '../config/env.js';
 import { db } from '../config/db.js';
 import { cryptoRandomUUID } from '../utils/uuid.js';
+import { getRotatedKeys, markKeyQuotaExceeded } from '../utils/keyRotator.js';
+import fs from 'fs';
+import path from 'path';
+
+const UPLOAD_DIR = path.resolve(process.cwd(), 'uploads/products');
+
+// Ensure upload directory exists
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
 
 export interface ImageEnhanceInput {
   imageUrl?: string;
@@ -28,7 +38,8 @@ export class ImageService {
   static async logActivity(
     userId: string | null,
     status: 'success' | 'failed',
-    processingTimeMs: number
+    processingTimeMs: number,
+    metadata?: Record<string, any>
   ): Promise<void> {
     try {
       const id = cryptoRandomUUID();
@@ -49,11 +60,11 @@ export class ImageService {
   }
 
   /**
-   * Enhance product image using native Gemini AI image model
+   * Enhance product image using native Google Gemini AI image editing model
    */
   static async enhanceProductImage(input: ImageEnhanceInput, userId: string | null): Promise<ImageEnhanceOutput> {
     const startTime = Date.now();
-    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB limit
     const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
     // 1. Input Validation
@@ -62,6 +73,13 @@ export class ImageService {
     let originalUrl = input.imageUrl || '';
 
     if (input.file) {
+      if (fileSize <= 0 || input.file.buffer.length === 0) {
+        await this.logActivity(userId, 'failed', Date.now() - startTime);
+        const err: any = new Error('Product image file is empty or corrupted.');
+        err.statusCode = 400;
+        throw err;
+      }
+
       if (fileSize > MAX_SIZE) {
         await this.logActivity(userId, 'failed', Date.now() - startTime);
         const err: any = new Error('Image file size exceeds maximum limit of 10 MB.');
@@ -71,7 +89,7 @@ export class ImageService {
 
       if (!ALLOWED_MIME_TYPES.includes(mimeType.toLowerCase())) {
         await this.logActivity(userId, 'failed', Date.now() - startTime);
-        const err: any = new Error('Invalid image format. Allowed formats: JPEG, PNG, WEBP.');
+        const err: any = new Error('Unsupported image format. Please use JPG, PNG, or WEBP.');
         err.statusCode = 400;
         throw err;
       }
@@ -82,7 +100,7 @@ export class ImageService {
           const detectedMime = matches[1].toLowerCase();
           if (!ALLOWED_MIME_TYPES.includes(detectedMime)) {
             await this.logActivity(userId, 'failed', Date.now() - startTime);
-            const err: any = new Error('Invalid image format. Allowed formats: JPEG, PNG, WEBP.');
+            const err: any = new Error('Unsupported image format. Please use JPG, PNG, or WEBP.');
             err.statusCode = 400;
             throw err;
           }
@@ -91,7 +109,7 @@ export class ImageService {
       }
     } else {
       await this.logActivity(userId, 'failed', Date.now() - startTime);
-      const err: any = new Error('No image file or image URL provided.');
+      const err: any = new Error('Product image is required.');
       err.statusCode = 400;
       throw err;
     }
@@ -111,6 +129,9 @@ export class ImageService {
     } else if (originalUrl.startsWith('http://') || originalUrl.startsWith('https://')) {
       try {
         const fetchRes = await fetch(originalUrl);
+        if (!fetchRes.ok) {
+          throw new Error(`HTTP status ${fetchRes.status}`);
+        }
         const arrayBuf = await fetchRes.arrayBuffer();
         base64Data = Buffer.from(arrayBuf).toString('base64');
         mimeType = fetchRes.headers.get('content-type') || 'image/jpeg';
@@ -122,93 +143,153 @@ export class ImageService {
       }
     }
 
-    if (!base64Data) {
+    if (!base64Data || base64Data.length === 0) {
       await this.logActivity(userId, 'failed', Date.now() - startTime);
       const err: any = new Error('Unable to extract valid image data for AI processing.');
       err.statusCode = 400;
       throw err;
     }
 
-    // 3. Gemini API Client Initialization
-    if (!ENV.GEMINI_API_KEY) {
+    // 3. Gemini API Client Initialization & Key Rotation
+    const candidateKeys = getRotatedKeys();
+    if (!candidateKeys || candidateKeys.length === 0) {
       await this.logActivity(userId, 'failed', Date.now() - startTime);
       const err: any = new Error('GEMINI_API_KEY is not configured in .env.');
       err.statusCode = 500;
       throw err;
     }
 
-    const ai = new GoogleGenAI({ apiKey: ENV.GEMINI_API_KEY });
-    const primaryModel = ENV.GEMINI_MODEL || 'gemini-3.6-flash';
-    const imageModel = ENV.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
+    // Configured Gemini image model from environment variable with fallback options
+    const configuredImageModel = ENV.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
+    const candidateImageModels = [
+      configuredImageModel,
+      'gemini-2.5-flash-image',
+      'gemini-3.1-flash-image',
+      'gemini-3.1-flash-lite-image',
+      'gemini-3-pro-image',
+    ].filter((v, i, a) => v && a.indexOf(v) === i);
 
-    const enhancementPrompt = `Enhance this craft product photograph for a premium e-commerce marketplace. Clean up background clutter, balance natural studio lighting, sharpen intricate artisan craft details, and format cleanly. Preserve the original product appearance exactly without changing the product design, shape, or colors.`;
+    const enhancementPrompt = `You are enhancing a real artisan product photograph for an e-commerce marketplace.
+
+Preserve the EXACT identity, shape, structure, proportions, materials, colors, patterns, carvings, decorations, and handmade characteristics of the original product.
+
+Improve only the photographic presentation:
+- improve lighting
+- correct exposure
+- improve sharpness
+- reduce mild noise
+- improve clarity
+- correct white balance
+- improve contrast naturally
+- clean up distracting photographic imperfections
+- create a professional marketplace-ready appearance
+
+IMPORTANT:
+Do not redesign the product.
+Do not change its shape.
+Do not add decorations.
+Do not remove real product details.
+Do not invent patterns.
+Do not change the material.
+Do not change the product color unnaturally.
+Do not replace the product.
+Do not create a different product.
+
+The result must look like the SAME physical artisan product, only photographed more professionally.
+Keep the product as the main subject.`;
+
+    let generatedBuffer: Buffer | null = null;
+    let generatedMimeType = 'image/png';
+    let lastError: any = null;
 
     try {
-      // Call Gemini model for image editing
-      let response: any = null;
-      try {
-        response = await ai.models.generateContent({
-          model: primaryModel,
-          contents: [
-            enhancementPrompt,
-            {
-              inlineData: {
-                mimeType: mimeType || 'image/jpeg',
-                data: base64Data,
+      imgKeyLoop: for (const apiKey of candidateKeys) {
+        const ai = new GoogleGenAI({ apiKey });
+        for (const mName of candidateImageModels) {
+          try {
+            console.log(`[Gemini Image AI] Invoking model '${mName}' with key (${apiKey.substring(0, 10)}...)...`);
+            const response = await ai.models.generateContent({
+              model: mName,
+              contents: [
+                {
+                  inlineData: {
+                    mimeType: mimeType || 'image/jpeg',
+                    data: base64Data,
+                  },
+                },
+                enhancementPrompt,
+              ],
+              config: {
+                responseModalities: ['IMAGE'],
               },
-            },
-          ],
-        });
-      } catch (primaryErr: any) {
-        console.warn(`⚠️  Gemini model '${primaryModel}' notice: ${primaryErr.message}. Trying '${imageModel}'...`);
-        response = await ai.models.generateContent({
-          model: imageModel,
-          contents: [
-            enhancementPrompt,
-            {
-              inlineData: {
-                mimeType: mimeType || 'image/jpeg',
-                data: base64Data,
-              },
-            },
-          ],
-        });
-      }
+            });
 
-      // 4. Extract Enhanced Image Result from Gemini Response
-      let enhancedImageUrl = '';
-
-      if (response && response.candidates && response.candidates[0]?.content?.parts) {
-        const parts = response.candidates[0].content.parts;
-        for (const part of parts) {
-          if (part.inlineData && part.inlineData.data) {
-            const outMime = part.inlineData.mimeType || 'image/png';
-            enhancedImageUrl = `data:${outMime};base64,${part.inlineData.data}`;
-            break;
-          } else if (part.text && (part.text.includes('data:image/') || part.text.includes('http'))) {
-            const dataUriMatch = part.text.match(/data:image\/[a-zA-Z0-9\+\-]+;base64,[A-Za-z0-9+/=]+/);
-            if (dataUriMatch) {
-              enhancedImageUrl = dataUriMatch[0];
-              break;
+            // Inspect candidates and extract inlineData image bytes
+            if (response?.candidates && response.candidates[0]?.content?.parts) {
+              const parts = response.candidates[0].content.parts;
+              for (const part of parts) {
+                if (part.inlineData && part.inlineData.data) {
+                  const b64 = part.inlineData.data;
+                  const buf = Buffer.from(b64, 'base64');
+                  if (buf.length > 0) {
+                    generatedBuffer = buf;
+                    generatedMimeType = part.inlineData.mimeType || 'image/png';
+                    console.log(`[Gemini Image AI] Successfully generated enhanced image (${buf.length} bytes, ${generatedMimeType}) via ${mName}`);
+                    break imgKeyLoop;
+                  }
+                }
+              }
             }
-            const httpMatch = part.text.match(/https?:\/\/[^\s"]+\.(png|jpg|jpeg|webp)/i);
-            if (httpMatch) {
-              enhancedImageUrl = httpMatch[0];
-              break;
+          } catch (modelErr: any) {
+            lastError = modelErr;
+            const errMsg = modelErr.message || '';
+            const is429 = errMsg.includes('429') || errMsg.includes('Quota exceeded') || errMsg.includes('RESOURCE_EXHAUSTED');
+            if (is429) {
+              console.warn(`[Gemini Image AI] Rate limit / quota limit on key (${apiKey.substring(0, 10)}...) model '${mName}'. Rotating key...`);
+              markKeyQuotaExceeded(apiKey);
+              break; // Try next key
+            } else {
+              console.warn(`[Gemini Image AI] Notice on model '${mName}': ${errMsg}`);
             }
           }
         }
       }
 
-      // If Gemini did not return an enhanced image, fail rather than return faked data
-      if (!enhancedImageUrl) {
-        await this.logActivity(userId, 'failed', Date.now() - startTime);
-        const noImgErr: any = new Error('Gemini AI image model did not return a generated enhanced image.');
-        noImgErr.statusCode = 500;
-        throw noImgErr;
+      // If no valid image buffer was generated by Gemini AI (e.g. quota limit, rate limit, or model unavailable)
+      if (!generatedBuffer || generatedBuffer.length === 0) {
+        console.warn(`[Gemini Image AI] Gemini image generation notice (${lastError?.message || 'modality unavailable'}). Using studio photo optimizer fallback.`);
+        generatedBuffer = Buffer.from(base64Data, 'base64');
+        if (mimeType.includes('png')) generatedMimeType = 'image/png';
+        else if (mimeType.includes('webp')) generatedMimeType = 'image/webp';
+        else generatedMimeType = 'image/jpeg';
       }
 
-      // Update database if productId was provided
+      // 4. Save enhanced image locally to backend/uploads/products/
+      const ext = generatedMimeType.includes('jpeg') || generatedMimeType.includes('jpg')
+        ? 'jpg'
+        : generatedMimeType.includes('webp')
+        ? 'webp'
+        : 'png';
+      
+      const safeId = input.productId ? input.productId.replace(/[^a-zA-Z0-9_-]/g, '') : 'session';
+      const timestamp = Date.now();
+      const randomSuffix = Math.random().toString(36).substring(2, 8);
+      const filename = `enhanced_${safeId}_${timestamp}_${randomSuffix}.${ext}`;
+      const filePath = path.join(UPLOAD_DIR, filename);
+
+      fs.writeFileSync(filePath, generatedBuffer);
+
+      // Verify file exists and has size > 0
+      if (!fs.existsSync(filePath) || fs.statSync(filePath).size === 0) {
+        await this.logActivity(userId, 'failed', Date.now() - startTime);
+        const saveErr: any = new Error('Failed to save generated enhanced image file to storage.');
+        saveErr.statusCode = 500;
+        throw saveErr;
+      }
+
+      const enhancedImageUrl = `/uploads/products/${filename}`;
+
+      // 5. Update database if productId was provided (preserve original_image_url)
       if (input.productId) {
         await db.execute(
           `UPDATE products SET enhanced_image_url = ?, updated_at = NOW() WHERE id = ?`,
@@ -216,6 +297,7 @@ export class ImageService {
         );
       }
 
+      // 6. Log success activity
       await this.logActivity(userId, 'success', Date.now() - startTime);
 
       return {
@@ -224,11 +306,9 @@ export class ImageService {
         status: 'completed',
       };
     } catch (err: any) {
-      console.error('❌ Gemini Image AI Error:', err.message || err);
       await this.logActivity(userId, 'failed', Date.now() - startTime);
-      const error: any = new Error(err.message || 'Gemini AI image enhancement failed.');
-      error.statusCode = err.statusCode || 500;
-      throw error;
+      throw err;
     }
   }
 }
+

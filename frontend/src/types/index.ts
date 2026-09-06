@@ -61,6 +61,10 @@ export interface Product {
   stock: number;
   productionCost?: number;
   recommendedPrice?: number;
+  b2bPrice?: number;
+  minimumPrice?: number;
+  bulkPricing?: { minQuantity: number; maxQuantity: number | null; pricePerUnit: number }[];
+  pricingFactors?: string[];
   marketRange?: { min: number; max: number };
   pricingConfidence?: number;
   createdAt: string;
